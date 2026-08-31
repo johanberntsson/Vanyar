@@ -87,4 +87,4 @@ release: z5-release
 	frotz -d vanyar.z5
 
 clean:
-	rm -rf vanyar.z5 vanyar.z6 vanyar.blb vanyar.scr vanyar.cur pics *.d81 x16_vanyar* *qzl  sounds/*small.wav
+	rm -rf vanyar.z5 vanyar.z6 vanyar.blb vanyar.scr vanyar.cur pics *.d64 *.d81 x16_vanyar* *qzl
