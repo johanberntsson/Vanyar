@@ -1,0 +1,20 @@
+# Wyrmward's pictures, for the Ozmoo z6 build.
+#
+# Read by make_blorb.py: "python make_blorb.py resources" writes vanyar.blb
+# and the converted PNGs in pics/. The numbers match the old drakmagi.bli, so
+# the game's @draw_picture calls are unchanged.
+#
+# Source images are found beside this file (srcdir defaults to the folder
+# holding it); override with a "srcdir:" line if they live elsewhere.
+
+blorb:  vanyar.blb
+outdir: pics
+
+# id and file are mandatory; name, location, width and height are optional.
+# width/height cap a single picture (preserving aspect ratio); omit them for
+# the full 320x200 v6 screen. Inline room pictures stay short to leave room
+# for text and the [More] prompt; the title fills the screen.
+pictures:
+  - id: 1
+    file: pic01.png
+
