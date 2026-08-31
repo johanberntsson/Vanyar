@@ -1,2587 +1,2332 @@
-! (c) 2003 Johan Berntsson, johan@microheaven.com
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $LONG_DICT_FLAG_BUG=0
+!% $ZCODE_COMPACT_GLOBALS=1
+!
+! Vanyar
+!
+! (c) 1986, 2003, 2026 Johan Berntsson, johan@microheaven.com
 !
 ! You may use this code for reference and copy parts of the code
 ! into your own game, but please don't make new versions of *this*
 ! game without my permission.
 !
-! Vanyar 2003. The updated version of Vanyar
-! Major improvements:
-! * Logical and simplified map
-! * More and better descriptions of rooms and objects
-! * No maze!
-! * End scene moved to harbour
-! * no sudden death
-! * Only the broad sword will damage the dragon
-!
 ! HISTORY:
-! 030513: First lines of code written, all descriptions and graphics
-!         from the C64 version inserted.
-! 030526: All code ported.
-! 030527: Begun coding the new version (Vanyar 2003)
-! 030603: Vanyar2003 finished.
 !
-! BUGS: It's not a bug, it's a feature!
-! 030602: window not correct size after leaving "help". Update bug in wglulxe?
+! 1986:   Written in 800 lines of compact BASIC for the Commodore 64.
+!         Design by Johan Berntsson and Mattias Geisler, code by
+!         Johan Berntsson. The pictures were added in early 1987.
+! 030513: First lines of the Inform version written, all descriptions
+!         and graphics from the C64 version inserted.
+! 030526: All code ported.
+! 030527: Begun coding the new version (Vanyar 2003). Major improvements:
+!         a logical and simplified map, more and better descriptions of
+!         rooms and objects, no maze, the end scene moved to the harbour,
+!         no sudden death, and only the broad sword will damage the dragon.
+! 030603: Vanyar 2003 finished.
+!
+! 260831: Translated to English and ported from the Inform 6 standard
+!         library (with the Swedish language pack) to PunyInform. The
+!         text follows the 2003 Swedish version closely rather than
+!         expanding on it.
 
-Include "SweAlpha";
+Constant STATUSLINE_SCORE; Statusline score;
 
-Constant Story "Vanyar";
-Constant Headline "^(c) 2003, 1986 Johan Berntsson. Skriv ~hjälp~ eller ~h~ för instruktioner.^";
-Constant MAX_SCORE 100;
-!Constant SACK_OBJECT backpack;
+Constant OPTIONAL_FULL_DIRECTIONS;
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant OPTIONAL_PROVIDE_UNDO;
+Constant DEATH_MENTION_UNDO;
+
+Constant MAX_SCORE = 100;
 Constant AMUSING_PROVIDED;
-[ Amusing; HelpSub(); ];
 
+Constant INITIAL_LOCATION_VALUE = R1;
+Constant CUSTOM_PLAYER_OBJECT   = VanyarPlayer;
+
+Include "globals.h";
+
+! A second general purpose flag, used for "you have been warned once"
+! situations and to mark the wandering monsters that are conjured up
+! rather than being real characters.
 Attribute generic;
 
-Replace PrintRank;
-Replace TellSub;
-Replace AskSub;
+! Common properties used all over the game.
+Property desc;      ! The room description proper; Room.description adds exits
+Property damage;    ! How much harm a weapon does in a fight
+Property strength;  ! Hit points, for the player and for every creature
+Property skill;     ! How good a fighter someone is
 
-Include "Parser";
-
-!
-! Support routines for Glulx graphics
-!
-#ifdef TARGET_GLULX;
-Include "Infglk";
-
-Include ">vanyar.bli";
-
-Global imageok;
-Global gg_picwin;
-Global gg_dirwin;
-Global curr_pic = 0;
-Global curr_dir = 0;
-
-Constant GG_PICWIN_ROCK 210;
-Constant GG_DIRWIN_ROCK 211;
-
-[ HandleGlkEvent ev;
-  switch(ev-->0) {
-  evtype_Redraw:
-	glk_window_clear(gg_picwin);
-	glk_window_clear(gg_dirwin);
-	if(curr_pic>0) DrawPic(curr_pic, curr_dir);
-  evtype_Arrange:
-	glk_window_clear(gg_picwin);
-	glk_window_clear(gg_dirwin);
-	if(curr_pic>0) DrawPic(curr_pic, curr_dir);
-  }
-];
-
-[ IdentifyGlkObject phase type ref rock;
-  if(phase==0) { ! Zero out references to our objects.
-	gg_picwin = 0;
-	gg_dirwin = 0;
-	return;
-  }
-
-  if(phase==1) { ! Reset our windows, streams and filerefs.
-    switch (type) {
-    0: ! it's a window
-      switch (rock) {
-      GG_PICWIN_ROCK: gg_picwin=ref;
-      GG_DIRWIN_ROCK: gg_dirwin=ref;
-      }
-    1: ! it's a stream
-    2: ! it's a fileref
-    }
-    return;
-  }
-
-  if (phase == 2) {
-	if(curr_pic>0) DrawPic(curr_pic, curr_dir);
-  }
-];
-   
-[ DrawPic pic dir  w h pw ph dw dh ww;  
-  if(imageok) {
-    glk_window_get_size(gg_picwin, gg_arguments, gg_arguments+4);
-    w=gg_arguments-->0;
-    h=gg_arguments-->1;
-    pw=224;
-    ph=72;
-    dw=pw/10;
-    dh=ph/10;
-    
-    if(w<=pw || h<=ph) {
-      ! picture bigger than window, scale down
-      while(w<=pw || h<=ph) {
-        ! make smaller until the picture fits into the window
-        pw=pw-dw;
-        ph=ph-dh;
-      }
-    } else {
-      ! picture smaller than window, scale up
-      while((pw+dw)<w && (ph+dh)<h) {
-        ! make bigger until the picture fits into the window
-        pw=pw+dw;
-        ph=ph+dh;
-      }
-    }
-    dw=(w-pw)/2;
-    dh=(h-ph)/2;
-    glk_image_draw_scaled(gg_picwin, pic, dw, dh, pw, ph);
-    
-    glk_set_window(gg_dirwin);
-    glk_window_get_size(gg_dirwin, gg_arguments, gg_arguments+4);
-    w=gg_arguments-->0;
-    if(dir==n_obj or w_obj) ww=(w-32)/2;
-    else if(dir==s_obj or e_obj) ww=(w-31)/2;
-    else ww=(w-30)/2;
-    if(ww<0) ww=0;
-    glk_window_move_cursor(gg_dirwin, ww, 0);    
-    print "Detta ser du i ";
-    switch(dir) {
-      n_obj: print "nordlig";
-      s_obj: print "sydlig";
-      e_obj: print "östlig";
-      w_obj: print "västlig";
-      default: print "någon";
-    }
-    print " riktning.";
-    curr_pic=pic;
-    curr_dir=dir;
-    glk_set_window(gg_mainwin);
-  }
-];
-
-[ ShowGraphics mode warn; ! show if mode==true, otherwise hide
-  if(glk_gestalt(gestalt_Graphics, 0)==0) {
-     imageok=false;
-     if(warn) {
-       print "[Tyvärr kan inte din interpretator hantera grafik, så inga bilder kan visas]^^";
-     }
-     rfalse;
-  }
-  
-  if(mode) {
-    if(imageok==true) rfalse;  
-    imageok=true;
-    if(gg_picwin==0) gg_picwin=glk_window_open(gg_mainwin, (winmethod_Above+winmethod_Proportional), 40, wintype_Graphics, GG_PICWIN_ROCK);
-	if(gg_dirwin==0) gg_dirwin=glk_window_open(gg_mainwin, (winmethod_Above+winmethod_Fixed), 1, wintype_TextGrid, GG_DIRWIN_ROCK);
-    if(curr_pic>0) DrawPic(curr_pic, curr_dir);
-  } else {
-    if(imageok==false) rfalse;  
-    imageok=false;
-    glk_window_close(gg_picwin);
-    glk_window_close(gg_dirwin);
-    gg_picwin=0;
-    gg_dirwin=0;
-  }
-];
-#endif;
-
-#ifndef TARGET_GLULX;
-! need to add dummies to be able to compile in z-code mode
-Include ">vanyar.bli";
-#endif;
-
-Include "VerbLib";
-Include "SweRout";
-Include "SwedishG";
-
-#IFDEF DEBUG;
-  Message "DEBUG mode DEBUG mode DEBUG mode DEBUG mode DEBUG mode DEBUG mode !";
-#ENDIF;
-
-! -------- New grammar -------------------
-
-Verb 'hjälp' 'h//' * -> Help;
-
-Verb 'ro'
-  * -> Row
-  * noun -> Row;
-[ RowSub;
-  if(player in Boat) <<Row Boat>>;
-  if(noun==0) "Jag antar att du menar ~ro något~, men vad?";
-  print_ret "Du kan inte ro ", (the) noun, "."; 
-];
-
-Verb 'hugg'
-  * noun 'med' held -> CutWith;
-[ CutWithSub;
-  print_ret "En sådan pryl kan jag inte hugga."; 
-];
-
-Extend 'döda' last
-  * noun 'med' held -> Attack;
-
-Extend 'klättra' last
-  * 'i' noun        -> Climb
-  * noun            -> Climb;
-  
-Extend 'ät' first
-  * noun -> Eat;
-
-Verb meta 'utgångar' 'riktningar'
-  * -> Exits;
-    
-Verb 'släck'
-  * held -> Extinguish;
-[ ExtinguishSub;
-  print_ret "Du kan inte släcka något som inte brinner."; 
-];
-
-[ AskSub; TellSub(); ];
-
-[ TellSub;
-  "I detta spel kan du bara kommunicera med dina medspelare med order,
-  som t.ex. ~Angrist, ge mig svärdet~.";
-];
-
-[ ExitsSub msg i x y n;
-  if(msg==0) msg="Du kan gå ";
-
-  n=0;
-  objectloop(x in Compass) {
-    y=x.door_dir;
-    if(location.y && metaclass(location.y)~=String) n=n+1;
-  }
-      
-  if(n>0) {
-    print (string) msg;
-    i=0;
-    objectloop(x in Compass) {
-      y=x.door_dir;
-      if(location.y && metaclass(location.y)~=String) {
-        LanguageDirection(y);
-        i=i+1;
-        if(i==n-1) print " och ";
-        else if(i<n) print ", ";
-      }
-    }
-    print ".^";
-  }
-];
-
-! -------- Routines -------------------
-
-[ PressAnyKey msg pkey;
-  if(msg) print (string) msg;
-#ifdef TARGET_ZCODE;
-  @read_char 1 0 0 pkey;
-#ifnot;
-  pkey=KeyCharPrimitive();
-#endif;
-  return pkey;
-];
+! Properties which only a handful of objects have, so they are kept out of
+! the (limited) set of common properties.
+Property individual add_score;
+Property individual counter;
+Property individual nutrition;
+Property individual portions;
+Property individual leftover;
+Property individual finish_message;
+Property individual consume_message;
+Property individual move_probability;
+Property individual leave_probability;
+Property individual wait_probability;
+Property individual attack_probability;
+Property individual kill_score;
+Property individual armour_score;
+Property individual introduced;
+Property individual introduction;
+Property individual live_description;
+Property individual dead_description;
+Property individual enter_message;
+Property individual wait_message;
+Property individual loc1;
+Property individual loc2;
+Property individual describe_carried;
+Property individual kill_me;
+Property individual attack;
+Property individual order_go;
+Property individual order_give;
+Property individual order_drop;
+Property individual order_take;
+Property individual get_weapon;
 
 [ PrintRank;
-  print ", och du har ", (number) player.strength, " styrkepoäng. Det gör dig till ";
-  if (score>=95) "en hjälte.";
-  if (score>=80) "en krigare.";
-  if (score>=60) "ett halvproffs.";
-  if (score>=30) "en amatör.";
-  "en nybörjare.";
+	print ", and you have ", (number) player.strength, " strength points.
+		That makes you ";
+	if (score >= 95) "a hero.";
+	if (score >= 80) "a warrior.";
+	if (score >= 60) "a seasoned adventurer.";
+	if (score >= 30) "an amateur.";
+	"a beginner.";
 ];
 
-[ Darkness_description;
-#ifdef TARGET_GLULX;
-!  print "Ritar mork bild^";
-  glk_window_clear(gg_picwin);
-  glk_window_clear(gg_dirwin);
-#endif;
-  "Det är kolsvart, och du kan inte se någonting alls.";
+! PunyInform tests for these entry point routines with #Ifdef while it is being
+! included, so they have to exist by then. The real work is done further down,
+! where the actions and the objects they talk about are known.
+[ GamePreRoutine; return TurnBefore(); ];
+[ TimePasses; TurnAfter(); ];
+[ Amusing; HelpSub(); ];
+
+Include "ext_menu.h";
+
+Include "puny.h";
+
+! ----------------------------------------------------------------------------
+!   New grammar
+! ----------------------------------------------------------------------------
+
+Verb meta 'help' 'h//'
+	*                                           -> Help;
+
+Verb 'row'
+	*                                           -> Row
+	* noun                                      -> Row;
+
+Verb 'extinguish' 'douse' 'quench'
+	* noun                                      -> Extinguish;
+
+Verb meta 'exits' 'directions'
+	*                                           -> Exits;
+
+Extend 'eat' first
+	* noun                                      -> Eat;
+
+! "say algeothel" with no listener named
+Extend 'answer' last
+	* topic                                     -> Answer;
+
+Extend 'climb' last
+	* 'in' noun                                 -> Climb;
+
+Extend 'tie' replace
+	* noun                                      -> Tie
+	* noun 'to'/'on'/'onto' noun                -> ThrowAt;
+
+[ RowSub;
+	if(player in Boat) <<Row Boat>>;
+	if(noun == 0) "I take it you mean ~row something~, but what?";
+	print_ret "You can't row ", (the) noun, ".";
+];
+
+[ ExtinguishSub;
+	"You can't put out something that isn't burning.";
+];
+
+! ----------------------------------------------------------------------------
+!   Support routines
+! ----------------------------------------------------------------------------
+
+! List the exits from a room. Only strings are left out - a string in a
+! direction property is a refusal, not a way out.
+[ ListExits p_room p_msg _i _prop _v _n _c;
+	for(_i = 1 : _i <= DIRECTION_COUNT : _i++) {
+		_prop = direction_properties_array->_i;
+		@get_prop p_room _prop -> _v;
+		if(_v ~= 0 && (_v ofclass String) == false) _n++;
+	}
+	if(_n == 0) rfalse;
+	print (string) p_msg;
+	for(_i = 1 : _i <= DIRECTION_COUNT : _i++) {
+		_prop = direction_properties_array->_i;
+		@get_prop p_room _prop -> _v;
+		if(_v ~= 0 && (_v ofclass String) == false) {
+			_c++;
+			print (string) direction_name_array-->_i;
+			if(_c == _n - 1) print " and ";
+			else if(_c < _n) print ", ";
+		}
+	}
+	print ".^";
+	rtrue;
+];
+
+[ ExitsSub;
+	if(ListExits(real_location, "You can go ") == false)
+		"There is nowhere to go from here.";
 ];
 
 
-! ------------ Classes -------------------
+! ----------------------------------------------------------------------------
+!   Classes
+! ----------------------------------------------------------------------------
 
 Class Room
-  with
-    add_score 0,
-    description [;    
-#ifdef TARGET_GLULX;
-      if(self provides picture) DrawPic(self.picture, self.pic_dir);
-#endif;
-
-      print (string) self.desc, "^";
-      
-      ExitsSub("^Du kan gå ");
-      
-      if(self.add_score>0) {
-        score=score+self.add_score;
-        self.add_score=0;
-      }
-    ],
-    u_to "Du lämnade dina vingar hemma.",
-    d_to "Du borde ha tagit med en spade.",    
-  has light;
+	with
+		add_score 0,
+		description [;
+			print (string) self.desc, "^";
+			ListExits(self, "You can go ");
+			if(self.add_score > 0) {
+				score = score + self.add_score;
+				self.add_score = 0;
+			}
+		],
+		u_to "You left your wings at home.",
+		d_to "You should have brought a spade.",
+	has light;
 
 Class Food
-  with
-    nutrition 10,
-    portions 1,
-    before [;
-    Eat, Drink:
-      if(player.strength>1000) "Du är redan mätt.";
-      player.strength=player.strength+self.nutrition;
-      
-      self.portions=self.portions-1;
-      if(self.portions==0) {
-        if(self provides leftover) {
-          move self.leftover to parent(self);
-        }
-        remove self;
-        if(self provides finish_message) {
-          print_ret (string) self.finish_message;
-        } else {
-          print_ret "Nu är ", (the) self, " slut.";
-        }
-      } else {
-        if(self provides consume_message) {
-          print_ret (string) self.consume_message;
-        } else {
-          print_ret "Du äter av ", (the) self, ".";
-        }
-      }
-    ],
-  has edible;
-  
-class PersonBase
-  with
-    strength 0,
-    skill 0,
-  has animate;
+	with
+		nutrition 10,
+		portions 1,
+		before [;
+		Eat, Drink:
+			if(player.strength > 1000) "You are full already.";
+			player.strength = player.strength + self.nutrition;
+			self.portions = self.portions - 1;
+			if(self.portions == 0) {
+				if(self provides leftover)
+					move self.leftover to parent(self);
+				remove self;
+				if(self provides finish_message)
+					print_ret (string) self.finish_message;
+				print_ret "Now ", (the) self, " is all gone.";
+			}
+			if(self provides consume_message)
+				print_ret (string) self.consume_message;
+			print_ret "You eat some of ", (the) self, ".";
+		],
+	has edible;
+
+Class PersonBase
+	with
+		strength 0,
+		skill 0,
+	has animate;
 
 Class Person class PersonBase
-  with
-    move_probability 0,
-    leave_probability 0,
-    wait_probability 0,
-    attack_probability 0,
-    kill_score 0,
-    armour_score 0,
-    introduced 0,
-    
-    describe_carried [x n;
-      n=0;
-      objectloop(x in self) {
-        if(x hasnt concealed) n=n+1;
-      }
-      if(n>0) {
-        print " ",(The) self, " bär ";
-        WriteListFrom(child(self), CONCEAL_BIT+ENGLISH_BIT);
-        print ".";
-      }
-    ],
-    
-    describe [;
-      if(self has animate) {
-        if(self.introduced==0 && self provides introduction) {
-          print "^", (string) self.introduction, ".";
-        } else {
-          print "^", (The) self, " är här.";
-        }
-        self.describe_carried();
-        self.introduced=1;
-      } else {
-        print "^", (The) self, " ligger död framför dig.";
-      }
-      "";
-    ],
-    description [;
-      if(self has animate) {
-        if(self provides live_description) {
-          print (string) self.live_description, ".";
-        } else {
-          print "Du ser inget speciellt med ", (the) self, ".";
-        }
-        self.describe_carried();
-      } else {
-        if(self provides dead_description) {
-          print (string) self.dead_description;
-        } else {
-          print (The) self, " ligger död framför dig.";
-        }
-      }
-      "";
-    ],
-    daemon [i p;
-      if(self notin location) {
-        p=0;
-        for(i=0: i<self.#loc1/2 && p==0: i++) {
-          if(self.&loc1-->i==location) {
-            p=location;
-          }
-        }
-        for(i=0: i<self.#loc2/2 && p==0: i++) {
-          if(self.&loc2-->i==location) {
-            p=location;
-          }
-        }
-        
-        if(p~=0 && random(100)<self.move_probability) {
-          move self to location;
-          if(self has generic) {
-            self.skill=18;
-            self.strength=400;
-            if(child(self)==0) {
-              i=Weapons.get_weapon();
-              if(i) {
-                move i to self;
-              }
-            }            
-            print "^En ", (name) self, " kommer.";
-          } else {
-            print "^", (string) self.enter_message;
-          }
-          self.describe_carried();
-          "";
-        }
-      } else {
-        if(random(100)<self.attack_probability) {
-          print "^", (The) self, " anfaller!^^";
-          self.attack();
-        }
-        if(random(100)<self.leave_probability) {
-          remove self;
-          print "^", (The) self, " går ut.^";
-          if(child(self)) move child(self) to Weapons;
-        } else {
-          if(random(100)<self.wait_probability) {
-            if(self provides wait_message) {
-              print "^", (string) self.wait_message, "^";
-            } else {
-              print "^", (The) self, " väntar.^";
-            }
-          }
-        }
-      }
-    ],
-    
-    kill_me [;
-      if(self has animate) {
-        give self ~animate;
-        give self static;
-        StopDaemon(self);
-        while(child(self)) {
-          move child(self) to parent(self);
-        }
-        if(self.kill_score>0) {
-          score=score+self.kill_score;
-        }
-      }
-    ],
-    attack [player_weapon my_weapon player_damage my_damage ka kd x;
-      ! Select a weapon for the player, unless already supplied
-      player_damage=1;
-      if(player_weapon==0) {
-        player_weapon=Fist;
-
-        objectloop(x in player) {
-          if(x provides damage && x.damage>player_damage) {
-            player_weapon=x;
-            player_damage=player_weapon.damage;
-          }
-        }
-!        print "(med ", (the) player_weapon, ")^";
-      } else if(player_weapon provides damage) {
-        player_damage=player_weapon.damage;
-      }
-
-      ! select a weapon for the actor
-      my_weapon=Fist;
-      my_damage=1;
-      objectloop(x in self) {
-        if(x provides damage && x.damage>my_damage) {
-          my_weapon=x;
-          my_damage=my_weapon.damage;
-        }
-      }
-      
-
-      ! calculate hit points (own skill+weapon damage+random)
-      ka=my_damage+self.skill+random(12);
-      kd=player_damage+player.skill+random(12);
-      ! Damage points
-      x=10*random(36);
-
-      if(self.armour_score>player_damage) {
-        print (The) player_weapon, " biter inte på ", (name) self, "s pansar.^^";
-        kd=0;
-      }
-      
-      if(kd<ka) {
-        print (The) self, " skadar dig med ", (the) my_weapon, ".^";
-        player.strength=player.strength-x;
-      }
-      if(ka<kd) {
-        print "Du skadar ", (the) self, " med ", (the) player_weapon, ".^";
-        self.strength=self.strength-x;
-      }
-      if(ka==kd) print "Miss...^";
-      if(player.strength<0) {
-        deadflag=1;
-        "^Slaget dödar dig.";
-      }
-      if(self.strength<0) {
-        if(self has generic) {
-          remove self;
-          print_ret "^", (The) self, "s kropp löses upp.";
-        } else {
-          self.kill_me();
-          print_ret "^", (The) self, " dör.";
-        }
-      }
-      if(self.strength<150) {
-        print "^", (The) self, " verkar mycket trött.^";
-      }
-    ],
-    before [;
-    Attack:
-      if(self hasnt animate) print_ret (The) self, " är redan död.";
-      self.attack(second);
-      rtrue;
-    ],    
-    order_go [x y;
-      if(random(2)==1) print_ret (The) self, " skakar på huvudet.";
-      switch(noun) {
-      n_obj: x=location.n_to; y="norr";
-      s_obj: x=location.s_to; y="söder";
-      e_obj: x=location.e_to; y="öster";
-      w_obj: x=location.w_to; y="väster";
-      ne_obj: x=location.ne_to; y="nordöst";
-      nw_obj: x=location.nw_to; y="nordväst";
-      se_obj: x=location.se_to; y="sydöst";
-      sw_obj: x=location.sw_to; y="sydväst";
-      };
-      if(x ofclass Room) {
-        move self to x;
-        print_ret (The) self, " går ", (string) y, ".";
-      }
-      rfalse;
-    ],
-    order_give [;
-      if(noun in self) {
-        if(second~=Player) {
-          print_ret (The) self, " vill inte ge något till ", (the) second, ".";
-        }
-        move noun to player;
-        print_ret (The) self, " ger dig ", (the) noun, ".";
-      } else {
-        print_ret (The) self, " har inte ", (the) noun, ".";
-      }
-      rfalse;
-    ],
-    order_drop [;
-      if(noun in self) {
-        move noun to location;
-        print_ret (The) self, " släpper ", (the) noun, ".";
-      } else {
-        print_ret (The) self, " har inte ", (the) noun, ".";
-      }
-      rfalse;
-    ],
-    order_take [;
-      if(noun in location) {
-        if(noun has animate || noun has static || noun has concealed || noun has scenery) {
-          print_ret (The) self, " kan inte ta ", (the) noun, ".";        
-        }
-        move noun to self;
-        print_ret (The) self, " tar ", (the) noun, ".";
-      } else {
-        print_ret (The) self, " ser inte ", (the) noun, ".";
-      }
-      rfalse;
-    ],
-  ;
-
-Class Match 
-  with
-    name "tändsticka" "tändstickan" "sticka" "stickan",
-    short_name_indef "tändsticka",
-    short_name_def "tändstickan",
-    plural "tändstickor",
-    before [;
-    Burn:
-      if(location hasnt light) {
-        print "I det svaga skenet ifrån tändstickan ser du dig omkring.^";
-        give player light;
-        remove self;
-        PlayerTo(real_location);
-        rtrue;
-      }
-      "Skriv vad du vill tända eld på istället.";
-    ]
-  ;
-  
-! ------------ Rooms -------------------
-Room R1 "Fartyg"
-  with
-    picture Pic01,
-    pic_dir w_obj,
-    desc 
-      "Du är ombord på ett grått fartyg. Västerut ser du tornen av ett snövitt slott.
-      Du kan gå ner på kajen via landgången i norr.",
-    n_to R2,
-    cant_go "Den vägen leder ned i vattnet. Den enda vägen härifrån är
-            landgången som leder till hamnen, som ligger norrut.",
-  ;
-
-Room  R2 "Hamn"
-  with
-    picture Pic02,
-    pic_dir n_obj,
-    desc
-      "Du är i en stor hamn. Den ser övergiven ut. En tydlig stig går åt väst.",
-    n_to R8,
-    s_to R1,
-    e_to R6,
-    w_to R3,
-  ;
-  
-Room R3 "Borggård"
-  with
-    picture Pic03,
-    pic_dir s_obj,
-    add_score 5,
-    desc
-      "Du står på borgården i det snövita slottet. Genom en öppen dörr i söder
-      kan du se ett stort och väl upplyst rum.",
-    s_to R4,
-    e_to [;
-      if(Angrist in location && Angrist hasnt general) {
-        give Angrist general;
-        print "^Du tar farväl av Angrist. Han säger ~Låt mig ge dig ett råd,
-              sök hjälp av trollkarlen i väst. Farväl och lycka till~.^";
-      }
-      return R2;
-    ],
-    sw_to R5,
-    cant_go "En vägg hindrar dig.",
-;
-
-Room R4 "Riddarsal"
-  with
-    picture Pic04,
-    pic_dir s_obj,
-    desc
-      "Du befinner dig i en riddarsal med rustningar uppställda längs väggarna.
-      mitt i rummet står ett stort runt och vitt bord med 12 stolar. Västerut ser du en storslagen portal.",
-    n_to R3,
-    w_to R5,
-    cant_go "En vägg hindrar dig.",
-;
-
-Room R5 "Tronsal"
-  with
-    picture Pic05,
-    pic_dir n_obj,
-    desc
-      "Du är du i tronsalen som domineras av en tron gjord av silver prydd med safirer.
-      Ovanför tronen hänger landets flagga som är vit med ett rött lejon som utsmyckning.",
-    e_to R4,
-    ne_to R3,
-    cant_go "En vägg hindrar dig.",
-;
-
-Room R6 "Grässlätt"
-  with
-    picture Pic06,
-    pic_dir s_obj,
-    desc
-      "Du är på en grässlätt. En frisk sjöbris böjer det gröna och kraftiga gräset.
-      Söderut ser du havet Vanyar. I öst och nord ser du tät skog.",
-    n_to R7,
-    w_to R2,
-    e_to R21,
-    s_to "Havet ligger i vägen.",
-;
-
-Room R7 "Grässlätt"
-  with
-    picture Pic07,
-    pic_dir e_obj,
-    desc
-      "Du står i högt torrt gräs. En tät skog omger dig åt nord och öst. En mörk stig förvirrar sig in bland
-      trädens dunkla skuggor. Slätten fortsätter västerut. I sydväst anar du höga vita torn.",
-    n_to R25,
-    s_to R6,
-    e_to R22,
-    w_to R8,
-;
-
-
-Room R8 "Högt gräs"
-  with
-    picture Pic08,
-    pic_dir s_obj,
-    desc
-      "Du står mitt i ett hav av högt gräs. I norr reser sig väldiga mörka stammar.",
-    n_to R26,
-    w_to R9,
-    e_to R7,
-    s_to R2,
-;
-
-Room R9 "Vid berget"
-  with
-    picture Pic09,
-    pic_dir w_obj,
-    desc
-      "En hög, brant bergskedja reser sig väster om dig. Berget sträcker sig i
-       nord-sydlig riktning. Långt bortom slätten du står på ser du
-       en väldig skog breda ut sig. I söder reser sig det vita slottets murar.",
-    n_to R10,
-    e_to R8,
-    se_to R2,
-    sw_to R11,
-    w_to "Du måste klättra uppför bergsväggen.",
-;
-
-Room R10 "Vid Formenas fot"
-  with
-    picture Pic10,
-    pic_dir w_obj,
-    desc
-      "Väster om dig reser sig den vilda, bergskedjan Formenas.
-       Nedanför den (och norr om dig) breder en tät mörk skog ut sig.
-       Åt söder ser du ett böljande gräshav.",
-    n_to R31,
-    s_to R9,
-    e_to R26,
-    w_to "Du måste klättra uppför bergsväggen.",
-;
-
-Object Mountain "berg"
-  with
-    name "berg" "berget",
-    short_name_def "berget",
-    found_in R10 R16 R36 R37 R38 R39,
-    before [;
-    Climb:
-      if(self hasnt general) {
-        give self general;
-        "Du börjar klättra uppför berget men råkar ta i en lös sten och faller ned
-        igen. Inget är brutet, och det verkar finnas en bättre väg ett par meter
-        vid sidan av, ifall du vill försöka igen.";
-      }
-      deadflag=1;
-      "Du börjar klättra uppför berget. När du har kommit 15-20 meter upp
-      tappar du plötsligt tappar fästet. Dessvärre faller du så illa att
-      du bryter nacken.";
-    ],
-  has neuter scenery;
-  
-Room R11 "Pass"
-  with
-    picture Pic11,
-    pic_dir w_obj,
-    desc
-      "Du är i ett trångt pass som slingrar sig mellan de höga bergssidorna.
-       Ovanför dig öppnar sig en spricka i klippväggen.",
-    w_to R12,
-    ne_to R9,
-    u_to R14,
-    cant_go "En klippvägg hindrar din framfart.",
-;
-
-Room R12 "Kulle"
-  with
-    picture Pic12,
-    pic_dir n_obj,
-    desc
-      "Du står på en låg kulle nedanför passet och blickar ut över en stor skog som
-       breder ut sig i nordöstlig riktning. Skogen erbjuder en enastående syn med
-       kronor som glimmar likt guld.,en nästan vördnadsfull känsla av ålder
-       och mystik sveper över dig. Du flyttar blicken åt väster och skådar ut över
-       en ofruktsam öken.",
-    n_to R13,
-    e_to R11,
-    w_to R17,
-    ne_to R15,
-    cant_go "Ingen stig går i den riktningen.",
-;
-
-Room R13 "Skog"
-  with
-    picture Pic13,
-    pic_dir w_obj,
-    desc
-      "Skogen är tät och ålderdomlig här. Man får nästan en känsla av att skogen
-       är besjälad och misstänksamt bevakar varje besökare.",
-    s_to R12,
-    e_to R15,
-    cant_go "Skogen är alltför tät i den riktningen.",
-;
-
-Room R14 "Grotta"
-  with
-    picture Pic14,
-    pic_dir n_obj,
-    desc
-      "I skenet av facklan ser du en liten grottsal.",
-    d_to R11,
-    u_to "Du slår huvudet i grotttaket.",
-    cant_go "Den enda vägen ut är tillbaka ned till bergspasset.",    
-  has ~light;
-
-Room R15 "Skog"
-  with
-    picture Pic15,
-    pic_dir w_obj,
-    desc
-      "Du står i en vacker väldoftande skog. Västerut mellan raka trädstammar
-      skymtar du en ofruktbar sandöknen. En vagt tecknad stig leder nordöst.",
-    w_to R13,
-    sw_to R12,
-    ne_to R16,
-    cant_go "Inga stigar leder ditåt.",
-;
-
-Room R16 "Glänta"
-  with
-    picture Pic16,
-    pic_dir n_obj,
-    desc
-      "Du står i en glänta på gränsen mellan berg och skog. I nordöst ser du
-      en öppning som leder in i berget. Söderut reser sig den vackra 
-      gnistrande skogen.",
-    ne_to R19,
-    sw_to R15,
-    n_to "Berget är alltför brant.",
-    cant_go "Skogen är alltför tät.",
-;
-
-Room R17 "Öken"
-  with
-    picture Pic17,
-    pic_dir w_obj,
-    desc
-      "Du är i den östliga kanten av en enorm öken. Solens stålar bränner
-      obarmhärtigt på allt och alla. Åt det håll skog och svalka borde ha 
-      funnits ser du inget! Endast öknen omger dig.",
-    each_turn [;
-      player.strength=player.strength-100;
-      print "^Värmen är outhärdlig.^";
-    ],
-    n_to R18,
-    s_to R18,
-    e_to R12,
-    w_to R18,
-    cant_go "Sanden är alltför lös i den riktningen.",
-;
-
-Room R18 "Öken"
-  with
-    picture Pic18,
-    pic_dir w_obj,
-    desc
-      "En het ökenvind sveper förbi dig. Allt du kan se är sand...
-      het vit sand.",
-    each_turn [;
-      player.strength=player.strength-100;
-      print "^Värmen är outhärdlig.^";
-    ],
-    n_to R17,
-    s_to R17,
-    e_to R17,
-    w_to R18,
-    cant_go "Sanden är alltför lös i den riktningen.",
-;
-
-Room R19 "Bergssal"
-  with
-    picture Pic19,
-    pic_dir e_obj,
-    desc
-      "En enorm sal är uthuggen i berget. Två utgångar finns,
-      porten ut och en enorm port i öst.",
-    e_to R20,
-    sw_to R16,
-    u_to "Det finns mycket sten i den riktningen.",
-    cant_go "Massiva bergsidor vägar ge vika.",
-;
-
-Room R20 "Labb"
-  with
-    picture Pic20,
-    pic_dir e_obj,
-    add_score 10,
-    desc
-      "Du är i ett rum som används som labb. I låsta skåp längs väggarna ser du
-      mängder av flaskor. Mitt i rummet är ett stenbord uthugget ur klippan.
-      Du ser två stängda dörrar. Åt nordöst ser du en dörröppning och genom
-      den en ravin.",
-    each_turn [;
-      if(Wizard hasnt animate) rfalse;
-      if(Wizard hasnt general) {
-        give Wizard general;
-        "^En röst dånar mot dig. ~Jag är Sirion, trollkarlen.
-        Hämta dvärgen Allvis mäktiga ört och jag ska hjälpa dig.
-        Teleri, en av mina lärjungar, ger dig bistånd.";
-      } else if(Herb in player) {
-        remove Herb;
-        score=score+10;
-        "^En mäktig stämma säger ~Tack, min vän~. Örten löses upp i rök.
-        ~Om du säger 'algeothel sayed' någonstans i ravinen öppnas en 
-        lönngång. Du kan gå genom östporten~. Rösten ekar bort i salen.";
-      }
-    ],
-    w_to R19,
-    ne_to MagicDoor,
-    cant_go "Det finns mycket sten i den riktningen.",
-;
-
-Object MagicDoor "magisk port"
-  with
-    name "port" "magisk" "dörröppning" "porten" "dörröppningen",
-    short_name_def "magiska porten",
-    door_to [;
-      if(location==R20) return R44;
-      return R20;
-    ],
-    door_dir [;
-      if(location==R20) return ne_to;
-      return sw_to;
-    ],
-    before [;
-    Enter:
-      if(self hasnt open) "Du kan inte passera en magisk port så.";
-    Open:
-      if(self hasnt open) "Dörrarna är magiska och släpper inte 
-                          igenom andra än mästare i magi.";
-    ],
-    found_in R20 R44,
-  has scenery door;
-  
-Room R21 "Klippstrand"
-  with
-    name "tallar" "tall" "vindpinade",
-    picture Pic21,
-    pic_dir e_obj,
-    desc
-      "Du står på en klippstrand. Omkring dig växer låga vindpinade tallar.
-      En mörk tät skog ligger norrut. Västerut breder en slätt ut sig.",
-    n_to R22,
-    w_to R6,
-    ne_to R23,
-    nw_to "Ingen stig leder ditåt.",
-    cant_go "Havet ligger i vägen.",
-;
-
-Room R22 "Skog"
-  with
-    picture Pic22,
-    pic_dir w_obj,
-    desc
-      "Du befinner dig mitt inne i en dunkel skog. En stig går västerut mellan 
-      ett par stammar. På avstånd kan du höra måsar skrika.",
-    n_to R24,
-    s_to R21,
-    e_to R23,
-    w_to R7,
-;
-
-Room R23 "Flod"
-  with
-    picture Pic23,
-    pic_dir e_obj,
-    desc
-      "Åt öster framför dig rinner en strid flod i nordlig riktning. Söderut ser
-      du havet. Skog omger dig åt alla andra riktningar.",
-    n_to R34,
-    w_to R22,
-    nw_to R24,
-    e_to "Du blir tvungen att simma om du vill ditåt.",
-    s_to "Du blir tvungen att simma om du vill ditåt.",
-    cant_go "Skogen är tät och mörk i den riktningen.",
-;
-
-Room R24 "Skog"
-  with
-    picture Pic24,
-    pic_dir w_obj,
-    desc
-      "Du står mitt inne i den mörkaste skog.",
-    n_to R28,
-    e_to R34,
-    w_to R25,
-    cant_go "Marken är alltför bruten av rötter i den riktningen.",
-;
-
-Room R25 "Skog"
-  with
-    picture Pic25,
-    pic_dir n_obj,
-    desc
-      "Du befinner dig i utkanten av skogen. Åt norr tätnar skogen igen.
-      Kraftig undervegitation täcker marken.",
-    n_to R27,
-    s_to R7,
-    w_to R26,
-    e_to R24,
-;
-
-Room R26 "Skog"
-  with
-    picture Pic26,
-    pic_dir w_obj,
-    desc
-      "Du är i utkanten av en dunkel skog. Du kan skymta slättens gula gräs i
-      väst. Skogen tätnar norrut.",
-    n_to "Skogen är alltför tät i den riktningen.",
-    w_to R10,
-    e_to R25,
-    s_to R8,
-;
-
-Room R27 "Skogsbryn"
-  with
-    picture Pic27,
-    pic_dir n_obj,
-    desc
-      "Du är i skogsbrynet. Långt bortom en slätt i norr reser sig en 
-      olycksbådande mörk borg. Öster om den ser du en hög klippa. Tät
-      skog omger dig åt alla andra håll.",
-    n_to R35,
-    e_to R28,
-    s_to R25,
-    w_to R30,
-;
-
-Room R28 "Skog"
-  with
-    picture Pic28,
-    pic_dir n_obj,
-    desc
-      "Du har kommit in i en mycket tät del av skogen.",
-    e_to R33,
-    w_to R27,
-    s_to R24,
-    ne_to R29,
-    cant_go "Skogen är alltför tät i den riktningen.",
-;
-
-Room R29 "Gles skog"
-  with
-    picture Pic29,
-    pic_dir e_obj,
-    desc
-      "Du står nu i gles skog. Öster om dig rinner en flod, och i söder 
-      fortsätter skogen. Åt nord reser sig höga berg. I väst står en hög
-      klippa som inte ser alltför brant ut.",
-    e_to "Floden är för djup och strid.",
-    s_to R33,
-    w_to R32,
-    sw_to R28,
-    n_to "Berget stoppar dig.",
-;
-
-Room R30 "Glänta"
-  with
-    picture Pic30,
-    pic_dir w_obj,
-    desc
-      "Du kommer ut till en glänta i skogen. Åt väst ligger en liten riskoja.
-      Människoben ligger utspridda utanför. I öster går en stig vidare in 
-      i skogen.",
-    e_to R27,
-    w_to R31,
-    cant_go "Skogen är mörk och tät i den riktningen.",
-;
-
-Room R31 "Riskoja"
-  with
-    picture Pic31,
-    pic_dir w_obj,
-    desc
-      "Du är i en sliten riskoja. På en brasa står en gryta som innehåller
-      någon slags soppa. På golvet ligger tydligen resterna av ingredienserna
-      (diverse sönderslitna dvärg-, människo- och alvkroppar).",
-    e_to R30,
-    cant_go "Den enda utgången leder österut.",
-;
-
-Room R32 "Klippa"
-  with
-    picture Pic32,
-    pic_dir w_obj,
-    desc
-      "Här uppifrån klippspetsen har man en underbar utsikt. Söderut långt
-      bortom skog och slätt anar du en vit borg mot det azurblå havet. I
-      öster bortom floden ligger ett stort bergsmassiv. Du ser snöklädda 
-      toppar sticka upp här och var. Med ett dån kastar sig floden ner i en
-      djup ravin i norr. Västerut nedanför dig ser du en svart borg.",
-    e_to R29,
-    d_to "Ingen kan överleva ett sådant fall.",
-    cant_go "Den enda vägen härifrån är åt öster.",
-;
-
-Room R33 "Flodstrand"
-  with
-    picture Pic33,
-    pic_dir e_obj,
-    desc
-      "Du står vid flodens strand. I vassen ligger en liten båt förtöjd.
-      Tvärs över floden, i nordöst, ser du en gång in i ett stort,
-      svart berg.",
-    n_to R29,
-    w_to R28,
-    s_to R34,
-    e_to "Du kan inte gå på vatten.",
-;
-
-Room R34 "Flodstrand"
-  with
-    picture Pic34,
-    pic_dir e_obj,
-    desc
-      "Du står på stranden där floden är som smalast. Vassen här är manshög 
-      och på en liten udde finns ett gammalt träd. Över det skimmrande gröna 
-      vattnet ser du en liknande strand och höga svarta och spetsiga berg.",
-    n_to R33,
-    s_to R23,
-    w_to R24,
-    e_to "Floden är alltför djup för att vada över.",
-;
-
-Room R35 "Framför slottet"
-  with
-    picture Pic35,
-    pic_dir w_obj,
-    desc
-      "Du står framför ett slott från vars torn en flagga vajar. En svart
-      symbol på flaggan föreställer en stiliserad svart drake. Porten i 
-      muren står öppen. Genom den kan du se en stor övergiven borggård.",
-    n_to [;
-      if(Dragon has animate) {
-        meta=1;
-        "Draken skulle döda dig omedelbart.";
-      }
-      return R58;
-    ],
-    s_to R27,
-    cant_go "Härifrån kan du bara gå in i slottet, eller tillbaka till skogen.",
-    each_turn [;
-      if(Dragon has animate) {
-        if(self hasnt general) {
-          give self general;
-          "^Med ett vrål lyfter en svart drake från slottets balustrad och dyker emot dig.";
-        }
-        deadflag=1;
-        "^Draken kastar sig över dig och du har inte en chans att skada honom från ditt underläge.
-        Hans flammande andedräkt kremerar dig...";
-      }
-    ],
-;
-
-Object DummyDragon "drake" R35
-  with
-    name "drake" "draken",
-    short_name_def "draken",
-    before [;
-    if(Dragon has animate) "Draken flyger högt ovanför dig.";
-    "Draken ligger på balustaden, långt härifrån.";
-    ]
-  has concealed;
-    
-Room R36 "Strand"
-  with
-    picture Pic36,
-    pic_dir s_obj,
-    desc
-      "Du står på en smal strandremsa inklämd mellan floden i väster och en
-      klippvägg i öst. I klippväggen ser du en konstfullt uthuggen port som 
-      leder in i bergets dunkel. Söderut fortsätter stranden.",
-    s_to R37,
-    e_to MountainDoor,
-    w_to "Det ligger en flod i vägen.",
-  ;
-  
-Object MountainDoor "port"
-  with
-    name "port" "porten" "klipport" "klipporten",
-    short_name_def "porten",
-    description [;
-      print "Det är en mäktig port som är uthuggen i den svarta graniten";
-      if(self hasnt open) ". Porten är stängd";
-      ".";
-    ],
-    door_to [;
-      if(location==R36) return R45;
-      return R36;
-    ],
-    door_dir [;
-      if(location==R36) return e_to;
-      return w_to;
-    ],
-    found_in R36 R45,
-  has door open scenery;
-
-Room R37 "Sandstrand"
-  with
-    picture Pic37,
-    pic_dir s_obj,
-    desc
-      "Du står på en sandstrand som går i nord-sydlig riktning. Stranden
-      begränsas i öst av berg och i väst av floden.",
-    n_to R36,
-    s_to R38,
-    w_to "Det ligger en flod i vägen.",
-    e_to "Berget är alltför brant.",
-;
-
-Room R38 "Strand"
-  with
-    picture Pic38,
-    pic_dir s_obj,
-    desc
-      "Väldiga klippor reser sig till imponerande höjder öster om dig.
-      Du står på flodens östra strand och kan följa den nord och syd.
-      Ett murket träd ligger över floden.",
-    n_to R37,
-    s_to R39,
-    w_to R34,
-    e_to "Berget är alltför brant.",
-;
-
-Room R39 "Strand"
-  with
-    picture Pic39,
-    pic_dir s_obj,
-    desc
-      "Du blickar ut över havet från stranden du står på. Åt öster skyms sikten
-      av jättelika klippor. Här tycks floden rinna ned i havet.",
-    n_to R38,
-    w_to "Det ligger en flod i vägen.",
-    e_to "Berget är alltför brant.",
-;
-
-Object Rope "rep" R39
-  with
-    initial "Ett rep ligger nästan dolt i sanden.",
-    name "rep" "repet",
-    short_name_def "repet",
-    before [;
-    Climb:
-      if(Rope has scenery) <<Go u_obj>>;
-    ],
-  has neuter;
-
-Room R40 "Vattenfall"
-  with
-    picture Pic40,
-    pic_dir e_obj,
-    desc
-      "Du står framför ett enormt vattenfall. På den fuktiga marken ser du fotspår av
-      dvärgar. De är ganska färska.",
-    w_to R41,
-    e_to Waterfall,
-    cant_go "Höga bergssidor stoppar dig.",
-  ;
-
-Object Waterfall "vattenfall"
-  with
-    name "vattenfall" "vattenfallet",
-    short_name_def "vattenfallet",
-    description "Skummet ifrån vattenfallet gör dig drypande våt.",
-    door_to [;
-      print "Du går igenom vattenfallet och kommer till...^";
-      if(location==R40) return R55;
-      return R40;
-    ],
-    door_dir [;
-      if(location==R40) return e_to;
-      return w_to;
-    ],
-    found_in R40 R55,
-  has scenery door open;
-
-Room R41 "Ravin"
-  with
-    picture Pic41,
-    pic_dir e_obj,
-    desc
-      "Du är på botten av djup ravin. Släta klippväggar som verkar obestigliga omger dig.
-      Från öster hörs brus. Ravinen fortsätter mot nordväst.",
-    e_to R40,
-    nw_to R42,
-    cant_go "Höga bergssidor stoppar dig.",
-;
-
-Room R42 "Ravin"
-  with
-    picture Pic42,
-    pic_dir s_obj,
-    desc
-      "Du befinner dig i den djupa ravinen.",
-    s_to 0,
-    se_to R41,
-    sw_to R43,
-    cant_go "Höga bergssidor stoppar dig.",
-;
-
-Room R43 "Ravin"
-  with
-    picture Pic43,
-    pic_dir s_obj,
-    desc
-      "Du är fortfarande i en djup ravin.",
-    s_to R44,
-    ne_to R42,
-    cant_go "Höga bergssidor stoppar dig.",
-;
-
-Room R44 "Ravinens ände"
-  with
-    picture Pic44,
-    pic_dir s_obj,
-    desc
-      "Du är vid ravinens ändpunkt. Det finns en öppen port i 
-      den sydvästra bergsväggen.",
-    n_to R43,
-    sw_to MagicDoor,
-    cant_go "Höga bergssidor stoppar dig.",
-;
-
-Room R45 "Grottöppning"
-  with
-    picture Pic45,
-    pic_dir e_obj,
-    desc
-      "En stor grotta öppnar sig i berget, svagt upplyst av
-      ljuset som strömmar in genom den öppna porten. Den
-      fortsätter in i östlig riktning, men det är för mörkt
-      att se hur stor den är.",
-    e_to R48,
-    w_to MountainDoor,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Åtskilliga ton av sten hindrar dig.",
-  ;
-
-Room R48 "Fladdermusgrotta"
-  with
-    name "spillning",
-    picture Pic48,
-    pic_dir e_obj,
-    desc
-      "Tusentals fladdermöss måste ha bott här genom åren, och
-      marken är täckt av vittnad och illaluktande spillning.
-      Långt bort i väster ser du ett svagt ljus sila in.",
-    w_to R45,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Du kan inte nå hålet i taket.",
-  ;
-
-Object Bats "fladdermöss" R48
-  with
-    name "fladdermus" "fladdermöss" "mus" "möss",
-    short_name_def "fladdermöss",
-    plural "fladdermöss",
-    describe "^I taket hänger några fladdermöss.",
-    description "Det är en kompakt massa av grå kroppar, läderartade
-                vingar och små gula ögon.",
-    before [;
-    ThrownAt:
-      <<Attack self>>;
-    Attack:
-      remove self;
-      move Hole to location;
-      "Fladdermössen flyger skrämda iväg igenom ett hål i taket.";
-    ],
-  has animate;
-
-Object Hole "hål"
-  with
-    name "hål" "hålet",
-    short_name_def "hålet",
-    description "Hålet är en naturlig spricka i berget, ett par meter bred.",
-    describe [;
-      print "^I taket finns ett hål";
-      if(Rope has scenery) {
-        print ". Ifrån hålet hänger ett rep som du kan klättra upp på";
-      }
-      ".";
-    ],
-    before [;
-    ThrownAt:
-      if(noun==Rope && Rope hasnt scenery) {
-        R48.u_to=R49;
-        move Rope to location;
-        give Rope scenery;
-        score=score+10;
-        "Du har kastat upp repet.";
-      }
-    ],
-  has static neuter;
-  
-Room R49 "Gång"
-  with
-    picture Pic49,
-    pic_dir e_obj,
-    desc
-      "Du befinner dig i en mörk gång. Brevid dig är ett hål i golvet.
-      Golvet är täckt med gammal fladdermusspillning.",
-    e_to R50,
-    d_to R48,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Åtskilliga ton av sten hindrar dig.",
-  has ~light;
-
-Room R50 "Bergsal"
-  with
-    picture Pic50,
-    pic_dir e_obj,
-    desc
-      "I skenet av din fackla ser du att du kommit in i en stor bergssal.
-      En trappa leder uppåt, och två gångar leder åt söder och mot norr.",
-    n_to R55,
-    s_to R53,
-    w_to R49,
-    u_to R51,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-  has ~light;
-
-Room R51 "Trappa"
-  with
-    picture Pic51,
-    pic_dir e_obj,
-    desc
-      "Du står på en avsats mitt i trappan.",
-    u_to R52,
-    d_to R50,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-  has ~light;
-
-Room R52 "Fönster"
-  with
-    picture Pic52,
-    pic_dir w_obj,
-    desc
-      "Här flödar ett starkt solljus in genom ett litet fönster. När du vant dig vid
-      ljuset blickar du ut över ett sagolikt landskap, med Formenas vilda bergstoppar
-      mot horisonten, och nedanför dessa den prunkande skogen mellan det vita och det
-      svarta slottet.",
-    d_to R51,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-;
-
-Room R53 "Tronsal"
-  with
-    picture Pic53,
-    pic_dir s_obj,
-    desc
-      "I fackelskenet ser du en vacker tron smyckad med ädla stenar.",
-    n_to R50,
-    e_to R54,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Åtskilliga ton av sten hindrar dig.",
-  has ~light;
-
-Room R54 "Skattrummet"
-  with
-    picture Pic54,
-    pic_dir s_obj,
-    desc
-      "Skenet från facklan återkastas av allt guld och ädelstenar som ligger
-      bakom ett ogenomträngligt galler.",
-    w_to R53,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Åtskilliga ton av sten hindrar dig.",
-  has ~light;
-
-Room R55 "Blindgång"
-  with
-    picture Pic55,
-    pic_dir n_obj,
-    desc
-      "Du är i en blindgång i berget. I söder är en utgång och i väst slutar
-      gången i en vattenridå.",
-    s_to R50,
-    w_to Waterfall,
-    cant_go "En kompakt bergsvägg hindrar dig.",
-    u_to "Åtskilliga ton av sten hindrar dig.",
-  has ~light;
-
-Room R56 "Gång"
-  with
-    picture Pic56,
-    pic_dir s_obj,
-    desc
-      "Du är i en mörk och trång gång.",
-    n_to R42,
-    s_to R57,
-    cant_go "Gången går i nord-sydlig riktning.",
-;
-
-Room R57 "Källare"
-  with
-    picture Pic57,
-    pic_dir s_obj,
-    desc
-      "Nu har du kommit till en fuktig källare. Det stora rummet är alldeles
-      öde. Du skymtar en murken trätrappa som leder uppåt.",
-    n_to R56,
-    u_to R58,
-    cant_go "Det är upp eller norr som gäller.",
-;
-
-Room R58 "Borggård"
-  with
-    picture Pic58,
-    pic_dir s_obj,
-    desc
-      "Du står på en borggård omgiven av svarta byggnader. Trappor går både 
-      upp och ned. Det finns portar i öst och väst. Slottsporten finns i söder.",
-    s_to R35,
-    e_to R60,
-    w_to R59,
-    u_to R61,
-    d_to R57,
-;
-
-Room R59 "Fängelse"
-  with
-    picture Pic59,
-    pic_dir w_obj,
-    desc
-      "Du har kommit in en mörk fängelsehåla. Lukten av ruttet kött slår emot 
-      dig. Bakom fängelsets gallergrindar ser du skelett fastkedjade vid 
-      väggarna. Du kan också höra råttpip. Man kan bara komma härifrån genom 
-      porten i öster.",
-    e_to R58,
-    cant_go "Den enda vägen ut är tillbaka till borggården.",
-;
-
-Room R60 "Kök"
-  with
-    picture Pic60,
-    pic_dir e_obj,
-    desc
-      "Rök ifrån den stora öppna eldstaden slår emot dig när du går in i köket.
-      En öltunna dominerar det lilla rummet som är öde och lätt förfallet.",
-    w_to R58,
-    cant_go "Den enda vägen ut är tillbaka till borggården.",
-;
-
-Room R61 "Riddarsal"
-  with
-    picture Pic61,
-    pic_dir w_obj,
-    desc
-      "Du är i Draupners riddarsal. Mitt i rummet står ett ovalt bord med
-      13 stolar. I öst finns en port och vid västväggen står en stor skänk.
-      Trappor leder upp och ned.",
-    e_to R62,
-    u_to R64,
-    d_to R58,
-    w_to "En massiv vägg hindrar dig.",
-    cant_go "En massiv vägg hindrar dig.",
-;
-
-Room R62 "Galleri"
-  with
-    picture Pic62,
-    pic_dir e_obj,
-    desc
-      "Du går av och an i ett galleri. Det enda som är värt att notera här är
-      de vackra takmålningarna som skildrar en riddares kamp med en drake.",
-    w_to R61,
-    cant_go "Den enda vägen ut är tillbaka till riddarsalen.",
-;
-
-Room R63 "Vapenkammare"
-  with
-    picture Pic63,
-    pic_dir e_obj,
-    desc
-      "Genom den låga gången har du kommit in i en vapenkammare. Du ser
-      allehanda rustningar och vapen. De flesta är dock trasiga eller
-      sönderrostade. Några lysande undantag finns dock. Din blick
-      fångas bl.a. av några slagsvärd av god kvalitet som verkar orörda
-      av tidens tand.",
-   e_to R61,
-   cant_go "Den enda vägen ut är tillbaka till riddarsalen.",
-;
-
-Room R64 "Trappa"
-  with
-    picture Pic64,
-    pic_dir s_obj,
-    desc
-      "Du är högst uppe på trappan. Det finns en port i sydväst och genom
-      denna ser du en svart svans av enorma mått sticka fram.",
-    sw_to R65,
-    d_to R61,
-    cant_go "Ditt val är att retirera nedför trappan, eller att modigt kliva ut
-            på balustraden genom porten i sydväst.",
-;
-
-Room R65 "Balustrad"
-  with
-    picture Pic65,
-    pic_dir e_obj,
-    desc
-      "Du har kommit ut i fria luften igen och befinner dig nu på slottets 
-      balustrad. Avlagringar av sot täcker väggar och golv. Här uppifrån
-      kan man se ut över en tät skog. Du ser en trappnedgång i nordöst och
-      en stor port i öst.",
-    e_to R66,
-    ne_to R64,
-    cant_go "En kort blick nedåt får dig att avstå.",
-;
-
-Room R66 "Tronsal"
-  with
-    picture Pic66,
-    pic_dir n_obj,
-    desc
-      "Du har nu kommit in i borgen hjärta... tronsalen. Rummet lyses upp av
-      solstrålar som strömmar genom de höga fönstren. Ljuset reflekteras emot
-      rummets enda möbel, en enorm juvelbesatt tron.",
-    w_to R65,
-    cant_go "Den enda vägen ut är tillbaka till balustraden.",
-;
-
-Object Bench "skänk" R61
-  with
-    name "skänk" "skänken",
-    short_name_def "skänken",
-    number 0,
-    description
-      "Skänken är en tung möbel av svart ek.",
-    before [;
-    Push:
-      if(self has general) {
-        give self ~general;
-        R61.w_to=0;
-        "Du skjuter tillbaka skänken.";        
-      } else {
-        give self general;
-        R61.w_to=R63;
-        if(self.number==0) {
-          self.number=1;
-	      score=score+15;
-	    }
-        "Vid väggen där skänken stod ser du ett lågt hål som du kan gå igenom.";
-      }
-    ],
-  has scenery supporter;
-  
-Object Table1 "bord" R61
-  with
-    name "bord" "bordet" "repor" "bordsskiva" "bordsskivan" "reporna",
-    short_name_def "bordet",
-    description "Bordskivan är full av repor.",
-  has scenery supporter neuter;
-
-Object Table2 "bord" R4
-  with
-    name "bord" "bordet",
-    short_name_def "bordet",
-    description "Trettio personer skulle lätt kunna sitta
-                samtidigt vid det stora bordet.",
-  has scenery supporter neuter;
-  
-Object Throne "tron" R5
-  with
-    name "tron" "tronen",
-    short_name_def "tronen",
-    description "Tronen gnistrar av silver och safirer.",
-    before [;
-    Push:
-      self.strength=self.strength-80;
-      "Aargh, det tog på krafterna";
-    ],
-  has scenery supporter;
-  
-Object Boat "båt" R33
-  with
-    name "båt" "båten",
-    short_name_def "båten",
-    description "Båten är liten och illa medfaren.",
-    before [;
-    Row:
-      if(self hasnt generic) {
-        give self generic;
-        "Just som du ska kasta loss ser du något röra sig i vattnet.";
-      }
-      deadflag=1;
-      "Du kastar loss och ror ut i floden. Vattnet blir plötsligt grumligt runt
-      omkring dig och du hör ett dovt muller. Du känner en brinnande smärta när
-      en enorm grön och slemmig sjöorm sliter av dig ena handen, och sedan
-      kastar den sig över dig...";
-    Push:
-      self.strength=self.strength-80;
-      "Aargh, det tog på krafterna";
-    ],
-  has scenery enterable container open;
-  
-Object Tree "träd" R34
-  with
-    name "träd" "trädet",
-    short_name_def "trädet",
-    number 0,
-    description [;
-      if(self.number==2) "Det murkna trädet ligger som en bro över floden.";
-      "Det murkna trädet står vid flodstranden.";
-    ],
-    before [;
-    Climb: if(self.number<2) "Trädet är alltför murket.";
-    CutWith:
-      if(second~=Axe) print_ret (The) second, " biter inte på trädet.";
-      if(self.number==0) {
-        self.number=1;
-        "Trädet gnäller vid ditt hugg.";
-      }
-      if(self.number==1) {
-        self.number=2;
-        score=score+10;
-        R34.e_to=R38;
-        "Det murkna trädet faller tungt, och ligger som en bro över floden.";
-      }
-      "Du har ju redan fällt trädet.";
-    ],
-  has neuter scenery;
-  
-Object GenericTree "träd"
-  with
-    name "träd" "träden" "trädet",
-    short_name_def "träden",
-    description "Träden har höga raka stammar, och kronor med små gröna blad högt ovanför dig.",
-    found_in R12 R13 R14 R15 R16 R21 R22 R23 R24 R25 R26 R27 R28 R29,
-    before [;
-    Climb: "Trädet saknar fotfästen.";
-    ],
-  has neuter scenery;
-  
-Food BeerBarrel "öltunna" R60
-  with
-    name "tunna" "tunnan" "öltunna" "öltunnan",
-    short_name_def "öltunnan",
-    nutrition 50,
-    portions 6,
-    finish_message "Nu är öltunnan tom.",
-    consume_message "Du dricker av det mustiga ölet.",
-    description "Den stora tunnan innehåller resterna av fjolåret ölbrygd.",
-    before [;
-    Push:
-      self.strength=self.strength-80;
-      "Aargh, det tog på krafterna";
-    ],
-  has scenery;
-  
-Food Water "vatten"
-  with
-    name "vatten" "vattnet",
-    short_name_def "vattnet",
-    found_in R40 R29 R33 R34 R23 R2 R6 R21 R23 R36 R37 R38 R39,
-    description "Vatten, vatten, bara vanligt vatten.",
-    nutrition 10,
-    portions 999,
-    consume_message "Du dricker lite av vattnet.",
-  has scenery;
-  
-Object Herb "ört" R54
-  with
-    name "ört" "örten",
-    short_name_def "örten",
-    description "Örten luktar sött och du känner dig piggare.",
-    after [;
-    Take:
-      if(self hasnt general) {
-        give MagicDoor open;
-        give self general;
-        score=score+5;
-      }
-    ],
-  ;
-  
-Object Matchbox "ask" R5
-  with
-    name "ask" "asken",
-    short_name_def "asken",
-  has container open openable;
-
-Match -> ->;
-Match -> ->;
-Match -> ->;
-Match -> ->;
-Match -> ->;
-Match -> ->;
-
-Object Scroll "pergament" R52
-  with
-    name "pergament" "pergamentet",
-    short_name_def "pergamentet",
-    description "På pergamentet står att denna besvärjelse skrämmer drakar.
-                Den måste dock läsas av en magikunnig person. Längst ner 
-                står en rad tecken du inte kan tyda.",
-    after [;
-    Take:
-      if(self hasnt general) {
-        give self general;
-        score=score+5;
-      }
-    ],
-  has neuter;
-  
-Object Treasure "skatt" R53
-  with
-    name "skatt" "skatten",
-    short_name_def "skatten",
-    description "Så mycket rikedom och så nära, men ändå så långt borta.",
-    before [;
-    Take: "Ge upp. Även om du lyckas bryta upp gallret kommer dvärgarna
-          förfölja dig till jordens ände.";
-    ],
-  has scenery;
-  
-Object Jewel "juvel" R40
-  with
-    name "juvel" "juvelen",
-    short_name_def "juvel",
-    description "Den är liten, men har en vacker grön lyster.",
-  ;
-  
-Object Bottle "flaska" R20
-  with
-    name "flaska" "flaskan",
-    short_name_def "flaska",
-    description "Flaskan täckt av damm.",
-    before [;
-    Take: "Det är nog bäst att lämna trollkarlens saker ifred.";
-    ],
-  ;
-  
-Object Cup "bägare" R20
-  with
-    name "bägare" "bägaren",
-    short_name_def "bägaren",
-    description "Bägaren är spräckt.",
-    before [;
-    Take: "Det är nog bäst att lämna trollkarlens saker ifred.";
-    ],
-  ;
-  
-Object Can "burk" R20
-  with
-    name "burk" "burken",
-    short_name_def "burken",
-    description "Burken täckt av damm och spindelväv.",
-    before [;
-    Take: "Det är nog bäst att lämna trollkarlens saker ifred.";
-    ],
-  ;
-
-Object HamBone "skinkben"
-  with
-    name "skinkben" "skinkbenet" "ben" "benet",
-    short_name_def "skinkbenet",
-  has neuter;
-  
-Food Ham "skinka" R4
-  with
-    name "skinka" "skinkan",
-    short_name_def "skinkan",
-    nutrition 50,
-    portions 3,
-    leftover HamBone,
-    description "Skinkan luktar härligt.",
-  ;
-  
-Object EmptyBottle "tomflaska"
-  with
-    name "tomflaska" "tomflaskan" "flaska" "flaskan",
-    short_name_def "tomflaskan",
-    damage 6,
-    description "Det finns inte en droppe vin kvar i flaskan.",
-  ;
-  
-Food Winebottle "vinflaska" R4
-  with
-    name "vinflaska" "vinflaskan" "vin" "vinet",
-    short_name_def "vinflaskan",
-    damage 6,
-    nutrition 50,
-    portions 3,
-    finish_message "Vinet är slut nu.",
-    consume_message "Du dricker lite vin (hick).",
-    leftover EmptyBottle,
-    description "Flaskan innehåller ett lätt bittert rödvin.",
-  ;
-
-Object Branch "gren" R10
-  with
-    name "gren" "grenen" "fackla" "facklan",
-    short_name_def "grenen",
-    description [;
-      if(self has light) "Grenen brinner och är en utmärkt fackla.";
-      "Grenen är kådrik.";
-    ],
-    number 0,
-    daemon [;
-      if(self has light) {
-        self.number=self.number+1;
-        if(self.number==150) { ! was 50
-          StopDaemon(self);
-          if(TestScope(self)) print "^Grenen har brunnit upp.^";
-          remove self;
-        }
-      }
-    ],
-    before [;
-    Extinguish:
-      if(self hasnt light) "Grenen brinner ju inte.";
-      give self ~light;
-      StopDaemon(self);
-      "Du släcker grenen.";
-    Burn:
-      if(second==0) {
-        if(TestScope(Matchbox)==false || child(Matchbox)==0) "Du har inga tändstickor.";
-        second=child(Matchbox);
-      }
-      if(second ofclass Match) {
-        if(self provides light) "Grenen brinner redan.";
-        remove second;
-        give self light;
-        StartDaemon(self);
-        "Du tänder på grenen med en tändsticka.";
-      } else {
-        "Du måste tända med en tändsticka.";
-      }
-    ],
-  ;
-  
-Food Bread "brödkaka" R20
-  with
-    name "brödkaka" "brödkakan" "bröd" "brödet",
-    short_name_def "brödkakan",
-    nutrition 50,
-    portions 3,
-    description "Mmm, nybakad.",
-  ;
-  
-Food Apple "äpple" R27
-  with
-    name "äpple" "äpplet",
-    short_name_def "äpplet",
-    nutrition 40,
-    portions 1,
-    description "Ett äpple om dagen håller doktorn borta, sägs det.",
-  has neuter;
-
-Food Bush "bärbuske" R10
-  with
-    name "bärbuske" "bärbusken",
-    short_name_def "bärbusken",
-    description "Du känner bären som järnbär.
-                De är nyttiga och mycket energirika.",
-    nutrition 60,
-    portions 999,
-    consume_message "Du äter av bären.",
-  ;
-
-Object Cactus "kaktus" R17
-  with
-    name "kaktus" "kaktusen",
-    short_name_def "kaktusen",
-    description "Bäst att akta sig för de vassa taggarna.",
-    before [;
-    Eat:
-      if(self hasnt generic) {
-        give self generic;
-        "Kaktusköttet luktar ganska bittert. Är du säker på att du vill äta det?";
-      }
-      deadflag=1;
-      "Du äter av kaktusköttet. Tyvärr får du snart svåra magkramper \
-      och under svåra kval dör du.";
-    ],
-  has static;
-
-Object Soup "soppa" R31
-  with
-    name "soppa" "soppan",
-    short_name_def "soppan",
-    before [;
-    Drink, Eat:
-      self.strength=self.strength-50;
-      "Du dricker av soppan. Den brinner som eld och du känner dig matt och svag.";
-    ],
-  ;
-  
-Object Weapons
-  with
-    get_weapon [i x y;
-      ! return random child of self
-      x=random(children(self));
-      if(x==0) rfalse;
-      y=child(self);
-      for(i=1: i<x: i++) {
-        y=sibling(y);
-      }
-      return y;
-    ],
-  ;
-  
-Object Sling "slunga" Weapons
-  with
-    name "slunga" "slungan",
-    short_name_def "slungan",
-    damage 8,
-    description "Bra att ha om Goliat dyker upp.",
-  ;
-  
-Object Club "klubba" Weapons
-  with
-    name "klubba" "klubban",
-    short_name_def "klubban",
-    damage 5,
-    description "Tung och greppvänlig.",
-  ;
-  
-Object Broadsword "slagsvärd" R63
-  with
-    name "slagsvärd" "slagsvärdet" "svärd" "svärdet",
-    short_name_def "slagsvärdet",
-    damage 11,
-    description
-      "Det här kan man kalla ett riktigt vapen. Det finns inget
-      vapen eller rustning som kan stå emot en bra träff med
-      ett så tungt blad.",
-  has neuter;
-  
-Object Irongloves "stridhandske" Weapons
-  with
-    name "stridhanske" "stridhandske",
-    short_name_def "stridhandsken",
-    damage 5,
-    description "Nävar av stål!",
-  ;
-  
-Object Axe "yxa" R14
-  with
-    name "yxa" "yxan",
-    short_name_def "yxan",
-    damage 6,
-    description "Det är en vanlig vedyxa.",
-  ;
-  
-Object Knife "machete" Weapons
-  with
-    name "machete" "macheten",
-    short_name_def "macheten",
-    description "Macheten har ett tungt och välslipat blad.",
-    damage 4,
-  ;
-
-Object Fist "knytnäve"
-  with
-    name "knytnäve" "knytnäven",
-    short_name_def "knytnäven",
-    damage 1,
-    add_to_scope VanyarPlayer,
-    description "Nog för att du är van att slås med knytnävarna, men ett
-                riktigt vapen vore bättre.",
-  has concealed;
-
-Person Elf "alv"
-  with
-    name "alv" "alven",
-    short_name_def "alven",
-    loc1 R12 R13 R14 R15 R16,
-    move_probability 50,
-    leave_probability 80,
-    skill 0,
-    strength 0,
-    live_description "Alven är lång och blond",
-    orders [;
-    Go: return self.order_go();
-    Attack: print_ret (The) self, " säger ~Jag dödar inte på befallning~.";
-    ],
-  has generic;
- 
-Person Drawf "dvärg"
-  with
-    name "dvärg" "dvärgen",
-    short_name_def "dvärgen",
-    leave_probability 80,
-    loc1 R45 R48 R49 R50 R51 R52 R53 R54 R55,
-    move_probability 50,
-    attack_probability 10,
-    live_description "Dvärgen har ett långt skägg",
-    skill 0,
-    strength 0,
-    orders [;
-    Go: return self.order_go();
-    Attack: print_ret (The) self, " säger ~Jag dödar inte på befallning~.";
-    ],
-  has generic;
-  
-Person Guard "vakt"
-  with
-    name "vakt" "vakten",
-    short_name_def "vakten",
-    move_probability 50,
-    leave_probability 80,
-    attack_probability 30,
-    live_description "Vakten är klädd i en väst med en svart drake på röd botten",
-    skill 0,
-    strength 0,
-    loc1 R56 R57 R58 R59 R60 R61 R62 R63,
-    orders [;
-      "Vakten granskar på dig misstänksamt.";
-    ],
-  has generic;
-  
-Person Draupner "Draupner" R66
-  with
-    name "draupner",
-    skill 15,
-    strength 400,
-    attack_probability 100,
-    introduction
-      "En lång man reser sig från tronen när du kommer in. Han
-      rycker åt sig ett spjut och kliver ut mitt i salen",
-    live_description "Draupner är en lång man med kalla ögon.",
-    dead_description "Draupner ligger på golvet framför sin tron.",
-    orders [;
-      "Draupner svarar inte utan tittar dig stint in i ögonen.";
-    ],
-  has proper;
-  
-Object Spear "spjut" Draupner
-  with
-    name "spjut" "spjutet",
-    short_name_def "spjutet",
-    damage 7,
-    description "Spjutet är långt, svart och skarpslipat.",
-  has neuter;
-  
-  
-Person Wizard "trollkarl" R20
-  with
-    name "trollkarl" "trollkarlen" "sirion",
-    short_name_def "trollkarlen",    
-    skill 100,
-    strength 200,
-    live_description
-     "Du kan inte se någon här, och det går inte att avgöra var rösten 
-     kommer ifrån, men du känner att någon betraktar dig uppmärksamt.",
-    orders [;
-      "Trollkarlen svarar inte.";
-    ],
-  has concealed;
-  
-Person Dragon "drake" R65
-  with
-    name "drake" "draken",
-    short_name_def "draken",
-    skill 15,
-    strength 380,
-    armour_score 11,
-    kill_score 15,
-    introduction
-      "Med ett tungt hasande vänder sig draken mot dig, betraktar dig
-      uppmärksamt och säger sedan ~Det var länge sedan krigare ifrån
-      ifrån sagolanden bortom havet vågade sig hit. Det är furst Draupners
-      order att alla som vågar sig hit ska dräpas, men vi är nyfikna
-      om de gamla hjältesagorna talar sanning och låter er slå det
-      första slaget~",
-    live_description "Draken är täckt av hornliknande plattor",
-    dead_description "Drakens kropp är täckt av tjockt blod",
-    react_before [;
-    Go:
-      if(self has animate) {
-        print "Draken säger ~Så länge jag bevakar porten kommer ingen levande ut~";
-        if(DragonFlame in Dragon) {
-          print " och ställer sig framför dig med eld i sin andedräkt";
-        }
-        ".";
-      }
-    ],
-    orders [;
-      <<Go e_obj>>;
-    ],
-  ;
-  
-Object DragonFlame "flamma" Dragon
-  with
-    name "flamma" "flamman" "elden" "eld" "eldsflamman",
-    short_name_def "eldsflamman",
-    description "Inget kan stå emot en drakes eld.",
-    damage 30,
-  has concealed;
-
-Object DragonTail "svans"
-  with
-    name "svans" "svansen",
-    short_name_def "svansen",
-    damage 4,
-    description "Draken har spjutliknande horn på sin svans.",
-  has concealed;
-  
-Person Allvis "Allvis"
-  with
-    name "allvis",
-    move_probability 50,
-    leave_probability 50,
-    attack_probability 10,
-    skill 16,
-    strength 500,
-    loc1 R49 R50 R51 R52 R53 R54 R55,
-    enter_message "Allvis, dvärgen, träder in.",
-    live_description "Allvis är kort och satt",
-    dead_description "Allvis kropp ligger utsträckt på det kalla klippgolvet",
-    introduction "Dvärgfursten Allvis står i rummet. Han grymtar något
-                 på ett språk du inte förstår, men det låter inte
-                 speciellt vänligt",
-    orders [;
-      "Allvis ger dig en grym blick och söker efter sitt vapen.";
-    ],
-  has proper;
-  
-Object Mace "spikklubba" Allvis
-  with
-    name "spikklubba" "spikklubban",
-    short_name_def "spikklubban",
-    damage 10,
-  ;
-  
-Person Angrist "Angrist" R3
-  with
-    name "angrist",
-    move_probability 80,
-    wait_probability 20,
-    enter_message "Den vite konungen Angrist kommer in.",
-    live_description "Angrist ser gammal och trött ut",
-    dead_description "Angrists kropp är täckt av blod",
-    introduction 
-      "Kung Angrist har åldrats i förtid och är försänkt i mörka tankar, men 
-      han hejdar sig när han får syn på er och säger förvånat ~Så mitt meddelande
-      till kung Telnor kom fram till sist~.
-      Han berättar om Draupners uppror och hur han höll sin drake hemlig
-      tills han lurar kungens trupper i ett bakhåll, där de flesta vapenföra
-      männen brändes till döds. Det är bara en tidsfråga innan Draupner samlar
-      sina styrkor för att ta även den södra delen av landet. Angrist säger
-      att han tänker dö i sitt slott, men de flesta av hans folk har flytt
-      till bergen",
-    loc1 R3 R4 R5,
-    skill 15,
-    strength 350,
-    orders [;
-    Give: return self.order_give();
-    Go: return self.order_go();
-    Drop: return self.order_drop();
-    Take: return self.order_take();
-    Attack: print_ret (The) self, " säger ~Jag dödar inte på befallning~.";
-    ],
-  has proper;
-  
-Person Teleri "Teleri" R1
-  with
-    name "Teleri",
-    move_probability 90,
-    wait_probability 30,
-    enter_message "Teleri kommer in.",
-    wait_message "Teleri säger ~Låt oss skynda på~.",
-    live_description "Teleri är en god kamrat att ha med sig på farliga uppdrag",
-    dead_description
-      "Teleris öppna ögon speglar fortfarande hans förvåning över det
-      oväntade angreppet.",
-    introduction "~Det ska bli skönt att få gå på fast mark igen~, säger Teleri 
-                 och går nedför landgången",
-    loc1 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20
-         R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R32,
-    loc2 R40 R41 R42 R43 R44 R56 R57 R58 R59 R60 R61 R62 R63 R64 R65 R66,
-    skill 16,
-    strength 350,
-    orders [;
-    Give: return self.order_give();
-    Drop: return self.order_drop();
-    Take: return self.order_take();
-    Go: return self.order_go();
-    Attack: print_ret (The) self, " säger ~Jag dödar inte på befallning~.";
-    Examine:
-      if(noun==Scroll) {
-        print "Teleri läser ~hakuee ptr'uio nasc!~";
-        if(Dragon in location && DragonFlame in Dragon) {
-          remove DragonFlame;
-          move DragonTail to Dragon;
-          print ". Draken rycker till och elden slocknar";
-        }
-        ".";
-      }
-    ],
-  has proper;
-  
-PersonBase VanyarPlayer
-  with
-    number 0,
-    skill 20,
-    strength 500,
-    description "Muskler, OK. Vapen, OK. Mod, OK. Var är draken?",
-    each_turn [;
-      if(self has light) {
-        give self ~light;
-        "^Tändstickan slocknar.";
-      }
-      if(location==R2 && Diamond in player) {
-        score=score+5;
-        deadflag=2;
-        print "^När du kommer tillbaka efter att ha slutfört ditt
-              uppdrag hyllas och firas du av besättningen på fartyget";
-        if(Angrist has animate) {
-          print ". Kung Angrist och hans män överöser dig med skatter och lyckönskningar";
-        }
-        if(Teleri has animate) {
-          print ". Teleri tar farväl och säger ~Jag går till trollkarlen. Ta vara på dig~";
-        }
-        print_ret ".";
-      }
-!      self.strength=self.strength-4;
-      if(self.strength<10) {
-        print"^Du dog av utmattning.^";
-        deadflag=1;
-      } else  if(self.strength<80) {
-        print"^Du faller omkull av trötthet.^";
-        self.strength=self.strength+200;
-      } else if(self.strength<180) {
-        print"^Du är så trött att du knappt kan stå.^";
-      } else if(self.strength<250) {
-        print"^Du känner dig trött.^";
-      }
-    ],
-    before [;
-    Attack: deadflag=1; "Du begår självmord";
-    ],
-    react_before [;
-    Answer:
-      if(location==R42) {
-        wn = consult_from;
-        if(R42.s_to==0 && NextWord()=='algeothel') {
-          R42.s_to=R56;
-          "En dörr öppnas i klippväggen. Du kan gå syd.";
-        }
-      }
-    Swim:
-      if(location==R29 or R33 or R34 or R36 or R37 or R38 or R39) {
-        if(self hasnt general) {
-          give self general;
-          "Just som du ska sätta foten i vattnet ser du mystiska bubblor mitt
-          i vattnet. Du väntar ett tag, men inget mer syns.";
-        }
-        deadflag=1;
-        "Du simmar ut i floden. Vattnet blir plötsligt grumligt runt
-        omkring dig och du hör ett dovt muller. Du känner en brinnande smärta när
-        en enorm grön och slemmig sjöorm sliter av dig ena handen, och sedan
-        kastar den sig över dig...";
-      }
-      if(location==R2 or R6 or R21 or R23) "Du simmar ut i vattnet, men återvänder snart till land.";
-    Wait:
-      if(player.strength<1000) self.strength=self.strength+50;
-    ],
-  ;
-
-Object Dagger "dolk" R5
-  with
-    name "dolk" "dolken",
-    short_name_def "dolken",
-    damage 3,
-  ;
-
-Object Sword "svärd" Angrist
-  with
-    name "svärd" "svärdet",
-    short_name_def "svärdet",
-    damage 9,
-  has neuter;
-  
-Object Diamond "diamant" Draupner
-  with
-    name "diamant" "diamanten",
-    short_name_def "diamanten",
-    after [;
-    Take:
-      if(self hasnt general) {
-        give self general;
-        score=score+10;
-      }
-    ],
-  ;  
-
-[ Initialise;
-  #ifdef TARGET_ZCODE;
-  @erase_window -1;
-  #ifnot;
-  glk_window_clear(gg_mainwin);
-  #endif;
-  
-  print "^";
-#ifdef TARGET_GLULX;
-  ShowGraphics(true, true);
-#endif;
-
-  lookmode=2; ! Always show long descs (verbose)
-  thedark.description=Darkness_description;
-  
-    print "Det var år 2642 som kung Telnor fick bud från sin frände Angrist i landet Vanyar
-          bortom haven. En av Angrists vasaller, Draupner, hade gjort uppror och med hjälp
-          av en drake invaderat den norra delen av Angrists rike och stulit Aftonstjärnan;
-          den oskattbara diamanten som dvärgarna hittade djupt under bergen i tidernas
-          begynnelse. Angrist bad om bistånd och Telnor skickade dig eftersom du är ansedd
-          som orädd och dådkraftig. Med dig kom även Teleri, en vis alv med stora
-          kunskaper om krafter som verkar men inte kan ses med blotta ögat. Efter en lång resa kastade
-          skeppet ankar utanför Angrists slott.^^";
-    ChangePlayer(VanyarPlayer);
-    location=R1;
-    StartDaemon(Elf);
-    StartDaemon(Drawf);
-    StartDaemon(Guard);
-    StartDaemon(Draupner);
-    StartDaemon(Wizard);
-    StartDaemon(Dragon);
-    StartDaemon(Allvis);
-    StartDaemon(Angrist);
-    StartDaemon(Teleri);
-  }
+	with
+		move_probability 0,
+		leave_probability 0,
+		wait_probability 0,
+		attack_probability 0,
+		kill_score 0,
+		armour_score 0,
+		introduced 0,
+		loc1 0,
+		loc2 0,
+
+		describe_carried [;
+			if(PrintContents(1, self) == 0) rfalse;
+			print " ", (The) self, " is carrying ";
+			PrintContents(0, self);
+			print ".";
+		],
+
+		describe [;
+			if(self has animate) {
+				if(self.introduced == 0 && self provides introduction)
+					print "^", (string) self.introduction, ".";
+				else
+					print "^", (The) self, " is here.";
+				self.describe_carried();
+				self.introduced = 1;
+			} else {
+				print "^", (The) self, " lies dead in front of you.";
+			}
+			print "^";
+			rtrue;
+		],
+
+		description [;
+			if(self has animate) {
+				if(self provides live_description)
+					print (string) self.live_description, ".";
+				else
+					print "You see nothing special about ", (the) self, ".";
+				self.describe_carried();
+			} else {
+				if(self provides dead_description)
+					print (string) self.dead_description, ".";
+				else
+					print (The) self, " lies dead in front of you.";
+			}
+			print "^";
+			rtrue;
+		],
+
+		daemon [_i _p;
+			if(self notin location) {
+				_p = 0;
+				for(_i = 0 : _i < self.#loc1 / 2 && _p == 0 : _i++)
+					if(self.&loc1-->_i == location) _p = location;
+				for(_i = 0 : _i < self.#loc2 / 2 && _p == 0 : _i++)
+					if(self.&loc2-->_i == location) _p = location;
+
+				if(_p ~= 0 && random(100) < self.move_probability) {
+					move self to location;
+					if(self has generic) {
+						self.skill = 18;
+						self.strength = 400;
+						if(child(self) == 0) {
+							_i = Weapons.get_weapon();
+							if(_i) move _i to self;
+						}
+						print "^Here comes ", (a) self, ".";
+					} else {
+						print "^", (string) self.enter_message;
+					}
+					self.describe_carried();
+					"";
+				}
+			} else {
+				if(random(100) < self.attack_probability) {
+					print "^", (The) self, " attacks!^^";
+					self.attack();
+				}
+				if(random(100) < self.leave_probability) {
+					remove self;
+					print "^", (The) self, " leaves.^";
+					if(child(self)) move child(self) to Weapons;
+				} else {
+					if(random(100) < self.wait_probability) {
+						if(self provides wait_message)
+							print "^", (string) self.wait_message, "^";
+						else
+							print "^", (The) self, " waits.^";
+					}
+				}
+			}
+		],
+
+		kill_me [;
+			if(self has animate) {
+				give self ~animate;
+				give self static;
+				StopDaemon(self);
+				while(child(self)) move child(self) to parent(self);
+				if(self.kill_score > 0) score = score + self.kill_score;
+			}
+		],
+
+		attack [p_weapon _my_weapon _player_damage _my_damage _ka _kd _x _o;
+			! Pick a weapon for the player, unless one was supplied
+			_player_damage = 1;
+			if(p_weapon == 0) {
+				p_weapon = Fist;
+				objectloop(_o in player)
+					if(_o provides damage && _o.damage > _player_damage) {
+						p_weapon = _o;
+						_player_damage = p_weapon.damage;
+					}
+			} else if(p_weapon provides damage) {
+				_player_damage = p_weapon.damage;
+			}
+
+			! Pick a weapon for the attacker
+			_my_weapon = Fist;
+			_my_damage = 1;
+			objectloop(_o in self)
+				if(_o provides damage && _o.damage > _my_damage) {
+					_my_weapon = _o;
+					_my_damage = _my_weapon.damage;
+				}
+
+			! Hit points: own skill + weapon damage + luck
+			_ka = _my_damage + self.skill + random(12);
+			_kd = _player_damage + player.skill + random(12);
+			! Damage points
+			_x = 10 * random(36);
+
+			if(self.armour_score > _player_damage) {
+				print (The) p_weapon, " makes no impression on ",
+					(the) self, "'s armour.^^";
+				_kd = 0;
+			}
+
+			if(_kd < _ka) {
+				print (The) self, " wounds you with ", (the) _my_weapon, ".^";
+				player.strength = player.strength - _x;
+			}
+			if(_ka < _kd) {
+				print "You wound ", (the) self, " with ", (the) p_weapon, ".^";
+				self.strength = self.strength - _x;
+			}
+			if(_ka == _kd) print "A miss...^";
+
+			if(player.strength < 0) {
+				deadflag = 1;
+				"^The blow kills you.";
+			}
+			if(self.strength < 0) {
+				if(self has generic) {
+					remove self;
+					print_ret "^The body of ", (the) self, " dissolves.";
+				}
+				self.kill_me();
+				print_ret "^", (The) self, " dies.";
+			}
+			if(self.strength < 150)
+				print "^", (The) self, " looks very tired.^";
+		],
+
+		before [;
+		Attack:
+			if(self hasnt animate) print_ret (The) self, " is dead already.";
+			self.attack(second);
+			rtrue;
+		],
+
+		life [;
+		Ask, Tell, Answer:
+			"In this game you can only talk to your companions by giving them
+			orders, such as ~teleri, give me the sword~.";
+		],
+
+		order_go [_prop _dest;
+			if(random(2) == 1) print_ret (The) self, " shakes his head.";
+			_prop = selected_direction;
+			if(_prop == 0) rfalse;
+			@get_prop location _prop -> _dest;
+			if(_dest ~= 0 && UnsignedCompare(_dest, top_object) <= 0 &&
+					_dest ofclass Room) {
+				move self to _dest;
+				print_ret (The) self, " goes ",
+					(string) direction_name_array-->selected_direction_index, ".";
+			}
+			rfalse;
+		],
+
+		order_give [;
+			if(noun in self) {
+				if(second ~= player)
+					print_ret (The) self, " won't give anything to ", (the) second, ".";
+				move noun to player;
+				print_ret (The) self, " gives you ", (the) noun, ".";
+			}
+			print_ret (The) self, " hasn't got ", (the) noun, ".";
+		],
+
+		order_drop [;
+			if(noun in self) {
+				move noun to location;
+				print_ret (The) self, " drops ", (the) noun, ".";
+			}
+			print_ret (The) self, " hasn't got ", (the) noun, ".";
+		],
+
+		order_take [;
+			if(noun in location) {
+				if(noun has animate || noun has static || noun has concealed ||
+						noun has scenery)
+					print_ret (The) self, " can't take ", (the) noun, ".";
+				move noun to self;
+				print_ret (The) self, " takes ", (the) noun, ".";
+			}
+			print_ret (The) self, " can't see ", (the) noun, ".";
+		],
+	;
+
+! Strike one of the matches. The six matches of the original are kept as a
+! single object with a count, so that the parser never has to ask which of six
+! identical matches the player means.
+[ UseMatch;
+	Matches.counter = Matches.counter - 1;
+	if(Matches.counter == 0) remove Matches;
 ];
 
 ! ----------------------------------------------------------------------------
-!   Menu-driven help
+!   Rooms and the things that stand in them
 ! ----------------------------------------------------------------------------
 
-[ HelpSub;
-#ifdef TARGET_GLULX;
-  ShowGraphics(false);
-#endif;
+Room R1 "Ship"
+	with
+		desc
+			"You are aboard a grey ship. To the west you can see the towers of a
+			snow white castle. You can go down onto the quay by the gangway to
+			the north.",
+		n_to R2,
+		cant_go "That way leads down into the water. The only way from here is
+			the gangway leading to the harbour, which lies to the north.",
+	;
 
-  if(deadflag==2) {
-    DoMenu("Det finns information om följande:^\
-            ^     Introduktion\
-            ^     Hur man spelar\
-            ^     Lösning\
-            ^     Roliga saker^",
-            HelpMenu, HelpInfo);
-  } else {
-    DoMenu("Det finns information om följande:^\
-            ^     Introduktion\
-            ^     Hur man spelar\
-            ^     Lösning^",
-            HelpMenu, HelpInfo);
-  }
-  
-#ifdef TARGET_GLULX;
-  ShowGraphics(true);
-#endif;
+Room R2 "Harbour"
+	with
+		desc
+			"You are in a large harbour. It looks abandoned. A clear path leads
+			west.",
+		n_to R8,
+		s_to R1,
+		e_to R6,
+		w_to R3,
+	;
+
+Room R3 "Castle Yard"
+	with
+		add_score 5,
+		desc
+			"You are standing in the yard of the snow white castle. Through an
+			open door to the south you can see a large, well lit hall.",
+		s_to R4,
+		e_to [;
+			if(Angrist in location && Angrist hasnt general) {
+				give Angrist general;
+				print "^You take your leave of Angrist. He says ~Let me give you
+					one piece of advice: seek the help of the wizard in the west.
+					Farewell, and good luck~.^";
+			}
+			return R2;
+		],
+		sw_to R5,
+		cant_go "A wall bars your way.",
+	;
+
+Room R4 "Knights' Hall"
+	with
+		desc
+			"You are in a knights' hall with suits of armour lined up along the
+			walls. In the middle of the room stands a great round white table
+			with twelve chairs. To the west you see a magnificent portal.",
+		n_to R3,
+		w_to R5,
+		cant_go "A wall bars your way.",
+	;
+
+Room R5 "Throne Room"
+	with
+		desc
+			"You are in the throne room, dominated by a throne of silver set with
+			sapphires. Above the throne hangs the banner of the realm, white with
+			a red lion for its device.",
+		e_to R4,
+		ne_to R3,
+		cant_go "A wall bars your way.",
+	;
+
+Room R6 "Grassland"
+	with
+		desc
+			"You are on a grassy plain. A fresh sea breeze bends the green and
+			sturdy grass. To the south you see the sea of Vanyar. To the east and
+			north you see dense forest.",
+		n_to R7,
+		w_to R2,
+		e_to R21,
+		s_to "The sea is in the way.",
+	;
+
+Room R7 "Grassland"
+	with
+		desc
+			"You are standing in tall dry grass. A dense forest surrounds you to
+			the north and east. A dark path loses itself among the dim shadows of
+			the trees. The plain continues west. To the south west you can make
+			out tall white towers.",
+		n_to R25,
+		s_to R6,
+		e_to R22,
+		w_to R8,
+	;
+
+Room R8 "Tall Grass"
+	with
+		desc
+			"You are standing in the middle of a sea of tall grass. To the north
+			great dark trunks rise up.",
+		n_to R26,
+		w_to R9,
+		e_to R7,
+		s_to R2,
+	;
+
+Room R9 "By the Mountain"
+	with
+		desc
+			"A high, steep mountain range rises to the west of you. The mountains
+			run north and south. Far beyond the plain you are standing on you see
+			a vast forest spreading out. To the south rise the walls of the white
+			castle.",
+		n_to R10,
+		e_to R8,
+		se_to R2,
+		sw_to R11,
+		w_to "You would have to climb the mountain wall.",
+	;
+
+Room R10 "At the Foot of Formenas"
+	with
+		desc
+			"To the west of you rises the wild mountain range of Formenas. Below
+			it (and north of you) a dense dark forest spreads out. To the south
+			you see a billowing sea of grass.",
+		n_to R31,
+		s_to R9,
+		e_to R26,
+		w_to "You would have to climb the mountain wall.",
+	;
+
+Object Mountain "mountain"
+	with
+		name 'mountain' 'mountains' 'range' 'cliff' 'rock' 'wall',
+		found_in R10 R16 R36 R37 R38 R39,
+		before [;
+		Climb:
+			if(self hasnt general) {
+				give self general;
+				"You start climbing the mountain but happen to grab a loose stone
+				and fall back down. Nothing is broken, and there seems to be a
+				better way up a couple of yards to the side, if you want to try
+				again.";
+			}
+			deadflag = 1;
+			"You start climbing the mountain. When you have got fifty feet up you
+			suddenly lose your grip. Unhappily you fall so badly that you break
+			your neck.";
+		],
+	has scenery;
+
+Room R11 "Pass"
+	with
+		desc
+			"You are in a narrow pass winding between the high mountain sides.
+			Above you a crevice opens in the rock face.",
+		w_to R12,
+		ne_to R9,
+		u_to R14,
+		cant_go "A rock wall stops you.",
+	;
+
+Room R12 "Hill"
+	with
+		desc
+			"You are standing on a low hill below the pass, looking out over a
+			great forest that spreads out to the north east. The forest offers a
+			remarkable sight, with crowns that glitter like gold, and an almost
+			reverent feeling of age and mystery sweeps over you. You turn your
+			gaze west and look out over a barren desert.",
+		n_to R13,
+		e_to R11,
+		w_to R17,
+		ne_to R15,
+		cant_go "No path leads that way.",
+	;
+
+Room R13 "Forest"
+	with
+		desc
+			"The forest is dense and ancient here. You almost get the feeling that
+			the forest has a soul of its own, and watches every visitor with
+			suspicion.",
+		s_to R12,
+		e_to R15,
+		cant_go "The forest is far too dense in that direction.",
+	;
+
+Room R14 "Cave"
+	with
+		desc "In the light of your torch you see a small cave chamber.",
+		d_to R11,
+		u_to "You bang your head on the roof of the cave.",
+		cant_go "The only way out is back down to the mountain pass.",
+	has ~light;
+
+Room R15 "Forest"
+	with
+		desc
+			"You are standing in a beautiful, sweet smelling forest. To the west,
+			between straight tree trunks, you glimpse a barren sandy desert. A
+			faintly marked path leads north east.",
+		w_to R13,
+		sw_to R12,
+		ne_to R16,
+		cant_go "No paths lead that way.",
+	;
+
+Room R16 "Glade"
+	with
+		desc
+			"You are standing in a glade on the border between mountain and
+			forest. To the north east you see an opening leading into the
+			mountain. To the south rises the beautiful glittering forest.",
+		ne_to R19,
+		sw_to R15,
+		n_to "The mountain is far too steep.",
+		cant_go "The forest is far too dense.",
+	;
+
+Room R17 "Desert"
+	with
+		desc
+			"You are on the eastern edge of an enormous desert. The rays of the
+			sun burn mercilessly on everything and everyone. Where forest and
+			shade ought to have been you see nothing at all! Only the desert
+			surrounds you.",
+		each_turn [;
+			player.strength = player.strength - 100;
+			print "^The heat is unbearable.^";
+		],
+		n_to R18,
+		s_to R18,
+		e_to R12,
+		w_to R18,
+		cant_go "The sand is far too loose in that direction.",
+	;
+
+Room R18 "Desert"
+	with
+		desc
+			"A hot desert wind sweeps past you. All you can see is sand... hot
+			white sand.",
+		each_turn [;
+			player.strength = player.strength - 100;
+			print "^The heat is unbearable.^";
+		],
+		n_to R17,
+		s_to R17,
+		e_to R17,
+		w_to R18,
+		cant_go "The sand is far too loose in that direction.",
+	;
+
+Room R19 "Mountain Hall"
+	with
+		desc
+			"An enormous hall has been hewn out of the mountain. There are two
+			ways out, the gate you came by and an enormous gate to the east.",
+		e_to R20,
+		sw_to R16,
+		u_to "There is a great deal of stone in that direction.",
+		cant_go "Massive mountain sides refuse to give way.",
+	;
+
+Room R20 "Laboratory"
+	with
+		add_score 10,
+		desc
+			"You are in a room which is used as a laboratory. In locked cabinets
+			along the walls you see quantities of bottles. In the middle of the
+			room a stone table has been hewn out of the rock. You see two closed
+			doors. To the north east you see a doorway, and through it a ravine.",
+		each_turn [;
+			if(Wizard hasnt animate) rfalse;
+			if(Wizard hasnt general) {
+				give Wizard general;
+				"^A voice thunders at you. ~I am Sirion, the wizard. Fetch me the
+				mighty herb of Allvis the dwarf and I shall help you. Teleri, one
+				of my pupils, will lend you his aid.~";
+			} else if(Herb in player) {
+				remove Herb;
+				score = score + 10;
+				"^A mighty voice says ~Thank you, my friend~. The herb dissolves
+				into smoke. ~If you say 'algeothel' anywhere in the ravine a
+				secret way will open. You may pass through the eastern gate~. The
+				voice echoes away through the hall.";
+			}
+		],
+		w_to R19,
+		ne_to MagicDoor,
+		cant_go "There is a great deal of stone in that direction.",
+	;
+
+Object MagicDoor "magic gate"
+	with
+		name 'magic' 'gate' 'door' 'doorway' 'opening',
+		description [;
+			print "It is a gate of no ordinary making";
+			if(self hasnt open) ", and it is shut";
+			".";
+		],
+		door_to [;
+			if(location == R20) return R44;
+			return R20;
+		],
+		door_dir [;
+			if(location == R20) return ne_to;
+			return sw_to;
+		],
+		before [;
+		Enter:
+			if(self hasnt open) "You cannot pass a magic gate just like that.";
+		Open:
+			if(self hasnt open) "The doors are magic and let none through but
+				masters of magic.";
+		],
+		found_in R20 R44,
+	has scenery door;
+
+Room R21 "Rocky Shore"
+	with
+		name 'pine' 'pines' 'trees',
+		desc
+			"You are standing on a rocky shore. Around you grow low windswept
+			pines. A dark dense forest lies to the north. To the west a plain
+			spreads out.",
+		n_to R22,
+		w_to R6,
+		ne_to R23,
+		nw_to "No path leads that way.",
+		cant_go "The sea is in the way.",
+	;
+
+Room R22 "Forest"
+	with
+		desc
+			"You are in the middle of a dim forest. A path leads west between a
+			couple of trunks. In the distance you can hear gulls crying.",
+		n_to R24,
+		s_to R21,
+		e_to R23,
+		w_to R7,
+	;
+
+Room R23 "River"
+	with
+		desc
+			"To the east in front of you a swift river runs northwards. To the
+			south you see the sea. Forest surrounds you in every other
+			direction.",
+		n_to R34,
+		w_to R22,
+		nw_to R24,
+		e_to "You would have to swim if you want to go that way.",
+		s_to "You would have to swim if you want to go that way.",
+		cant_go "The forest is dense and dark in that direction.",
+	;
+
+Room R24 "Forest"
+	with
+		desc "You are standing in the middle of the darkest forest.",
+		n_to R28,
+		e_to R34,
+		w_to R25,
+		cant_go "The ground is far too broken by roots in that direction.",
+	;
+
+Room R25 "Forest"
+	with
+		desc
+			"You are on the edge of the forest. To the north the forest thickens
+			again. Heavy undergrowth covers the ground.",
+		n_to R27,
+		s_to R7,
+		w_to R26,
+		e_to R24,
+	;
+
+Room R26 "Forest"
+	with
+		desc
+			"You are on the edge of a dim forest. You can glimpse the yellow grass
+			of the plain to the west. The forest thickens to the north.",
+		n_to "The forest is far too dense in that direction.",
+		w_to R10,
+		e_to R25,
+		s_to R8,
+	;
+
+Room R27 "Forest Edge"
+	with
+		desc
+			"You are at the edge of the forest. Far beyond a plain to the north
+			rises an ominous dark castle. East of it you see a high cliff. Dense
+			forest surrounds you on every other side.",
+		n_to R35,
+		e_to R28,
+		s_to R25,
+		w_to R30,
+	;
+
+Room R28 "Forest"
+	with
+		desc "You have come into a very dense part of the forest.",
+		e_to R33,
+		w_to R27,
+		s_to R24,
+		ne_to R29,
+		cant_go "The forest is far too dense in that direction.",
+	;
+
+Room R29 "Sparse Forest"
+	with
+		desc
+			"You are standing in sparse forest now. To the east of you a river
+			runs, and to the south the forest continues. To the north high
+			mountains rise. To the west stands a tall cliff which does not look
+			too steep.",
+		e_to "The river is too deep and too swift.",
+		s_to R33,
+		w_to R32,
+		sw_to R28,
+		n_to "The mountain stops you.",
+	;
+
+Room R30 "Glade"
+	with
+		desc
+			"You come out into a glade in the forest. To the west lies a small hut
+			of brushwood. Human bones lie scattered outside it. To the east a path
+			leads on into the forest.",
+		e_to R27,
+		w_to R31,
+		cant_go "The forest is dark and dense in that direction.",
+	;
+
+Room R31 "Brushwood Hut"
+	with
+		desc
+			"You are in a shabby hut of brushwood. On a fire stands a cauldron
+			holding some kind of soup. On the floor lie what are plainly the
+			remains of the ingredients (assorted torn up dwarf, human and elf
+			bodies).",
+		e_to R30,
+		cant_go "The only way out leads east.",
+	;
+
+Room R32 "Cliff"
+	with
+		desc
+			"From up here on the cliff top you have a wonderful view. To the south,
+			far beyond forest and plain, you can make out a white castle against
+			the azure sea. To the east beyond the river lies a great mountain
+			massif. You can see snow covered peaks sticking up here and there. With
+			a roar the river throws itself down into a deep ravine to the north. To
+			the west below you, you see a black castle.",
+		e_to R29,
+		d_to "Nobody could survive such a fall.",
+		cant_go "The only way from here is east.",
+	;
+
+Room R33 "River Bank"
+	with
+		desc
+			"You are standing on the bank of the river. A small boat lies moored
+			among the reeds. Straight across the river, to the north east, you see
+			a way into a great black mountain.",
+		n_to R29,
+		w_to R28,
+		s_to R34,
+		e_to "You can't walk on water.",
+	;
+
+Room R34 "River Bank"
+	with
+		desc
+			"You are standing on the bank where the river is at its narrowest. The
+			reeds here are as tall as a man, and on a small point of land stands an
+			old tree. Across the shimmering green water you see a similar bank and
+			high black jagged mountains.",
+		n_to R33,
+		s_to R23,
+		w_to R24,
+		e_to "The river is far too deep to wade across.",
+	;
+
+Room R35 "Before the Castle"
+	with
+		desc
+			"You are standing before a castle from whose tower a banner flies. A
+			black device on the banner shows a stylised black dragon. The gate in
+			the wall stands open. Through it you can see a large abandoned
+			courtyard.",
+		n_to [;
+			if(Dragon has animate) "The dragon would kill you at once.";
+			return R58;
+		],
+		s_to R27,
+		cant_go "From here you can only go into the castle, or back to the
+			forest.",
+		each_turn [;
+			if(Dragon has animate) {
+				if(self hasnt general) {
+					give self general;
+					"^With a roar a black dragon lifts from the balustrade of the
+					castle and dives towards you.";
+				}
+				deadflag = 1;
+				"^The dragon throws itself upon you, and from below you have no
+				chance of harming it. Its flaming breath cremates you...";
+			}
+		],
+	;
+
+Object DummyDragon "dragon" R35
+	with
+		name 'dragon',
+		before [;
+			if(Dragon has animate) "The dragon is flying high above you.";
+			"The dragon lies on the balustrade, far from here.";
+		],
+	has concealed;
+
+Room R36 "Shore"
+	with
+		desc
+			"You are standing on a narrow strip of shore wedged between the river
+			to the west and a rock wall to the east. In the rock wall you see an
+			artfully hewn gate leading into the darkness of the mountain. The shore
+			continues south.",
+		s_to R37,
+		e_to MountainDoor,
+		w_to "There is a river in the way.",
+	;
+
+Object MountainDoor "gate"
+	with
+		name 'gate' 'door' 'portal',
+		description [;
+			print "It is a mighty gate hewn out of the black granite";
+			if(self hasnt open) ". The gate is shut";
+			".";
+		],
+		door_to [;
+			if(location == R36) return R45;
+			return R36;
+		],
+		door_dir [;
+			if(location == R36) return e_to;
+			return w_to;
+		],
+		found_in R36 R45,
+	has door open scenery;
+
+Room R37 "Sandy Beach"
+	with
+		desc
+			"You are standing on a sandy beach running north and south. The beach
+			is bounded to the east by mountains and to the west by the river.",
+		n_to R36,
+		s_to R38,
+		w_to "There is a river in the way.",
+		e_to "The mountain is far too steep.",
+	;
+
+Room R38 "Shore"
+	with
+		desc
+			"Vast cliffs rise to impressive heights east of you. You are standing
+			on the eastern bank of the river and can follow it north and south. A
+			rotten tree lies across the river.",
+		n_to R37,
+		s_to R39,
+		w_to R34,
+		e_to "The mountain is far too steep.",
+	;
+
+Room R39 "Shore"
+	with
+		desc
+			"You look out over the sea from the shore you are standing on. To the
+			east the view is hidden by gigantic cliffs. Here the river seems to run
+			down into the sea.",
+		n_to R38,
+		w_to "There is a river in the way.",
+		e_to "The mountain is far too steep.",
+	;
+
+Object Rope "rope" R39
+	with
+		initial "A rope lies almost hidden in the sand.",
+		name 'rope',
+		before [;
+		Climb:
+			if(Rope has scenery) <<Go FAKE_U_OBJ>>;
+		],
+	;
+
+Room R40 "Waterfall"
+	with
+		desc
+			"You are standing before an enormous waterfall. In the damp ground you
+			see the footprints of dwarves. They are fairly fresh.",
+		w_to R41,
+		e_to Waterfall,
+		cant_go "High mountain sides stop you.",
+	;
+
+Object Waterfall "waterfall"
+	with
+		name 'waterfall' 'fall' 'water' 'curtain',
+		description "The spray from the waterfall leaves you dripping wet.",
+		door_to [;
+			print "You walk through the waterfall and come to...^";
+			if(location == R40) return R55;
+			return R40;
+		],
+		door_dir [;
+			if(location == R40) return e_to;
+			return w_to;
+		],
+		found_in R40 R55,
+	has scenery door open;
+
+Room R41 "Ravine"
+	with
+		desc
+			"You are at the bottom of a deep ravine. Smooth rock walls that look
+			unclimbable surround you. From the east comes a roaring sound. The
+			ravine continues to the north west.",
+		e_to R40,
+		nw_to R42,
+		cant_go "High mountain sides stop you.",
+	;
+
+Room R42 "Ravine"
+	with
+		desc "You are in the deep ravine.",
+		s_to 0,
+		se_to R41,
+		sw_to R43,
+		cant_go "High mountain sides stop you.",
+		before [;
+		Answer:
+			wn = consult_from;
+			if(self.s_to == 0 && NextWord() == 'algeothel') {
+				self.s_to = R56;
+				"A door opens in the rock wall. You can go south.";
+			}
+		],
+	;
+
+Room R43 "Ravine"
+	with
+		desc "You are still in a deep ravine.",
+		s_to R44,
+		ne_to R42,
+		cant_go "High mountain sides stop you.",
+	;
+
+Room R44 "End of the Ravine"
+	with
+		desc
+			"You are at the end of the ravine. There is an open gate in the south
+			western rock face.",
+		n_to R43,
+		sw_to MagicDoor,
+		cant_go "High mountain sides stop you.",
+	;
+
+Room R45 "Cave Mouth"
+	with
+		desc
+			"A great cave opens in the mountain, faintly lit by the light
+			streaming in through the open gate. It continues eastwards, but it is
+			too dark to see how large it is.",
+		e_to R48,
+		w_to MountainDoor,
+		cant_go "A solid rock wall stops you.",
+		u_to "Several tons of stone stop you.",
+	;
+
+Room R48 "Bat Cave"
+	with
+		name 'droppings' 'dung',
+		desc
+			"Thousands of bats must have lived here over the years, and the ground
+			is covered with whitened and evil smelling droppings. Far away to the
+			west you see a faint light filtering in.",
+		w_to R45,
+		cant_go "A solid rock wall stops you.",
+		u_to "You can't reach the hole in the ceiling.",
+	;
+
+Object Bats "bats" R48
+	with
+		name 'bat' 'bats',
+		describe "^Some bats hang from the ceiling.^",
+		description "They are a solid mass of grey bodies, leathery wings and
+			small yellow eyes.",
+		before [;
+		ThrownAt:
+			<<Attack self>>;
+		Attack:
+			remove self;
+			move Hole to location;
+			"The frightened bats fly off through a hole in the ceiling.";
+		],
+	has animate pluralname;
+
+Object Hole "hole"
+	with
+		name 'hole' 'crack',
+		description "The hole is a natural crack in the rock, a couple of yards
+			wide.",
+		describe [;
+			print "^There is a hole in the ceiling";
+			if(Rope has scenery)
+				print ". A rope hangs from the hole, and you could climb up it";
+			print ".^";
+			rtrue;
+		],
+		before [;
+		ThrownAt:
+			if(noun == Rope && Rope hasnt scenery) {
+				R48.u_to = R49;
+				move Rope to location;
+				give Rope scenery;
+				score = score + 10;
+				"You have thrown the rope up.";
+			}
+		],
+	has static;
+
+Room R49 "Passage"
+	with
+		desc
+			"You are in a dark passage. Beside you is a hole in the floor. The
+			floor is covered with old bat droppings.",
+		e_to R50,
+		d_to R48,
+		cant_go "A solid rock wall stops you.",
+		u_to "Several tons of stone stop you.",
+	has ~light;
+
+Room R50 "Mountain Hall"
+	with
+		desc
+			"In the light of your torch you see that you have come into a great
+			mountain hall. A stairway leads up, and two passages lead south and
+			north.",
+		n_to R55,
+		s_to R53,
+		w_to R49,
+		u_to R51,
+		cant_go "A solid rock wall stops you.",
+	has ~light;
+
+Room R51 "Stairway"
+	with
+		desc "You are standing on a landing halfway up the stairs.",
+		u_to R52,
+		d_to R50,
+		cant_go "A solid rock wall stops you.",
+	has ~light;
+
+Room R52 "Window"
+	with
+		desc
+			"Here a strong sunlight floods in through a small window. When your
+			eyes have grown used to the light you look out over a fabulous
+			landscape, with the wild peaks of Formenas against the horizon, and
+			below them the resplendent forest between the white castle and the
+			black.",
+		d_to R51,
+		cant_go "A solid rock wall stops you.",
+	;
+
+Room R53 "Throne Room"
+	with
+		desc "In the torchlight you see a beautiful throne adorned with precious
+			stones.",
+		n_to R50,
+		e_to R54,
+		cant_go "A solid rock wall stops you.",
+		u_to "Several tons of stone stop you.",
+	has ~light;
+
+Room R54 "Treasure Room"
+	with
+		desc
+			"The light of your torch is thrown back by all the gold and precious
+			stones lying behind an impenetrable grating.",
+		w_to R53,
+		cant_go "A solid rock wall stops you.",
+		u_to "Several tons of stone stop you.",
+	has ~light;
+
+Room R55 "Dead End"
+	with
+		desc
+			"You are in a dead end in the mountain. To the south is a way out, and
+			to the west the passage ends in a curtain of water.",
+		s_to R50,
+		w_to Waterfall,
+		cant_go "A solid rock wall stops you.",
+		u_to "Several tons of stone stop you.",
+	has ~light;
+
+Room R56 "Passage"
+	with
+		desc "You are in a dark and narrow passage.",
+		n_to R42,
+		s_to R57,
+		cant_go "The passage runs north and south.",
+	;
+
+Room R57 "Cellar"
+	with
+		desc
+			"Now you have come to a damp cellar. The great room is quite deserted.
+			You can make out a rotten wooden stair leading up.",
+		n_to R56,
+		u_to R58,
+		cant_go "It is up or north from here.",
+	;
+
+Room R58 "Courtyard"
+	with
+		desc
+			"You are standing in a courtyard surrounded by black buildings. Stairs
+			lead both up and down. There are gates to the east and west. The castle
+			gate is to the south.",
+		s_to R35,
+		e_to R60,
+		w_to R59,
+		u_to R61,
+		d_to R57,
+	;
+
+Room R59 "Dungeon"
+	with
+		desc
+			"You have come into a dark dungeon. The smell of rotting meat hits you.
+			Behind the barred gates of the cells you see skeletons chained to the
+			walls. You can also hear rats squeaking. The only way out of here is
+			through the gate to the east.",
+		e_to R58,
+		cant_go "The only way out is back to the courtyard.",
+	;
+
+Room R60 "Kitchen"
+	with
+		desc
+			"Smoke from the great open hearth hits you as you walk into the
+			kitchen. A beer barrel dominates the little room, which is deserted and
+			slightly decayed.",
+		w_to R58,
+		cant_go "The only way out is back to the courtyard.",
+	;
+
+Room R61 "Knights' Hall"
+	with
+		desc
+			"You are in Draupner's knights' hall. In the middle of the room stands
+			an oval table with thirteen chairs. To the east is a gate, and against
+			the west wall stands a great sideboard. Stairs lead up and down.",
+		e_to R62,
+		u_to R64,
+		d_to R58,
+		w_to "A massive wall stops you.",
+		cant_go "A massive wall stops you.",
+	;
+
+Room R62 "Gallery"
+	with
+		desc
+			"You pace up and down in a gallery. The only thing worth noting here is
+			the beautiful ceiling paintings, which portray a knight's battle with a
+			dragon.",
+		w_to R61,
+		cant_go "The only way out is back to the knights' hall.",
+	;
+
+Room R63 "Armoury"
+	with
+		desc
+			"Through the low passage you have come into an armoury. You see all
+			manner of armour and weapons. Most of them are broken or rusted through,
+			but there are a few shining exceptions. Among other things your eye is
+			caught by some broad swords of good quality which seem untouched by the
+			ravages of time.",
+		e_to R61,
+		cant_go "The only way out is back to the knights' hall.",
+	;
+
+Room R64 "Stairway"
+	with
+		desc
+			"You are at the very top of the stairs. There is a gate to the south
+			west, and through it you see a black tail of enormous size sticking
+			out.",
+		sw_to R65,
+		d_to R61,
+		cant_go "Your choice is to retreat down the stairs, or bravely step out
+			onto the balustrade through the gate to the south west.",
+	;
+
+Room R65 "Balustrade"
+	with
+		desc
+			"You have come out into the open air again and are now standing on the
+			balustrade of the castle. Deposits of soot cover the walls and the
+			floor. From up here you can see out over a dense forest. You see a
+			stairway down to the north east and a great gate to the east.",
+		e_to R66,
+		ne_to R64,
+		cant_go "A brief glance downwards makes you think better of it.",
+	;
+
+Room R66 "Throne Room"
+	with
+		desc
+			"You have now come into the heart of the castle... the throne room. The
+			room is lit by sunbeams streaming through the tall windows. The light is
+			reflected from the only furniture in the room, an enormous throne set
+			with jewels.",
+		w_to R65,
+		cant_go "The only way out is back to the balustrade.",
+	;
+
+! ----------------------------------------------------------------------------
+!   Furniture and other fixtures
+! ----------------------------------------------------------------------------
+
+Object Bench "sideboard" R61
+	with
+		name 'sideboard' 'cupboard' 'cabinet',
+		counter 0,
+		description "The sideboard is a heavy piece of furniture of black oak.",
+		before [;
+		Push, Pull:
+			if(self has general) {
+				give self ~general;
+				R61.w_to = 0;
+				"You push the sideboard back.";
+			}
+			give self general;
+			R61.w_to = R63;
+			if(self.counter == 0) {
+				self.counter = 1;
+				score = score + 15;
+			}
+			"On the wall where the sideboard stood you see a low hole that you
+			can walk through.";
+		],
+	has scenery supporter;
+
+Object Table1 "table" R61
+	with
+		name 'table' 'top' 'scratches',
+		description "The table top is covered with scratches.",
+	has scenery supporter;
+
+Object Table2 "table" R4
+	with
+		name 'table',
+		description "Thirty people could easily sit at the great table at the
+			same time.",
+	has scenery supporter;
+
+Object Throne "throne" R5
+	with
+		name 'throne',
+		description "The throne glitters with silver and sapphires.",
+		before [;
+		Push, Pull:
+			player.strength = player.strength - 80;
+			"Aargh, that took some doing.";
+		],
+	has scenery supporter;
+
+Object Boat "boat" R33
+	with
+		name 'boat',
+		description "The boat is small and badly worn.",
+		before [;
+		Row:
+			if(self hasnt generic) {
+				give self generic;
+				"Just as you are about to cast off you see something move in the
+				water.";
+			}
+			deadflag = 1;
+			"You cast off and row out into the river. The water suddenly turns
+			cloudy around you and you hear a dull rumble. You feel a burning pain
+			as an enormous green and slimy sea serpent tears off one of your
+			hands, and then it throws itself upon you...";
+		Push, Pull:
+			player.strength = player.strength - 80;
+			"Aargh, that took some doing.";
+		],
+	has scenery enterable container open;
+
+Object Tree "tree" R34
+	with
+		name 'tree' 'trunk',
+		counter 0,
+		description [;
+			if(self.counter == 2) "The rotten tree lies like a bridge across the
+				river.";
+			"The rotten tree stands by the river bank.";
+		],
+		before [;
+		Climb:
+			if(self.counter < 2) "The tree is far too rotten.";
+		Cut:
+			"You will need something to cut it with.";
+		Attack:
+			if(second ~= Axe) print_ret (The) second, " makes no impression on
+				the tree.";
+			if(self.counter == 0) {
+				self.counter = 1;
+				"The tree groans at your blow.";
+			}
+			if(self.counter == 1) {
+				self.counter = 2;
+				score = score + 10;
+				R34.e_to = R38;
+				"The rotten tree falls heavily, and lies like a bridge across the
+				river.";
+			}
+			"You have already felled the tree.";
+		],
+	has scenery;
+
+Object GenericTree "trees"
+	with
+		name 'tree' 'trees' 'trunk' 'trunks',
+		description "The trees have tall straight trunks, and crowns with small
+			green leaves high above you.",
+		found_in R12 R13 R14 R15 R16 R21 R22 R23 R24 R25 R26 R27 R28 R29,
+		before [;
+		Climb: "The tree has no footholds.";
+		],
+	has scenery pluralname;
+
+Food BeerBarrel "beer barrel" R60
+	with
+		name 'barrel' 'beer' 'ale',
+		nutrition 50,
+		portions 6,
+		finish_message "Now the beer barrel is empty.",
+		consume_message "You drink some of the rich beer.",
+		description "The great barrel holds what is left of last year's brew.",
+		before [;
+		Push, Pull:
+			player.strength = player.strength - 80;
+			"Aargh, that took some doing.";
+		],
+	has scenery;
+
+Food Water "water"
+	with
+		name 'water' 'river' 'sea',
+		found_in R40 R29 R33 R34 R23 R2 R6 R21 R36 R37 R38 R39,
+		description "Water, water, just ordinary water.",
+		nutrition 10,
+		portions 999,
+		consume_message "You drink a little of the water.",
+	has scenery;
+
+Object Herb "herb" R54
+	with
+		name 'herb',
+		description "The herb smells sweet and you feel more alert.",
+		after [;
+		Take:
+			if(self hasnt general) {
+				give MagicDoor open;
+				give self general;
+				score = score + 5;
+			}
+		],
+	;
+
+Object Matchbox "matchbox" R5
+	with
+		name 'matchbox' 'box',
+		description [;
+			if(Matches in self) "A small box of matches.";
+			"A small matchbox. It is empty.";
+		],
+	has container open openable;
+
+Object Matches "matches" Matchbox
+	with
+		name 'match' 'matches',
+		counter 6,
+		description [;
+			print_ret "There are ", (number) self.counter, " matches left.";
+		],
+		before [;
+		Burn:
+			if(location hasnt light) {
+				print "In the feeble light of the match you look around you.^";
+				give player light;
+				UseMatch();
+				PlayerTo(real_location);
+				rtrue;
+			}
+			"Say what you want to set fire to instead.";
+		],
+	has pluralname;
+
+Object Scroll "parchment" R52
+	with
+		name 'parchment' 'scroll',
+		description "The parchment says that this spell frightens dragons. It
+			must, however, be read by someone skilled in magic. At the bottom
+			stands a row of characters you cannot make out.",
+		after [;
+		Take:
+			if(self hasnt general) {
+				give self general;
+				score = score + 5;
+			}
+		],
+	;
+
+Object Treasure "treasure" R53
+	with
+		name 'treasure' 'gold' 'stones' 'grating',
+		description "So much wealth and so near, and yet so far away.",
+		before [;
+		Take: "Give it up. Even if you managed to break the grating open the
+			dwarves would hunt you to the ends of the earth.";
+		],
+	has scenery;
+
+Object Jewel "jewel" R40
+	with
+		name 'jewel',
+		description "It is small, but it has a beautiful green lustre.",
+	;
+
+Object Bottle "bottle" R20
+	with
+		name 'bottle',
+		description "The bottle is covered with dust.",
+		before [;
+		Take: "It is probably best to leave the wizard's things alone.";
+		],
+	;
+
+Object Cup "goblet" R20
+	with
+		name 'goblet' 'cup',
+		description "The goblet is cracked.",
+		before [;
+		Take: "It is probably best to leave the wizard's things alone.";
+		],
+	;
+
+Object Can "jar" R20
+	with
+		name 'jar' 'can',
+		description "The jar is covered with dust and cobwebs.",
+		before [;
+		Take: "It is probably best to leave the wizard's things alone.";
+		],
+	;
+
+Object HamBone "ham bone"
+	with
+		name 'ham' 'bone',
+		description "A bare ham bone.",
+	;
+
+Food Ham "ham" R4
+	with
+		name 'ham',
+		nutrition 50,
+		portions 3,
+		leftover HamBone,
+		description "The ham smells wonderful.",
+	;
+
+Object EmptyBottle "empty bottle"
+	with
+		name 'empty' 'bottle',
+		damage 6,
+		description "There is not a drop of wine left in the bottle.",
+	;
+
+Food Winebottle "wine bottle" R4
+	with
+		name 'wine' 'bottle',
+		damage 6,
+		nutrition 50,
+		portions 3,
+		finish_message "The wine is all gone now.",
+		consume_message "You drink a little wine (hic).",
+		leftover EmptyBottle,
+		description "The bottle holds a slightly bitter red wine.",
+	;
+
+Object Branch "branch" R10
+	with
+		name 'branch' 'torch',
+		description [;
+			if(self has light) "The branch is burning and makes an excellent
+				torch.";
+			"The branch is full of resin.";
+		],
+		counter 0,
+		daemon [;
+			if(self has light) {
+				self.counter = self.counter + 1;
+				if(self.counter == 150) {
+					StopDaemon(self);
+					if(TestScope(self)) print "^The branch has burnt out.^";
+					remove self;
+				}
+			}
+		],
+		before [;
+		Extinguish:
+			if(self hasnt light) "The branch isn't burning.";
+			give self ~light;
+			StopDaemon(self);
+			"You put out the branch.";
+		Burn:
+			if(second == 0) {
+				if(TestScope(Matches) == false) "You have no matches.";
+				second = Matches;
+			}
+			if(second == Matches) {
+				if(self has light) "The branch is already burning.";
+				UseMatch();
+				give self light;
+				StartDaemon(self);
+				"You light the branch with a match.";
+			}
+			"You will have to light it with a match.";
+		],
+	;
+
+Food Bread "loaf of bread" R20
+	with
+		name 'bread' 'loaf',
+		nutrition 50,
+		portions 3,
+		description "Mmm, freshly baked.",
+	;
+
+Food Apple "apple" R27
+	with
+		name 'apple',
+		nutrition 40,
+		portions 1,
+		description "An apple a day keeps the doctor away, they say.",
+	;
+
+Food Bush "berry bush" R10
+	with
+		name 'bush' 'berries' 'berry',
+		description "You recognise the berries as ironberries. They are wholesome
+			and very rich in energy.",
+		nutrition 60,
+		portions 999,
+		consume_message "You eat some of the berries.",
+	;
+
+Object Cactus "cactus" R17
+	with
+		name 'cactus',
+		description "Best to watch out for those sharp spines.",
+		before [;
+		Eat:
+			if(self hasnt generic) {
+				give self generic;
+				"The flesh of the cactus smells rather bitter. Are you sure you
+				want to eat it?";
+			}
+			deadflag = 1;
+			"You eat some of the flesh of the cactus. Unhappily you soon get
+			severe stomach cramps, and in great agony you die.";
+		],
+	has static;
+
+Object Soup "soup" R31
+	with
+		name 'soup' 'cauldron',
+		description "The soup smells of things you would rather not think about.",
+		before [;
+		Drink, Eat:
+			player.strength = player.strength - 50;
+			"You drink some of the soup. It burns like fire and you feel faint
+			and weak.";
+		],
+	;
+
+! ----------------------------------------------------------------------------
+!   Weapons
+! ----------------------------------------------------------------------------
+
+! The wandering monsters draw a weapon from here when they turn up, and hand
+! it back when they leave.
+Object Weapons
+	with
+		get_weapon [_i _x _y;
+			! return a random child of self
+			_x = random(children(self));
+			if(_x == 0) rfalse;
+			_y = child(self);
+			for(_i = 1 : _i < _x : _i++) _y = sibling(_y);
+			return _y;
+		],
+	;
+
+Object Sling "sling" Weapons
+	with
+		name 'sling',
+		damage 8,
+		description "Handy if Goliath turns up.",
+	;
+
+Object Club "club" Weapons
+	with
+		name 'club',
+		damage 5,
+		description "Heavy, and easy to grip.",
+	;
+
+Object Broadsword "broad sword" R63
+	with
+		name 'broad' 'sword' 'broadsword',
+		damage 11,
+		description "Now this is what you could call a real weapon. There is no
+			weapon and no armour that can stand up to a good hit from so heavy a
+			blade.",
+	;
+
+Object Irongloves "gauntlet" Weapons
+	with
+		name 'gauntlet' 'glove' 'iron',
+		damage 5,
+		description "Fists of steel!",
+	;
+
+Object Axe "axe" R14
+	with
+		name 'axe',
+		damage 6,
+		description "It is an ordinary wood axe.",
+	;
+
+Object Knife "machete" Weapons
+	with
+		name 'machete' 'knife',
+		damage 4,
+		description "The machete has a heavy, well honed blade.",
+	;
+
+Object Fist "fist"
+	with
+		name 'fist' 'fists' 'hand' 'hands',
+		damage 1,
+		description "You are used enough to fighting with your fists, but a real
+			weapon would be better.",
+	has concealed;
+
+! ----------------------------------------------------------------------------
+!   The people of Vanyar
+! ----------------------------------------------------------------------------
+
+Person Elf "elf"
+	with
+		name 'elf',
+		loc1 R12 R13 R14 R15 R16,
+		move_probability 50,
+		leave_probability 80,
+		skill 0,
+		strength 0,
+		live_description "The elf is tall and fair",
+		orders [;
+		Go: return self.order_go();
+		Attack: print_ret (The) self, " says ~I do not kill to order~.";
+		],
+	has generic;
+
+Person Dwarf "dwarf"
+	with
+		name 'dwarf',
+		leave_probability 80,
+		loc1 R45 R48 R49 R50 R51 R52 R53 R54 R55,
+		move_probability 50,
+		attack_probability 10,
+		live_description "The dwarf has a long beard",
+		skill 0,
+		strength 0,
+		orders [;
+		Go: return self.order_go();
+		Attack: print_ret (The) self, " says ~I do not kill to order~.";
+		],
+	has generic;
+
+Person Guard "guard"
+	with
+		name 'guard',
+		move_probability 50,
+		leave_probability 80,
+		attack_probability 30,
+		live_description "The guard is dressed in a tunic with a black dragon on
+			a red field",
+		skill 0,
+		strength 0,
+		loc1 R56 R57 R58 R59 R60 R61 R62 R63,
+		orders [;
+			"The guard looks you over suspiciously.";
+		],
+	has generic;
+
+Person Draupner "Draupner" R66
+	with
+		name 'draupner',
+		skill 15,
+		strength 400,
+		attack_probability 100,
+		introduction
+			"A tall man rises from the throne as you come in. He snatches up a
+			spear and steps out into the middle of the hall",
+		live_description "Draupner is a tall man with cold eyes",
+		dead_description "Draupner lies on the floor before his throne",
+		orders [;
+			"Draupner does not answer, but looks you straight in the eye.";
+		],
+	has proper;
+
+Object Spear "spear" Draupner
+	with
+		name 'spear',
+		damage 7,
+		description "The spear is long, black and sharply honed.",
+	;
+
+Person Wizard "wizard" R20
+	with
+		name 'wizard' 'sirion' 'voice',
+		skill 100,
+		strength 200,
+		live_description
+			"You cannot see anyone here, and there is no telling where the voice
+			comes from, but you feel that someone is watching you closely",
+		orders [;
+			"The wizard does not answer.";
+		],
+	has concealed;
+
+Person Dragon "dragon" R65
+	with
+		name 'dragon',
+		skill 15,
+		strength 380,
+		armour_score 11,
+		kill_score 15,
+		introduction
+			"With a heavy shuffling the dragon turns towards you, regards you
+			closely and then says ~It is long since warriors from the fabled
+			lands beyond the sea dared come here. It is lord Draupner's order
+			that all who dare come here shall be slain, but we are curious to
+			know whether the old hero tales speak true, and will let you strike
+			the first blow~",
+		live_description "The dragon is covered with horny plates",
+		dead_description "The dragon's body is covered with thick blood",
+		react_before [;
+		Go:
+			if(self has animate) {
+				print "The dragon says ~While I guard the gate none shall leave
+					alive~";
+				if(DragonFlame in Dragon)
+					print ", and places itself in front of you with fire in its
+						breath";
+				".";
+			}
+		],
+		orders [;
+			"The dragon ignores you.";
+		],
+	;
+
+Object DragonFlame "flame" Dragon
+	with
+		name 'flame' 'fire',
+		description "Nothing can stand against a dragon's fire.",
+		damage 30,
+	has concealed;
+
+Object DragonTail "tail"
+	with
+		name 'tail',
+		damage 4,
+		description "The dragon has spear-like horns on its tail.",
+	has concealed;
+
+Person Allvis "Allvis"
+	with
+		name 'allvis',
+		move_probability 50,
+		leave_probability 50,
+		attack_probability 10,
+		skill 16,
+		strength 500,
+		loc1 R49 R50 R51 R52 R53 R54 R55,
+		enter_message "Allvis, the dwarf, steps in.",
+		live_description "Allvis is short and squat",
+		dead_description "The body of Allvis lies stretched out on the cold rock
+			floor",
+		introduction "Allvis, the dwarf lord, is standing in the room. He grunts
+			something in a language you do not understand, but it does not sound
+			especially friendly",
+		orders [;
+			"Allvis gives you a grim look and reaches for his weapon.";
+		],
+	has proper;
+
+Object Mace "mace" Allvis
+	with
+		name 'mace' 'spiked',
+		damage 10,
+		description "A spiked mace, and well used.",
+	;
+
+Person Angrist "Angrist" R3
+	with
+		name 'angrist',
+		move_probability 80,
+		wait_probability 20,
+		enter_message "Angrist, the white king, comes in.",
+		live_description "Angrist looks old and tired",
+		dead_description "The body of Angrist is covered with blood",
+		introduction
+			"King Angrist has aged before his time and is sunk in dark thoughts,
+			but he checks himself when he catches sight of you and says in
+			surprise ~So my message to king Telnor got through at last~. He tells
+			you of Draupner's revolt and how he kept his dragon secret until he
+			lured the king's troops into an ambush, where most of the men fit to
+			bear arms were burnt to death. It is only a matter of time before
+			Draupner gathers his forces to take the southern part of the country
+			as well. Angrist says that he means to die in his castle, but that
+			most of his people have fled to the mountains",
+		loc1 R3 R4 R5,
+		skill 15,
+		strength 350,
+		orders [;
+		Give: return self.order_give();
+		Go: return self.order_go();
+		Drop: return self.order_drop();
+		Take: return self.order_take();
+		Attack: print_ret (The) self, " says ~I do not kill to order~.";
+		],
+	has proper;
+
+Person Teleri "Teleri" R1
+	with
+		name 'teleri',
+		move_probability 90,
+		wait_probability 30,
+		enter_message "Teleri comes in.",
+		wait_message "Teleri says ~Let us hurry~.",
+		live_description "Teleri is a good companion to have with you on a
+			dangerous errand",
+		dead_description
+			"Teleri's open eyes still mirror his surprise at the unexpected
+			attack",
+		introduction "~It will be good to walk on firm ground again~, says Teleri,
+			and walks down the gangway",
+		loc1 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19
+			R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R32,
+		loc2 R40 R41 R42 R43 R44 R56 R57 R58 R59 R60 R61 R62 R63 R64 R65 R66,
+		skill 16,
+		strength 350,
+		orders [;
+		Give: return self.order_give();
+		Drop: return self.order_drop();
+		Take: return self.order_take();
+		Go: return self.order_go();
+		Attack: print_ret (The) self, " says ~I do not kill to order~.";
+		Examine:
+			if(noun == Scroll) {
+				print "Teleri reads ~hakuee ptr'uio nasc!~";
+				if(Dragon in location && DragonFlame in Dragon) {
+					remove DragonFlame;
+					move DragonTail to Dragon;
+					print ". The dragon starts back and its fire goes out";
+				}
+				".";
+			}
+		],
+	has proper;
+
+PersonBase VanyarPlayer "yourself"
+	with
+		name 'me' 'myself' 'self',
+		skill 20,
+		strength 500,
+		description "Muscles, fine. Weapon, fine. Courage, fine. Where is that
+			dragon?",
+		add_to_scope Fist,
+		before [;
+		Attack: deadflag = 1; "You commit suicide.";
+		],
+	has concealed animate proper transparent;
+
+Object Dagger "dagger" R5
+	with
+		name 'dagger',
+		damage 3,
+		description "A short dagger with a plain hilt.",
+	;
+
+Object Sword "sword" Angrist
+	with
+		name 'sword',
+		damage 9,
+		description "A well balanced sword.",
+	;
+
+Object Diamond "diamond" Draupner
+	with
+		name 'diamond' 'evenstar',
+		description "The Evenstar, the priceless diamond the dwarves found deep
+			under the mountains at the beginning of time.",
+		after [;
+		Take:
+			if(self hasnt general) {
+				give self general;
+				score = score + 10;
+			}
+		],
+	;
+
+! ----------------------------------------------------------------------------
+!   Things that happen every turn
+! ----------------------------------------------------------------------------
+
+[ TurnBefore;
+	switch(action) {
+	##Swim:
+		if(location == R29 or R33 or R34 or R36 or R37 or R38 or R39) {
+			if(player hasnt general) {
+				give player general;
+				"Just as you are about to put your foot in the water you see
+				strange bubbles in the middle of the stream. You wait a while,
+				but nothing more shows itself.";
+			}
+			deadflag = 1;
+			"You swim out into the river. The water suddenly turns cloudy around
+			you and you hear a dull rumble. You feel a burning pain as an
+			enormous green and slimy sea serpent tears off one of your hands, and
+			then it throws itself upon you...";
+		}
+		if(location == R2 or R6 or R21 or R23)
+			"You swim out into the water, but soon return to land.";
+	##Wait:
+		if(player.strength < 1000) player.strength = player.strength + 50;
+	}
+	rfalse;
+];
+
+[ TurnAfter;
+	if(player has light) {
+		give player ~light;
+		print "^The match goes out.^";
+	}
+
+	if(location == R2 && Diamond in player) {
+		score = score + 5;
+		deadflag = 2;
+		print "^When you come back, your errand done, you are hailed and feasted
+			by the crew of the ship";
+		if(Angrist has animate)
+			print ". King Angrist and his men shower you with treasure and good
+				wishes";
+		if(Teleri has animate)
+			print ". Teleri takes his leave and says ~I go to the wizard. Take
+				care of yourself~";
+		print ".^";
+		rtrue;
+	}
+
+	if(player.strength < 10) {
+		print "^You died of exhaustion.^";
+		deadflag = 1;
+	} else if(player.strength < 80) {
+		print "^You fall down from weariness.^";
+		player.strength = player.strength + 200;
+	} else if(player.strength < 180) {
+		print "^You are so tired that you can hardly stand.^";
+	} else if(player.strength < 250) {
+		print "^You feel tired.^";
+	}
+];
+
+! ----------------------------------------------------------------------------
+!   Initialisation
+! ----------------------------------------------------------------------------
+
+[ Initialise;
+	lookmode = 2; ! always show long descriptions (verbose)
+	thedark.description = "It is pitch black, and you can't see a thing.";
+
+	Banner();
+	new_line;
+
+	print "^It was in the year 2642 that king Telnor had word from his kinsman
+		Angrist in the land of Vanyar beyond the seas. One of Angrist's vassals,
+		Draupner, had risen in revolt and with the help of a dragon had invaded
+		the northern part of Angrist's realm and stolen the Evenstar, the
+		priceless diamond the dwarves found deep under the mountains at the
+		beginning of time. Angrist asked for aid, and Telnor sent you, since you
+		are held to be fearless and deadly. With you came also Teleri, a wise
+		elf with great knowledge of powers that work but cannot be seen with the
+		naked eye. After a long voyage the ship cast anchor off Angrist's
+		castle.^^";
+
+	StartDaemon(Elf);
+	StartDaemon(Dwarf);
+	StartDaemon(Guard);
+	StartDaemon(Draupner);
+	StartDaemon(Wizard);
+	StartDaemon(Dragon);
+	StartDaemon(Allvis);
+	StartDaemon(Angrist);
+	StartDaemon(Teleri);
+
+	return 2; ! we have printed the banner ourselves
+];
+
+
+! ----------------------------------------------------------------------------
+!   Menu driven help
+! ----------------------------------------------------------------------------
+
+[ HelpItems;
+	print "There is information provided on the following:^^";
+	print "     Introduction^";
+	print "     How to play^";
+	print "     Solution^";
+];
+
+[ HelpItemsAmusing;
+	print "There is information provided on the following:^^";
+	print "     Introduction^";
+	print "     How to play^";
+	print "     Solution^";
+	print "     Amusing things^";
+];
+
+[ HelpSub;
+	if(deadflag == 2) DoMenu(HelpItemsAmusing, HelpMenu, HelpInfo);
+	else              DoMenu(HelpItems, HelpMenu, HelpInfo);
 ];
 
 [ HelpMenu;
-  switch(menu_item) {
-  0: item_width=6;item_name="Om detta spel";
-     if(deadflag==2) return 4; else return 3;
-  1: item_width=6;item_name="Introduktion";
-  2: item_width=7; item_name="Hur man spelar";
-  3: item_width=4; item_name="Lösning";
-  4: item_width=6;item_name="Roliga saker";
-  }
+	switch(menu_item) {
+	0: item_width = 13; item_name = "About this game";
+	   if(deadflag == 2) return 4; else return 3;
+	1: item_width = 12; item_name = "Introduction";
+	2: item_width = 11; item_name = "How to play";
+	3: item_width = 8;  item_name = "Solution";
+	4: item_width = 14; item_name = "Amusing things";
+	}
 ];
 
 [ HelpInfo;
-  switch(menu_item) {
-  1: print "Vanyar är det första större äventyrsspelet som jag skrev. Designen gjordes av mig och
-           Mattias Geisler, och programmeringen stod jag för. 1986 var underverket klart, i 800
-           rader kompakt Basic-kod för C64. Bilderna tillkom i början av 1987. År 2003 spelade jag
-           spelet i en emulator, och fick plötsligt lust att konvertera det till en modern
-           plattform. Eftersom min gode vän Fredrik Ramsberg just fått sitt försvenskningspaket
-           till Inform färdigt så fanns inga praktiska hinder, utan jag skrev ut en listning
-           och satte igång. Nu sitter du med resultatet, och jag hoppas att du gillar spelet.^^\
-           
-           I den förbättrade versionen har jag försökt göra små
-           ändringar som tar bort de värsta bristerna i orignalversionen. Nu finns inte längre
-           några labyrinter och kartan är mer logiskt uppbyggd. Fler saker har beskrivningar,
-           och ett antal buggar har åtgärdats. Det finns fortfarande några handlingar som
-           dödar dig på fläcken, men du får varningar innan och du kan alltid skriva ~ångra~.^^\
-           
-           Spelet är ett åttiotalsspel på gott och ont, och jag skulle inte skriva spelet på samma
-           sätt idag. Om du tycker att spelet är alltför svårt kanske du borde titta på något av
-           mina övriga äventyrspel. Du kan välja mellan Drakmagi, The Temple och Vacation Gone Awry.
-           Samtliga spel finns på Interactive Fiction archive (http://ifarchive.org/if-archive).
-           Skicka gärna emot brev med kommentarer och/eller felrapporter till
-           johan@@64microheaven.com.^";
-  2: print "Du bör ha en interpretator som kan hantera svenska tecken. Besök
-      http://swedish.ramsberg.net om du behöver hjälp med detta. För att kunna skriva
-      svenska tecken i en interpretator som inte klarar det, eller med ett tangentbord
-      som inte har dessa tecken, skriv ~transkription~ i spelet. Därefter kan du
-      skriva å som aa, ä som ae och ö som oe. Skriv ~transkription av~ för att stänga
-      av transkriptionsfunktionen igen.^^\
+	switch(menu_item) {
+	1: print "Vanyar is the first large adventure game I wrote. It was designed
+		by me and Mattias Geisler, and I did the programming. In 1986 the marvel
+		was finished, in 800 lines of compact BASIC for the C64. The pictures
+		were added at the beginning of 1987. In 2003 I played the game in an
+		emulator, and suddenly felt the urge to convert it to a modern platform.
+		Since my good friend Fredrik Ramsberg had just finished his Swedish
+		language package for Inform there was nothing to stop me, so I printed
+		out a listing and set to work. Now you have the result in front of you,
+		and I hope you like the game.^^\
 
-     I detta spel kontrollerar du huvudrollsinnehavaren genom att skriva in kommandon
-     som talar om vad denne ska göra. Exempel på dessa kommandon är:^^\
+		In this improved version I have tried to make small changes that remove
+		the worst shortcomings of the original. There are no longer any mazes,
+		and the map is laid out more logically. More things have descriptions,
+		and a number of bugs have been fixed. There are still a few actions that
+		kill you on the spot, but you get a warning first and you can always
+		type ~undo~.^^\
 
-     > se (se dig omkring)^\
-     > norr (gå norr från där du står just nu)^\
-     > lista (visa en lista på de föremål du bär på)^\
-     > ta kartan^\
-     > undersök den (~den~ syftar här på kartan (*))^\
-     > ge kartan till kvinnan^\
-     > Kalle, öppna dörren (be någon göra något)^\
-     > fråga Kalle om kartan (fråga om något)^\
-     > kasta kniven på den svarta fågeln^^\
+		The game is an eighties game for better and for worse, and I would not
+		write it the same way today. This English translation was made in 2026.
+		If you find the game too hard you might want to look at one of my other
+		adventure games. You can choose between Wyrmward, The Temple and
+		Vacation Gone Awry. They can all be found on the Interactive Fiction
+		archive (http://ifarchive.org/if-archive). Please send comments and bug
+		reports to johan@@64microheaven.com.^";
 
-     (*) Vilket föremål ~den~ syftar på ändras dels när du refererar till ett föremål,
-     men även när du kommer till en ny plats eller listar de föremål du bär på. Förutom
-     ~den~ finns det även ~det~, ~honom~, ~henne~ och ~dem~. Du kan när som helst under
-     spelets gång skriva ~pronomen~ för att få reda på vad de refererar till.^^\
+	2: print "In this game you control the main character by typing in commands
+		that say what he is to do. Examples of such commands are:^^\
 
-     Det finns några vanliga förkortningar:^^\
-     g = igen (repetera det senaste kommandot)^\
-     t = titta^\
-     l = lista^\
-     x = undersök^\
-     z = vänta (får spelets klocka att ticka vidare ett steg)^^\
-     De möjliga riktningarna är alla kompassriktningar plus upp och ned. Dessa kan också förkortas:
-     ~n~ betyder norr, ~u~ betyder upp, ~sv~ betyder sydväst osv.^^\
+		> look^\
+		> north (go north from where you are standing)^\
+		> inventory (show a list of what you are carrying)^\
+		> take the map^\
+		> examine it (~it~ here refers to the map)^\
+		> give the map to the woman^\
+		> john, open the door (ask someone to do something)^\
+		> ask john about the map^\
+		> throw the knife at the black bird^^\
 
-     Ett spel kan sparas med ~spara~ och ett sparat spel kan senare hämtas med ~hämta~. Du kan börja om
-     spelet med ~börja om~ och sluta spelet med ~avsluta~.
-     ~poäng~ visar hur många poäng du har fått och ~full poäng~ ger mer information
-     om vilka delmoment av spelet du klarat av. När du får poäng talar spelet om detta, men utskriften
-     går att kontrollera med ~meddelanden på~ och ~meddelanden av~^^\
+		There are a few common abbreviations:^^\
+		g = again (repeat the last command)^\
+		l = look^\
+		i = inventory^\
+		x = examine^\
+		z = wait (lets the clock of the game tick on one step)^^\
 
-     Om du gör ett misstag kan du backa spelet ett steg med ~ångra~. Om du stavar ett ord fel kan du
-     använda ~oj~ för att slippa skriva om hela kommandot en gång till.^^\
-     > ta kortan^\
-     Någon sådan ser du inte till.^\
-     > oj koftan^\
-     Tagen.^^\
+		The possible directions are all the compass directions plus up and down.
+		These can be abbreviated too: ~n~ means north, ~u~ means up, ~sw~ means
+		south west and so on. ~exits~ lists the ways out of the room you are in.^^\
 
-     Den första gången du kommer till en plats visas en lång beskrivning men nästa gång du kommer dit
-     får du bara namnet på platsen samt en kort lista med de viktigaste föremålen. Du kan ändra på detta
-     med kommandona
-     ~kort~ som alltid visar den korta listan, ~lång~  som alltid visar den långa beskrivningen och
-     ~normal~ återställer spelet till det normala beteendet som beskrevs innan.
-     Andra kommandon är ~saker~ som visar vilka sakerna du manipulerat, ~platser~
-     som visar en lista med platser du besökt samt ~utskrift på~ respektive ~utskrift av~ som
-     påbörjar och avslutar lagring av all speltext på en fil.^";
-  3: print "Detta är lösningen till orginalversionen av Vanyar. Striderna är slumpmässiga, så vissa
-           modifieringar kan behövas när du spelar.^^\
-           n, v, n, ta skinkan, v, ta asken, sö, ö, nö, v, nv, ta gren, s, sv, u, tänd gren,
-           ta yxa, släck gren, ned, v, nö, nö, nö, ö, v, sv, sv, s, sö, nö, sö, nö, ö, ö, nv,
-           ö, hugg träd med yxa, hugg träd med yxa, ö, s, ta repet, n, n, n, ö, tänd gren,
-           sö, sö, döda fladdermöss, kasta repet på hålet, u, ö, u, u, ta pergamentet, ned, ned,
-           s, ö, ta örten, v, n, n, n, v, nv, sv, s, sv, ät bröd, ät bröd, ät bröd, ö, n, nö,
-           säg algeothel, s, s, u, u, flytta skänken, v, ta slagsvärdet, ö, u, sv,
-           ~teleri, läs pergamentet~, döda draken, döda draken, döda draken, ö, döda draupner,
-           döda draupner, ta diamanten, v, nö, ned, ned, s, s, ö, sv, sv, nv, s, sö, s^^\
-           Detta är lösningen till den förbättrade versionen av Vanyar.^^\
-           n, v, s, ta skinkan, v, ta asken, nö, ö, n, v, n, ta gren, s, sv, u, tänd gren,
-           ta yxa, släck gren, ned, v, nö, nö, nö, ö, v, sv, sv, sv, ö, nö, ö, ö, ö, ö, n,
-           hugg träd med yxa, hugg träd med yxa, ö, s, ta repet, n, n, n, ö, tänd gren,
-           ö, döda fladdermöss, kasta repet på hålet, u, ö, u, u, ta pergamentet, ned, ned,
-           s, ö, ta örten, v, n, n, v, v, nv, sv, s, sv, ät bröd, ät bröd, ät bröd, nö, n,
-           nö, säg algeothel, s, s, u, u, flytta skänken, v, ta slagsvärdet, ö, u, sv,
-           ~teleri, läs pergamentet~, döda draken, döda draken, ö, döda draupner,
-           döda draupner, ta diamanten, v, nö, ned, ned, s, s, s, s, s, v^";
-           
-  4: print "Kul saker att testa^^\
-           * Simma i floden.^\
-           * Klättra uppför berget.^\
-           ";
-  }
+		A game can be saved with ~save~ and a saved game can later be fetched
+		with ~restore~. You can start the game over with ~restart~ and end it
+		with ~quit~. ~score~ shows how many points you have. When you score
+		points the game says so, but that can be turned off with ~notify off~.^^\
+
+		If you make a mistake you can take the game back one step with ~undo~. If
+		you misspell a word you can use ~oops~ instead of typing the whole
+		command again.^^\
+		> take the mip^\
+		You can't see any such thing.^\
+		> oops map^\
+		Taken.^^\
+
+		You can change how much the game tells you about a place you have been to
+		before with the commands ~short~, which always shows the short listing,
+		~long~, which always shows the long description, and ~normal~, which puts
+		the game back to its usual behaviour.^";
+
+	3: print "This is the solution. The fights are random, so some changes may be
+		needed when you play. Teleri wanders off on his own, so if he is not on
+		the balustrade with you, wait until he turns up before telling him to
+		read the parchment.^^\
+		n, w, s, take ham, w, take box, ne, e, n, w, n, take branch, s, sw, u,
+		burn branch, take axe, extinguish branch, down, w, ne, ne, ne, e, w, sw,
+		sw, sw, e, ne, e, e, e, e, n, chop tree with axe, chop tree with axe, e,
+		s, take rope, n, n, n, e, burn branch, e, kill bats, throw rope at hole,
+		up, e, up, up, take parchment, down, down, s, e, take herb, w, n, n, w,
+		w, nw, sw, s, sw, eat bread, eat bread, eat bread, ne, n, ne, say
+		algeothel, s, s, up, up, push sideboard, w, take broadsword, e, up, sw,
+		~teleri, read parchment~, kill dragon, kill dragon, e, kill draupner,
+		kill draupner, take diamond, w, ne, down, down, s, s, s, s, s, w^";
+
+	4: print "Amusing things to try^^\
+		* Swim in the river.^\
+		* Climb the mountain.^\
+		";
+	}
 ];
-
