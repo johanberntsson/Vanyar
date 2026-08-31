@@ -45,15 +45,17 @@ vanyar.blb: $(PICSRC)
 
 blorb: vanyar.blb
 
+# Vanyar has pictures but no sound effects, so there is no -asw here (Ozmoo
+# stops with "No sound files found" if it is given a folder with no wavs).
 x16_vanyar.zip: vanyar.blb vanyar.z6
-	$(OZMOOBUILD) -t:x16 -asw resources -pics vanyar.blb vanyar.z6
+	$(OZMOOBUILD) -t:x16 -pics vanyar.blb vanyar.z6
 
 x16: x16_vanyar.zip
 	# the emulator must run from inside the game directory
-	cd x16_vanyar && $(X16) -prg WYRMWARD.PRG -run
+	cd x16_vanyar && $(X16) -prg VANYAR.PRG -run
 
-mega65_vanyar.d81: vanyar.blb vanyar.z6 $(WAVS)
-	$(OZMOOBUILD) -t:mega65 -asw resources -fcm -pics vanyar.blb vanyar.z6
+mega65_vanyar.d81: vanyar.blb vanyar.z6
+	$(OZMOOBUILD) -t:mega65 -fcm -pics vanyar.blb vanyar.z6
 
 mega65: mega65_vanyar.d81
 	$(XMEGA65) -8 mega65_vanyar.d81
@@ -78,7 +80,8 @@ frotz: z5-debug
 	frotz -d vanyar.z5
 
 sfrotz: vanyar.z6 vanyar.blb
-	$(SFROTZ) vanyar.z6
+	# the blorb has to be named: sfrotz does not pick it up from the story name
+	$(SFROTZ) vanyar.z6 vanyar.blb
 
 release: z5-release
 	frotz -d vanyar.z5

@@ -1,8 +1,9 @@
-# Wyrmward's pictures, for the Ozmoo z6 build.
+# Vanyar's pictures, for the Ozmoo z6 build.
 #
 # Read by make_blorb.py: "python make_blorb.py resources" writes vanyar.blb
 # and the converted PNGs in pics/. The numbers match the old drakmagi.bli, so
-# the game's @draw_picture calls are unchanged.
+# picture N is the view from room RN and the game's picture properties are just
+# the room numbers.
 #
 # Source images are found beside this file (srcdir defaults to the folder
 # holding it); override with a "srcdir:" line if they live elsewhere.
@@ -11,10 +12,208 @@ blorb:  vanyar.blb
 outdir: pics
 
 # id and file are mandatory; name, location, width and height are optional.
-# width/height cap a single picture (preserving aspect ratio); omit them for
-# the full 320x200 v6 screen. Inline room pictures stay short to leave room
-# for text and the [More] prompt; the title fills the screen.
+# All 66 pictures are 224x72 PETSCII screens from the 1987 C64 version, which
+# already fits inside the 320x200 v6 screen, so no width/height cap is needed
+# here -- make_blorb.py never upscales.
+#
+# Pictures 46 and 47 are the two rooms the 2003 rewrite dropped along with the
+# maze. They are kept so that every other picture keeps its historical number.
 pictures:
   - id: 1
     file: pic01.png
-
+    location: Ship
+  - id: 2
+    file: pic02.png
+    location: Harbour
+  - id: 3
+    file: pic03.png
+    location: Castle Yard
+  - id: 4
+    file: pic04.png
+    location: Knights' Hall
+  - id: 5
+    file: pic05.png
+    location: Throne Room
+  - id: 6
+    file: pic06.png
+    location: Grassland
+  - id: 7
+    file: pic07.png
+    location: Grassland
+  - id: 8
+    file: pic08.png
+    location: Tall Grass
+  - id: 9
+    file: pic09.png
+    location: By the Mountain
+  - id: 10
+    file: pic10.png
+    location: At the Foot of Formenas
+  - id: 11
+    file: pic11.png
+    location: Pass
+  - id: 12
+    file: pic12.png
+    location: Hill
+  - id: 13
+    file: pic13.png
+    location: Forest
+  - id: 14
+    file: pic14.png
+    location: Cave
+  - id: 15
+    file: pic15.png
+    location: Forest
+  - id: 16
+    file: pic16.png
+    location: Glade
+  - id: 17
+    file: pic17.png
+    location: Desert
+  - id: 18
+    file: pic18.png
+    location: Desert
+  - id: 19
+    file: pic19.png
+    location: Mountain Hall
+  - id: 20
+    file: pic20.png
+    location: Laboratory
+  - id: 21
+    file: pic21.png
+    location: Rocky Shore
+  - id: 22
+    file: pic22.png
+    location: Forest
+  - id: 23
+    file: pic23.png
+    location: River
+  - id: 24
+    file: pic24.png
+    location: Forest
+  - id: 25
+    file: pic25.png
+    location: Forest
+  - id: 26
+    file: pic26.png
+    location: Forest
+  - id: 27
+    file: pic27.png
+    location: Forest Edge
+  - id: 28
+    file: pic28.png
+    location: Forest
+  - id: 29
+    file: pic29.png
+    location: Sparse Forest
+  - id: 30
+    file: pic30.png
+    location: Glade
+  - id: 31
+    file: pic31.png
+    location: Brushwood Hut
+  - id: 32
+    file: pic32.png
+    location: Cliff
+  - id: 33
+    file: pic33.png
+    location: River Bank
+  - id: 34
+    file: pic34.png
+    location: River Bank
+  - id: 35
+    file: pic35.png
+    location: Before the Castle
+  - id: 36
+    file: pic36.png
+    location: Shore
+  - id: 37
+    file: pic37.png
+    location: Sandy Beach
+  - id: 38
+    file: pic38.png
+    location: Shore
+  - id: 39
+    file: pic39.png
+    location: Shore
+  - id: 40
+    file: pic40.png
+    location: Waterfall
+  - id: 41
+    file: pic41.png
+    location: Ravine
+  - id: 42
+    file: pic42.png
+    location: Ravine
+  - id: 43
+    file: pic43.png
+    location: Ravine
+  - id: 44
+    file: pic44.png
+    location: End of the Ravine
+  - id: 45
+    file: pic45.png
+    location: Cave Mouth
+  - id: 46
+    file: pic46.png
+    location: unused since 2003
+  - id: 47
+    file: pic47.png
+    location: unused since 2003
+  - id: 48
+    file: pic48.png
+    location: Bat Cave
+  - id: 49
+    file: pic49.png
+    location: Passage
+  - id: 50
+    file: pic50.png
+    location: Mountain Hall
+  - id: 51
+    file: pic51.png
+    location: Stairway
+  - id: 52
+    file: pic52.png
+    location: Window
+  - id: 53
+    file: pic53.png
+    location: Throne Room
+  - id: 54
+    file: pic54.png
+    location: Treasure Room
+  - id: 55
+    file: pic55.png
+    location: Dead End
+  - id: 56
+    file: pic56.png
+    location: Passage
+  - id: 57
+    file: pic57.png
+    location: Cellar
+  - id: 58
+    file: pic58.png
+    location: Courtyard
+  - id: 59
+    file: pic59.png
+    location: Dungeon
+  - id: 60
+    file: pic60.png
+    location: Kitchen
+  - id: 61
+    file: pic61.png
+    location: Knights' Hall
+  - id: 62
+    file: pic62.png
+    location: Gallery
+  - id: 63
+    file: pic63.png
+    location: Armoury
+  - id: 64
+    file: pic64.png
+    location: Stairway
+  - id: 65
+    file: pic65.png
+    location: Balustrade
+  - id: 66
+    file: pic66.png
+    location: Throne Room

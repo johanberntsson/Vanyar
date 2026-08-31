@@ -31,6 +31,10 @@
 !         text follows the 2003 Swedish version closely rather than
 !         expanding on it.
 
+Constant Story    "Vanyar";
+Constant Headline "^(c) 2003, 1986 Johan Berntsson.
+	Type ~help~ or ~h~ for instructions.^";
+
 Constant STATUSLINE_SCORE; Statusline score;
 
 Constant OPTIONAL_FULL_DIRECTIONS;
@@ -57,6 +61,8 @@ Property desc;      ! The room description proper; Room.description adds exits
 Property damage;    ! How much harm a weapon does in a fight
 Property strength;  ! Hit points, for the player and for every creature
 Property skill;     ! How good a fighter someone is
+Property picture;   ! A room's picture number - the same as its room number
+Property pic_dir;   ! Which way the picture is looking; PIC_N .. PIC_W below
 
 ! Properties which only a handful of objects have, so they are kept out of
 ! the (limited) set of common properties.
@@ -99,6 +105,129 @@ Property individual get_weapon;
 	if (score >= 30) "an amateur.";
 	"a beginner.";
 ];
+
+
+! ----------------------------------------------------------------------------
+!   The z6 screen
+!
+!   row 1                    window 1, the ordinary PunyInform status line
+!   rows 2 .. 1+picwin_rows  window 2, the picture and its caption
+!   the rest                 window 0, the game, scrolling and buffered with
+!                            [MORE] prompts, exactly as usual
+!
+!   This is the layout of the 2003 Glulx version (see
+!   screenshots/vanyar-screenshot.png), rebuilt on the z6 window model with
+!   PunyInform's ext_z6graphics.h. The z5 build compiles all of this out.
+! ----------------------------------------------------------------------------
+
+! The value of pic_dir. These are indexes into direction_name_array, so the
+! caption can print the direction without a switch of its own.
+Constant PIC_N = 1;
+Constant PIC_S = 2;
+Constant PIC_E = 3;
+Constant PIC_W = 4;
+
+#Iftrue (#version_number == 6);
+
+Constant PICWIN            = 2;  ! the z6 window number of the picture window
+Constant PICWIN_ROWS_GUESS = 10; ! height to use if we can't measure a picture
+Constant MIN_TEXT_ROWS     = 6;  ! never leave the game less than this
+
+Global picwin_top;               ! first screen row of the picture window
+Global picwin_rows;              ! its height in rows, caption included
+Global picwin_cols;              ! its width in columns (the whole screen)
+Global shown_picture;            ! the picture currently in the window
+
+Include "ext_z6graphics.h";
+
+[ SetUpWindows _rows;
+	_rows = HDR_SCREENHLINES->0;
+	if(_rows < 10) _rows = 25;               ! a sane guess if the header lies
+	picwin_cols = HDR_SCREENWCHARS->0;
+	if(picwin_cols < 10) picwin_cols = 40;
+
+	! Every one of the 66 pictures is a 224x72 PETSCII screen, so measuring one
+	! of them fixes the layout for the whole game and the text window never
+	! moves. Add one row for the caption under the picture.
+	if(Z6PictureExists(1)) picwin_rows = Z6PictureRows_Chars(1) + 1;
+	if(picwin_rows < 2) picwin_rows = PICWIN_ROWS_GUESS;
+	if(_rows - 1 - picwin_rows < MIN_TEXT_ROWS)
+		picwin_rows = _rows - 1 - MIN_TEXT_ROWS;
+	if(picwin_rows < 1) picwin_rows = 1;
+	picwin_top = 2;                          ! just under the status line
+
+	! Window 1, the status line. PunyInform makes this itself with
+	! @split_window the first time it draws the status line, but in v6
+	! split_window also resets window 0 to "everything below window 1", which
+	! would undo the layout. So do the split here, once, and tell the library
+	! the height it already has: _StatusLineHeight() then never splits again.
+	! (The count is in units in v6, hence the font height; PunyInform does the
+	! same multiplication.)
+	@split_window Z6RowToY(statusline_height);
+	statusline_current_height = statusline_height;
+
+	! Window 2, the picture window: no wrapping, no scrolling, no buffering.
+	! Nothing in here should ever scroll or raise a [MORE].
+	Z6FormatWindow(PICWIN, 0, Z6_WSTYLE_SET);
+	Z6ShowWindow_Chars(PICWIN, 1, picwin_top, picwin_cols, picwin_rows);
+
+	! Window 0, the game. Move it below the picture window and shrink it to the
+	! rest of the screen; it keeps its default attributes (wrapping, scrolling,
+	! transcripting and buffering, z-spec 8.8.3.3), so word wrap and the [MORE]
+	! prompt work in it exactly as in any other game.
+	Z6ShowWindow_Chars(0, 1, picwin_top + picwin_rows,
+		picwin_cols, _rows - picwin_top - picwin_rows + 1);
+	Z6SetWindow(0);
+];
+
+! Put a picture in the picture window, centred, with the caption the 1986
+! version printed under it. Call it with 0 to leave the window empty, which is
+! what darkness looks like.
+[ ShowPicture p_picture p_dir _w _h _x _y _len;
+	shown_picture = p_picture;
+	Z6SetWindow(PICWIN);
+	Z6EraseWindow(PICWIN);
+	if(p_picture && Z6PictureExists(p_picture)) {
+		_w = Z6PictureCols_Chars(p_picture);
+		_h = Z6PictureRows_Chars(p_picture);
+		_x = 1 + (picwin_cols - _w) / 2;
+		_y = 1 + (picwin_rows - 1 - _h) / 2;
+		if(_x < 1) _x = 1;
+		if(_y < 1) _y = 1;
+		Z6MoveCursor_Chars(_x, _y);
+		Z6DrawPictureHere(p_picture);
+
+		if(p_dir) {
+			! "This is what you see looking " is 29 characters, and the full
+			! stop makes 30; north and south are five letters, east and west
+			! four. Work the width out rather than measuring, so that the
+			! caption can be centred before it is printed.
+			_len = 30;
+			if(p_dir == PIC_N or PIC_S) _len = _len + 5; else _len = _len + 4;
+			_x = 1 + (picwin_cols - _len) / 2;
+			if(_x < 1) _x = 1;
+			Z6MoveCursor_Chars(_x, picwin_rows);
+			print "This is what you see looking ",
+				(string) direction_name_array-->p_dir, ".";
+		}
+	}
+	! Back to the game window. This also flushes anything still buffered.
+	Z6SetWindow(0);
+];
+
+! Called at the end of every room description, darkness included, so this is
+! the one place that has to keep the picture window in step with the game.
+[ LookRoutine;
+	if(location == thedark) { ShowPicture(0, 0); rtrue; }
+	if(location provides picture) ShowPicture(location.picture, location.pic_dir);
+	else ShowPicture(0, 0);
+];
+
+#Ifnot; ! not z6 - the text-only build has nothing to set up and nothing to draw
+
+[ SetUpWindows; ];
+
+#Endif;
 
 ! PunyInform tests for these entry point routines with #Ifdef while it is being
 ! included, so they have to exist by then. The real work is done further down,
@@ -471,6 +600,8 @@ Class Person class PersonBase
 
 Room R1 "Ship"
 	with
+		picture 1,
+		pic_dir PIC_W,
 		desc
 			"You are aboard a grey ship. To the west you can see the towers of a
 			snow white castle. You can go down onto the quay by the gangway to
@@ -482,6 +613,8 @@ Room R1 "Ship"
 
 Room R2 "Harbour"
 	with
+		picture 2,
+		pic_dir PIC_N,
 		desc
 			"You are in a large harbour. It looks abandoned. A clear path leads
 			west.",
@@ -493,6 +626,8 @@ Room R2 "Harbour"
 
 Room R3 "Castle Yard"
 	with
+		picture 3,
+		pic_dir PIC_S,
 		add_score 5,
 		desc
 			"You are standing in the yard of the snow white castle. Through an
@@ -513,6 +648,8 @@ Room R3 "Castle Yard"
 
 Room R4 "Knights' Hall"
 	with
+		picture 4,
+		pic_dir PIC_S,
 		desc
 			"You are in a knights' hall with suits of armour lined up along the
 			walls. In the middle of the room stands a great round white table
@@ -524,6 +661,8 @@ Room R4 "Knights' Hall"
 
 Room R5 "Throne Room"
 	with
+		picture 5,
+		pic_dir PIC_N,
 		desc
 			"You are in the throne room, dominated by a throne of silver set with
 			sapphires. Above the throne hangs the banner of the realm, white with
@@ -535,6 +674,8 @@ Room R5 "Throne Room"
 
 Room R6 "Grassland"
 	with
+		picture 6,
+		pic_dir PIC_S,
 		desc
 			"You are on a grassy plain. A fresh sea breeze bends the green and
 			sturdy grass. To the south you see the sea of Vanyar. To the east and
@@ -547,6 +688,8 @@ Room R6 "Grassland"
 
 Room R7 "Grassland"
 	with
+		picture 7,
+		pic_dir PIC_E,
 		desc
 			"You are standing in tall dry grass. A dense forest surrounds you to
 			the north and east. A dark path loses itself among the dim shadows of
@@ -560,6 +703,8 @@ Room R7 "Grassland"
 
 Room R8 "Tall Grass"
 	with
+		picture 8,
+		pic_dir PIC_S,
 		desc
 			"You are standing in the middle of a sea of tall grass. To the north
 			great dark trunks rise up.",
@@ -571,6 +716,8 @@ Room R8 "Tall Grass"
 
 Room R9 "By the Mountain"
 	with
+		picture 9,
+		pic_dir PIC_W,
 		desc
 			"A high, steep mountain range rises to the west of you. The mountains
 			run north and south. Far beyond the plain you are standing on you see
@@ -585,6 +732,8 @@ Room R9 "By the Mountain"
 
 Room R10 "At the Foot of Formenas"
 	with
+		picture 10,
+		pic_dir PIC_W,
 		desc
 			"To the west of you rises the wild mountain range of Formenas. Below
 			it (and north of you) a dense dark forest spreads out. To the south
@@ -617,6 +766,8 @@ Object Mountain "mountain"
 
 Room R11 "Pass"
 	with
+		picture 11,
+		pic_dir PIC_W,
 		desc
 			"You are in a narrow pass winding between the high mountain sides.
 			Above you a crevice opens in the rock face.",
@@ -628,6 +779,8 @@ Room R11 "Pass"
 
 Room R12 "Hill"
 	with
+		picture 12,
+		pic_dir PIC_N,
 		desc
 			"You are standing on a low hill below the pass, looking out over a
 			great forest that spreads out to the north east. The forest offers a
@@ -643,6 +796,8 @@ Room R12 "Hill"
 
 Room R13 "Forest"
 	with
+		picture 13,
+		pic_dir PIC_W,
 		desc
 			"The forest is dense and ancient here. You almost get the feeling that
 			the forest has a soul of its own, and watches every visitor with
@@ -654,6 +809,8 @@ Room R13 "Forest"
 
 Room R14 "Cave"
 	with
+		picture 14,
+		pic_dir PIC_N,
 		desc "In the light of your torch you see a small cave chamber.",
 		d_to R11,
 		u_to "You bang your head on the roof of the cave.",
@@ -662,6 +819,8 @@ Room R14 "Cave"
 
 Room R15 "Forest"
 	with
+		picture 15,
+		pic_dir PIC_W,
 		desc
 			"You are standing in a beautiful, sweet smelling forest. To the west,
 			between straight tree trunks, you glimpse a barren sandy desert. A
@@ -674,6 +833,8 @@ Room R15 "Forest"
 
 Room R16 "Glade"
 	with
+		picture 16,
+		pic_dir PIC_N,
 		desc
 			"You are standing in a glade on the border between mountain and
 			forest. To the north east you see an opening leading into the
@@ -686,6 +847,8 @@ Room R16 "Glade"
 
 Room R17 "Desert"
 	with
+		picture 17,
+		pic_dir PIC_W,
 		desc
 			"You are on the eastern edge of an enormous desert. The rays of the
 			sun burn mercilessly on everything and everyone. Where forest and
@@ -704,6 +867,8 @@ Room R17 "Desert"
 
 Room R18 "Desert"
 	with
+		picture 18,
+		pic_dir PIC_W,
 		desc
 			"A hot desert wind sweeps past you. All you can see is sand... hot
 			white sand.",
@@ -720,6 +885,8 @@ Room R18 "Desert"
 
 Room R19 "Mountain Hall"
 	with
+		picture 19,
+		pic_dir PIC_E,
 		desc
 			"An enormous hall has been hewn out of the mountain. There are two
 			ways out, the gate you came by and an enormous gate to the east.",
@@ -731,6 +898,8 @@ Room R19 "Mountain Hall"
 
 Room R20 "Laboratory"
 	with
+		picture 20,
+		pic_dir PIC_E,
 		add_score 10,
 		desc
 			"You are in a room which is used as a laboratory. In locked cabinets
@@ -786,6 +955,8 @@ Object MagicDoor "magic gate"
 
 Room R21 "Rocky Shore"
 	with
+		picture 21,
+		pic_dir PIC_E,
 		name 'pine' 'pines' 'trees',
 		desc
 			"You are standing on a rocky shore. Around you grow low windswept
@@ -800,6 +971,8 @@ Room R21 "Rocky Shore"
 
 Room R22 "Forest"
 	with
+		picture 22,
+		pic_dir PIC_W,
 		desc
 			"You are in the middle of a dim forest. A path leads west between a
 			couple of trunks. In the distance you can hear gulls crying.",
@@ -811,6 +984,8 @@ Room R22 "Forest"
 
 Room R23 "River"
 	with
+		picture 23,
+		pic_dir PIC_E,
 		desc
 			"To the east in front of you a swift river runs northwards. To the
 			south you see the sea. Forest surrounds you in every other
@@ -825,6 +1000,8 @@ Room R23 "River"
 
 Room R24 "Forest"
 	with
+		picture 24,
+		pic_dir PIC_W,
 		desc "You are standing in the middle of the darkest forest.",
 		n_to R28,
 		e_to R34,
@@ -834,6 +1011,8 @@ Room R24 "Forest"
 
 Room R25 "Forest"
 	with
+		picture 25,
+		pic_dir PIC_N,
 		desc
 			"You are on the edge of the forest. To the north the forest thickens
 			again. Heavy undergrowth covers the ground.",
@@ -845,6 +1024,8 @@ Room R25 "Forest"
 
 Room R26 "Forest"
 	with
+		picture 26,
+		pic_dir PIC_W,
 		desc
 			"You are on the edge of a dim forest. You can glimpse the yellow grass
 			of the plain to the west. The forest thickens to the north.",
@@ -856,6 +1037,8 @@ Room R26 "Forest"
 
 Room R27 "Forest Edge"
 	with
+		picture 27,
+		pic_dir PIC_N,
 		desc
 			"You are at the edge of the forest. Far beyond a plain to the north
 			rises an ominous dark castle. East of it you see a high cliff. Dense
@@ -868,6 +1051,8 @@ Room R27 "Forest Edge"
 
 Room R28 "Forest"
 	with
+		picture 28,
+		pic_dir PIC_N,
 		desc "You have come into a very dense part of the forest.",
 		e_to R33,
 		w_to R27,
@@ -878,6 +1063,8 @@ Room R28 "Forest"
 
 Room R29 "Sparse Forest"
 	with
+		picture 29,
+		pic_dir PIC_E,
 		desc
 			"You are standing in sparse forest now. To the east of you a river
 			runs, and to the south the forest continues. To the north high
@@ -892,6 +1079,8 @@ Room R29 "Sparse Forest"
 
 Room R30 "Glade"
 	with
+		picture 30,
+		pic_dir PIC_W,
 		desc
 			"You come out into a glade in the forest. To the west lies a small hut
 			of brushwood. Human bones lie scattered outside it. To the east a path
@@ -903,6 +1092,8 @@ Room R30 "Glade"
 
 Room R31 "Brushwood Hut"
 	with
+		picture 31,
+		pic_dir PIC_W,
 		desc
 			"You are in a shabby hut of brushwood. On a fire stands a cauldron
 			holding some kind of soup. On the floor lie what are plainly the
@@ -914,6 +1105,8 @@ Room R31 "Brushwood Hut"
 
 Room R32 "Cliff"
 	with
+		picture 32,
+		pic_dir PIC_W,
 		desc
 			"From up here on the cliff top you have a wonderful view. To the south,
 			far beyond forest and plain, you can make out a white castle against
@@ -928,6 +1121,8 @@ Room R32 "Cliff"
 
 Room R33 "River Bank"
 	with
+		picture 33,
+		pic_dir PIC_E,
 		desc
 			"You are standing on the bank of the river. A small boat lies moored
 			among the reeds. Straight across the river, to the north east, you see
@@ -940,6 +1135,8 @@ Room R33 "River Bank"
 
 Room R34 "River Bank"
 	with
+		picture 34,
+		pic_dir PIC_E,
 		desc
 			"You are standing on the bank where the river is at its narrowest. The
 			reeds here are as tall as a man, and on a small point of land stands an
@@ -953,6 +1150,8 @@ Room R34 "River Bank"
 
 Room R35 "Before the Castle"
 	with
+		picture 35,
+		pic_dir PIC_W,
 		desc
 			"You are standing before a castle from whose tower a banner flies. A
 			black device on the banner shows a stylised black dragon. The gate in
@@ -990,6 +1189,8 @@ Object DummyDragon "dragon" R35
 
 Room R36 "Shore"
 	with
+		picture 36,
+		pic_dir PIC_S,
 		desc
 			"You are standing on a narrow strip of shore wedged between the river
 			to the west and a rock wall to the east. In the rock wall you see an
@@ -1021,6 +1222,8 @@ Object MountainDoor "gate"
 
 Room R37 "Sandy Beach"
 	with
+		picture 37,
+		pic_dir PIC_S,
 		desc
 			"You are standing on a sandy beach running north and south. The beach
 			is bounded to the east by mountains and to the west by the river.",
@@ -1032,6 +1235,8 @@ Room R37 "Sandy Beach"
 
 Room R38 "Shore"
 	with
+		picture 38,
+		pic_dir PIC_S,
 		desc
 			"Vast cliffs rise to impressive heights east of you. You are standing
 			on the eastern bank of the river and can follow it north and south. A
@@ -1044,6 +1249,8 @@ Room R38 "Shore"
 
 Room R39 "Shore"
 	with
+		picture 39,
+		pic_dir PIC_S,
 		desc
 			"You look out over the sea from the shore you are standing on. To the
 			east the view is hidden by gigantic cliffs. Here the river seems to run
@@ -1065,6 +1272,8 @@ Object Rope "rope" R39
 
 Room R40 "Waterfall"
 	with
+		picture 40,
+		pic_dir PIC_E,
 		desc
 			"You are standing before an enormous waterfall. In the damp ground you
 			see the footprints of dwarves. They are fairly fresh.",
@@ -1091,6 +1300,8 @@ Object Waterfall "waterfall"
 
 Room R41 "Ravine"
 	with
+		picture 41,
+		pic_dir PIC_E,
 		desc
 			"You are at the bottom of a deep ravine. Smooth rock walls that look
 			unclimbable surround you. From the east comes a roaring sound. The
@@ -1102,6 +1313,8 @@ Room R41 "Ravine"
 
 Room R42 "Ravine"
 	with
+		picture 42,
+		pic_dir PIC_S,
 		desc "You are in the deep ravine.",
 		s_to 0,
 		se_to R41,
@@ -1119,6 +1332,8 @@ Room R42 "Ravine"
 
 Room R43 "Ravine"
 	with
+		picture 43,
+		pic_dir PIC_S,
 		desc "You are still in a deep ravine.",
 		s_to R44,
 		ne_to R42,
@@ -1127,6 +1342,8 @@ Room R43 "Ravine"
 
 Room R44 "End of the Ravine"
 	with
+		picture 44,
+		pic_dir PIC_S,
 		desc
 			"You are at the end of the ravine. There is an open gate in the south
 			western rock face.",
@@ -1137,6 +1354,8 @@ Room R44 "End of the Ravine"
 
 Room R45 "Cave Mouth"
 	with
+		picture 45,
+		pic_dir PIC_E,
 		desc
 			"A great cave opens in the mountain, faintly lit by the light
 			streaming in through the open gate. It continues eastwards, but it is
@@ -1149,6 +1368,8 @@ Room R45 "Cave Mouth"
 
 Room R48 "Bat Cave"
 	with
+		picture 48,
+		pic_dir PIC_E,
 		name 'droppings' 'dung',
 		desc
 			"Thousands of bats must have lived here over the years, and the ground
@@ -1201,6 +1422,8 @@ Object Hole "hole"
 
 Room R49 "Passage"
 	with
+		picture 49,
+		pic_dir PIC_E,
 		desc
 			"You are in a dark passage. Beside you is a hole in the floor. The
 			floor is covered with old bat droppings.",
@@ -1212,6 +1435,8 @@ Room R49 "Passage"
 
 Room R50 "Mountain Hall"
 	with
+		picture 50,
+		pic_dir PIC_E,
 		desc
 			"In the light of your torch you see that you have come into a great
 			mountain hall. A stairway leads up, and two passages lead south and
@@ -1225,6 +1450,8 @@ Room R50 "Mountain Hall"
 
 Room R51 "Stairway"
 	with
+		picture 51,
+		pic_dir PIC_E,
 		desc "You are standing on a landing halfway up the stairs.",
 		u_to R52,
 		d_to R50,
@@ -1233,6 +1460,8 @@ Room R51 "Stairway"
 
 Room R52 "Window"
 	with
+		picture 52,
+		pic_dir PIC_W,
 		desc
 			"Here a strong sunlight floods in through a small window. When your
 			eyes have grown used to the light you look out over a fabulous
@@ -1245,6 +1474,8 @@ Room R52 "Window"
 
 Room R53 "Throne Room"
 	with
+		picture 53,
+		pic_dir PIC_S,
 		desc "In the torchlight you see a beautiful throne adorned with precious
 			stones.",
 		n_to R50,
@@ -1255,6 +1486,8 @@ Room R53 "Throne Room"
 
 Room R54 "Treasure Room"
 	with
+		picture 54,
+		pic_dir PIC_S,
 		desc
 			"The light of your torch is thrown back by all the gold and precious
 			stones lying behind an impenetrable grating.",
@@ -1265,6 +1498,8 @@ Room R54 "Treasure Room"
 
 Room R55 "Dead End"
 	with
+		picture 55,
+		pic_dir PIC_N,
 		desc
 			"You are in a dead end in the mountain. To the south is a way out, and
 			to the west the passage ends in a curtain of water.",
@@ -1276,6 +1511,8 @@ Room R55 "Dead End"
 
 Room R56 "Passage"
 	with
+		picture 56,
+		pic_dir PIC_S,
 		desc "You are in a dark and narrow passage.",
 		n_to R42,
 		s_to R57,
@@ -1284,6 +1521,8 @@ Room R56 "Passage"
 
 Room R57 "Cellar"
 	with
+		picture 57,
+		pic_dir PIC_S,
 		desc
 			"Now you have come to a damp cellar. The great room is quite deserted.
 			You can make out a rotten wooden stair leading up.",
@@ -1294,6 +1533,8 @@ Room R57 "Cellar"
 
 Room R58 "Courtyard"
 	with
+		picture 58,
+		pic_dir PIC_S,
 		desc
 			"You are standing in a courtyard surrounded by black buildings. Stairs
 			lead both up and down. There are gates to the east and west. The castle
@@ -1307,6 +1548,8 @@ Room R58 "Courtyard"
 
 Room R59 "Dungeon"
 	with
+		picture 59,
+		pic_dir PIC_W,
 		desc
 			"You have come into a dark dungeon. The smell of rotting meat hits you.
 			Behind the barred gates of the cells you see skeletons chained to the
@@ -1318,6 +1561,8 @@ Room R59 "Dungeon"
 
 Room R60 "Kitchen"
 	with
+		picture 60,
+		pic_dir PIC_E,
 		desc
 			"Smoke from the great open hearth hits you as you walk into the
 			kitchen. A beer barrel dominates the little room, which is deserted and
@@ -1328,6 +1573,8 @@ Room R60 "Kitchen"
 
 Room R61 "Knights' Hall"
 	with
+		picture 61,
+		pic_dir PIC_W,
 		desc
 			"You are in Draupner's knights' hall. In the middle of the room stands
 			an oval table with thirteen chairs. To the east is a gate, and against
@@ -1341,6 +1588,8 @@ Room R61 "Knights' Hall"
 
 Room R62 "Gallery"
 	with
+		picture 62,
+		pic_dir PIC_E,
 		desc
 			"You pace up and down in a gallery. The only thing worth noting here is
 			the beautiful ceiling paintings, which portray a knight's battle with a
@@ -1351,6 +1600,8 @@ Room R62 "Gallery"
 
 Room R63 "Armoury"
 	with
+		picture 63,
+		pic_dir PIC_E,
 		desc
 			"Through the low passage you have come into an armoury. You see all
 			manner of armour and weapons. Most of them are broken or rusted through,
@@ -1363,6 +1614,8 @@ Room R63 "Armoury"
 
 Room R64 "Stairway"
 	with
+		picture 64,
+		pic_dir PIC_S,
 		desc
 			"You are at the very top of the stairs. There is a gate to the south
 			west, and through it you see a black tail of enormous size sticking
@@ -1375,6 +1628,8 @@ Room R64 "Stairway"
 
 Room R65 "Balustrade"
 	with
+		picture 65,
+		pic_dir PIC_E,
 		desc
 			"You have come out into the open air again and are now standing on the
 			balustrade of the castle. Deposits of soot cover the walls and the
@@ -1387,6 +1642,8 @@ Room R65 "Balustrade"
 
 Room R66 "Throne Room"
 	with
+		picture 66,
+		pic_dir PIC_N,
 		desc
 			"You have now come into the heart of the castle... the throne room. The
 			room is lit by sunbeams streaming through the tall windows. The light is
@@ -2175,6 +2432,7 @@ Object Diamond "diamond" Draupner
 ! ----------------------------------------------------------------------------
 
 [ Initialise;
+	SetUpWindows();
 	lookmode = 2; ! always show long descriptions (verbose)
 	thedark.description = "It is pitch black, and you can't see a thing.";
 
