@@ -241,6 +241,7 @@ Include "ext_z6graphics.h";
 [ TimePasses; TurnAfter(); ];
 [ Amusing; HelpSub(); ];
 
+Include "ext_cheap_scenery.h";
 Include "ext_menu.h";
 
 Include "puny.h";
@@ -609,9 +610,18 @@ Room R1 "Ship"
         picture 1,
         pic_dir PIC_W,
         desc
-            "You are aboard a grey ship. To the west you can see the towers of a
-            snow white castle. You can go down onto the quay by the gangway to
+            "You are aboard a grey ship. To the west you can see the towers of an
+            ivory castle. You can go down onto the quay by the gangway to
             the north.",
+        cheap_scenery
+        'grey' 'ship'
+            "A sturdy wooden vessel. She will wait here until your return."
+        CS_NO_ADJ 'quay'
+            "A quiet stone wharf. Your vessel is the only ship docked here."
+        CS_NO_ADJ 'gangway'
+            "A narrow wooden ramp leading north down to the quay."
+        'ivory' 'castle'
+            "Its snow-white towers gleam under the sun, some distance away.",
         n_to R2,
         cant_go "That way leads down into the water. The only way from here is
             the gangway leading to the harbour, which lies to the north.",
@@ -624,6 +634,11 @@ Room R2 "Harbour"
         desc
             "You are in a large harbour. It looks abandoned. A clear path leads
             west.",
+        cheap_scenery
+        'large' 'harbour'
+            "Rows of empty stone berths stretch out along the quiet bay. The only ship here is yours."
+        'clear' 'path'
+            "A road worn smooth by years of wagon traffic, winding west.",
         n_to R8,
         s_to R1,
         e_to R6,
@@ -636,8 +651,15 @@ Room R3 "Castle Yard"
         pic_dir PIC_S,
         add_score 5,
         desc
-            "You are standing in the yard of the snow white castle. Through an
+            "You are standing in the yard of the ivory castle. Through an
             open door to the south you can see a large, well lit hall.",
+        cheap_scenery
+        CS_NO_ADJ 'yard'
+            "The ground is silent and deserted."
+        'open' 'door'
+            "A heavy oak door frame stands wide open to the south, leading into the main hall."
+        'large' 'hall'
+            "You can see a bright, well-lit hall just through the open doorway to the south.",
         s_to R4,
         e_to [;
             if(Angrist in location && Angrist hasnt general) {
@@ -657,9 +679,18 @@ Room R4 "Knights' Hall"
         picture 4,
         pic_dir PIC_S,
         desc
-            "You are in a knights' hall with suits of armour lined up along the
-            walls. In the middle of the room stands a great round white table
-            with twelve chairs. To the west you see a magnificent portal.",
+            "You are in a grand hall. Complete suits of armour line the walls, and in the
+            middle of the room stands a great round table of white marble, surrounded by twelve
+            tall chairs. To the west lies a magnificent portal.",
+        cheap_scenery
+        'suits' 'armour'
+            "Polished steel full-plate armour stand empty and motionless along the cold stone walls."
+        'round' 'table'
+            "Thirty people could easily feast together at this large table."
+        'twelve' 'chairs'
+            "Twelve high-backed wooden chairs ring the white table."
+        CS_NO_ADJ 'portal'
+            "An imposing double archway framed in carved marble, leading west.",
         n_to R3,
         w_to R5,
         cant_go "A wall bars your way.",
@@ -670,9 +701,14 @@ Room R5 "Throne Room"
         picture 5,
         pic_dir PIC_N,
         desc
-            "You are in the throne room, dominated by a throne of silver set with
-            sapphires. Above the throne hangs the banner of the realm, white with
-            a red lion for its device.",
+            "You are in the royal hall, dominated by a magnificent throne of silver inlaid
+            with deep blue sapphires. Above it hangs the realm's high banner; a snow-white
+            field bearing a bold red lion.",
+        cheap_scenery
+        'red' 'lion'
+            "The ferocious red lion is stitched into the banner."
+        'high' 'banner'
+            "It's a heavy silk tapestry hanging high on the wall..",
         e_to R4,
         ne_to R3,
         cant_go "A wall bars your way.",
@@ -727,7 +763,7 @@ Room R9 "By the Mountain"
         desc
             "A high, steep mountain range rises to the west of you. The mountains
             run north and south. Far beyond the plain you are standing on you see
-            a vast forest spreading out. To the south rise the walls of the white
+            a vast forest spreading out. To the south rise the walls of the ivory
             castle.",
         n_to R10,
         e_to R8,
@@ -1115,7 +1151,7 @@ Room R32 "Cliff"
         pic_dir PIC_W,
         desc
             "From up here on the cliff top you have a wonderful view. To the south,
-            far beyond forest and plain, you can make out a white castle against
+            far beyond forest and plain, you can make out an ivory castle against
             the azure sea. To the east beyond the river lies a great mountain
             massif. You can see snow covered peaks sticking up here and there. With
             a roar the river throws itself down into a deep ravine to the north. To
@@ -1472,7 +1508,7 @@ Room R52 "Window"
             "Here a strong sunlight floods in through a small window. When your
             eyes have grown used to the light you look out over a fabulous
             landscape, with the wild peaks of Formenas against the horizon, and
-            below them the resplendent forest between the white castle and the
+            below them the resplendent forest between the ivory castle and the
             black.",
         d_to R51,
         cant_go "A solid rock wall stops you.",
@@ -1692,21 +1728,18 @@ Object Table1 "table" R61
         description "The table top is covered with scratches.",
     has scenery supporter;
 
-Object Table2 "table" R4
-    with
-        name 'table',
-        description "Thirty people could easily sit at the great table at the
-            same time.",
-    has scenery supporter;
-
 Object Throne "throne" R5
     with
-        name 'throne',
-        description "The throne glitters with silver and sapphires.",
+        name 'silver' 'throne',
+        description 
+            "The throne is a breathtaking seat of polished silver, studded with glistening sapphires.",
         before [;
+        Enter: "Only the king is supposed to sit on the throne.";
         Push, Pull:
             player.strength = player.strength - 80;
             "Aargh, that took some doing.";
+        default:
+            "No need to concern yourself with that.";
         ],
     has scenery supporter;
 
@@ -2290,7 +2323,7 @@ Person Angrist "Angrist" R3
         Take: return self.order_take();
         Attack: print_ret (The) self, " says ~I do not kill to order~.";
         ],
-    has proper;
+    has proper transparent;
 
 Person Teleri "Teleri" R1
     with
@@ -2354,7 +2387,7 @@ Object Sword "sword" Angrist
     with
         name 'sword',
         damage 9,
-        description "A well balanced sword.",
+        description "A fine, well-balanced blade. It belongs to King Angrist.",
     ;
 
 Object Diamond "diamond" Draupner
