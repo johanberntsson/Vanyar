@@ -1,3 +1,8 @@
+transcript
+
+restart
+yes
+random seed 1001
 n
 w
 s
@@ -91,6 +96,12 @@ kill dragon
 kill dragon
 kill dragon
 kill dragon
+kill dragon
+kill dragon
+kill dragon
+kill dragon
+kill dragon
+kill dragon
 e
 kill draupner
 kill draupner
@@ -107,3 +118,7 @@ s
 s
 s
 w
+quit
+yes
+
+

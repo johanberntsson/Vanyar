@@ -32,8 +32,8 @@
 !         expanding on it.
 
 Constant Story    "Vanyar";
-Constant Headline "^(c) 2003, 1986 Johan Berntsson.
-	Type ~help~ or ~h~ for instructions.^";
+Constant Headline "^(c) 2026 Johan Berntsson.
+	Type ~help~ for instructions.^";
 
 Constant STATUSLINE_SCORE; Statusline score;
 
@@ -183,7 +183,7 @@ Include "ext_z6graphics.h";
 ! Put a picture in the picture window, centred, with the caption the 1986
 ! version printed under it. Call it with 0 to leave the window empty, which is
 ! what darkness looks like.
-[ ShowPicture p_picture p_dir _w _h _x _y _len;
+[ ShowPicture p_picture p_dir _w _h _x _y _xu _yu _len;
 	shown_picture = p_picture;
 	Z6SetWindow(PICWIN);
 	Z6EraseWindow(PICWIN);
@@ -194,22 +194,27 @@ Include "ext_z6graphics.h";
 		_y = 1 + (picwin_rows - 1 - _h) / 2;
 		if(_x < 1) _x = 1;
 		if(_y < 1) _y = 1;
-		Z6MoveCursor_Chars(_x, _y);
+		Z6MoveCursor_Chars(1,1);
+		Z6DrawPictureHere(67);
+		!Z6MoveCursor_Chars(_x, _y);
+		_xu = Z6ColToX(_x);
+		_yu = Z6RowToY(_y);
+		Z6MoveCursor_Units(_xu, 11);
 		Z6DrawPictureHere(p_picture);
 
-		if(p_dir) {
+!		if(p_dir) {
 			! "This is what you see looking " is 29 characters, and the full
 			! stop makes 30; north and south are five letters, east and west
 			! four. Work the width out rather than measuring, so that the
 			! caption can be centred before it is printed.
-			_len = 30;
-			if(p_dir == PIC_N or PIC_S) _len = _len + 5; else _len = _len + 4;
-			_x = 1 + (picwin_cols - _len) / 2;
-			if(_x < 1) _x = 1;
-			Z6MoveCursor_Chars(_x, picwin_rows);
-			print "This is what you see looking ",
-				(string) direction_name_array-->p_dir, ".";
-		}
+!			_len = 30;
+!			if(p_dir == PIC_N or PIC_S) _len = _len + 5; else _len = _len + 4;
+!			_x = 1 + (picwin_cols - _len) / 2;
+!			if(_x < 1) _x = 1;
+!			Z6MoveCursor_Chars(_x, picwin_rows);
+!			print "This is what you see looking ",
+!				(string) direction_name_array-->p_dir, ".";
+!		}
 	}
 	! Back to the game window. This also flushes anything still buffered.
 	Z6SetWindow(0);
@@ -510,6 +515,7 @@ Class Person class PersonBase
 			if(_ka < _kd) {
 				print "You wound ", (the) self, " with ", (the) p_weapon, ".^";
 				self.strength = self.strength - _x;
+print self.strength, "^";
 			}
 			if(_ka == _kd) print "A miss...^";
 
@@ -2506,25 +2512,17 @@ Object Diamond "diamond" Draupner
 		was finished, in 800 lines of compact BASIC for the C64. The pictures
 		were added at the beginning of 1987. In 2003 I played the game in an
 		emulator, and suddenly felt the urge to convert it to a modern platform.
-		Since my good friend Fredrik Ramsberg had just finished his Swedish
-		language package for Inform there was nothing to stop me, so I printed
-		out a listing and set to work. Now you have the result in front of you,
-		and I hope you like the game.^^\
+		In 2026 I decided to port this game once again to PunyInform and
+        Ozmoo, using version 6 support for graphics. I, together with my good
+        friend Fredrik Ramsberg, have written both software packages, and now
+        this game will demonstrate how to add graphics to z6 games.^^\
 
 		In this improved version I have tried to make small changes that remove
 		the worst shortcomings of the original. There are no longer any mazes,
 		and the map is laid out more logically. More things have descriptions,
 		and a number of bugs have been fixed. There are still a few actions that
 		kill you on the spot, but you get a warning first and you can always
-		type ~undo~.^^\
-
-		The game is an eighties game for better and for worse, and I would not
-		write it the same way today. This English translation was made in 2026.
-		If you find the game too hard you might want to look at one of my other
-		adventure games. You can choose between Wyrmward, The Temple and
-		Vacation Gone Awry. They can all be found on the Interactive Fiction
-		archive (http://ifarchive.org/if-archive). Please send comments and bug
-		reports to johan@@64microheaven.com.^";
+		type ~undo~.^";
 
 	2: print "In this game you control the main character by typing in commands
 		that say what he is to do. Examples of such commands are:^^\

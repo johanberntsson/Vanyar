@@ -217,3 +217,7 @@ pictures:
   - id: 66
     file: pic66.png
     location: Throne Room
+  - id: 67
+    file: backdrop.png
+    location: picture backdrop
+
