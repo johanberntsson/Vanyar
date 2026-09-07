@@ -22,7 +22,7 @@ seen with the naked eye. After a long voyage the ship cast anchor off Angrist's
 castle.
 
 Ship
-You are aboard a grey ship. To the west you can see the towers of a snow white
+You are aboard a grey ship. To the west you can see the towers of an ivory
 castle. You can go down onto the quay by the gangway to the north.
 You can go north.
 
@@ -32,17 +32,33 @@ gangway.
 > random seed 1001
 The random seed is set to 1001.
 
+> look
+Ship
+You are aboard a grey ship. To the west you can see the towers of an ivory
+castle. You can go down onto the quay by the gangway to the north.
+You can go north.
+
+Teleri is here.
+
+> x boat
+A sturdy wooden vessel. She will wait here until your return.
+
+Teleri says "Let us hurry".
+
+> x grey ship
+A sturdy wooden vessel. She will wait here until your return.
+
+Teleri says "Let us hurry".
+
 > n
 Harbour
 You are in a large harbour. It looks abandoned. A clear path leads west.
 You can go north, south, east and west.
 
-Teleri comes in.
-
 > w
 Castle Yard
-You are standing in the yard of the snow white castle. Through an open door to
-the south you can see a large, well lit hall.
+You are standing in the yard of the ivory castle. Through an open door to the
+south you can see a large, well lit hall.
 You can go south, east and southwest.
 
 King Angrist has aged before his time and is sunk in dark thoughts, but he
@@ -54,15 +70,17 @@ time before Draupner gathers his forces to take the southern part of the country
 as well. Angrist says that he means to die in his castle, but that most of his
 people have fled to the mountains. Angrist is carrying a sword.
 
+Angrist waits.
+
 Teleri comes in.
 
 [The score has just gone up by 5 points.]
 
 > s
 Knights' Hall
-You are in a knights' hall with suits of armour lined up along the walls. In the
-middle of the room stands a great round white table with twelve chairs. To the
-west you see a magnificent portal.
+You are in a grand hall. Complete suits of armour line the walls, and in the
+middle of the room stands a great round table of white marble, surrounded by
+twelve tall chairs. To the west lies a magnificent portal.
 You can go north and west.
 
 You can see a ham and a wine bottle here.
@@ -74,38 +92,41 @@ Teleri comes in.
 > take ham
 Taken.
 
-Teleri says "Let us hurry".
-
 > w
 Throne Room
-You are in the throne room, dominated by a throne of silver set with sapphires.
-Above the throne hangs the banner of the realm, white with a red lion for its
-device.
+You are in the royal hall, dominated by a magnificent throne of silver inlaid
+with deep blue sapphires. Above it hangs the realm's high banner; a snow-white
+field bearing a bold red lion.
 You can go east and northeast.
 
-You can see a matchbox (which contains some matches) and a dagger here.
+You can see a dagger and a matchbox (which contains some matches) here.
+
+Angrist, the white king, comes in. Angrist is carrying a sword.
+
+> take box
+Taken.
+
+Teleri comes in.
+
+> ne
+Castle Yard
+You are standing in the yard of the ivory castle. Through an open door to the
+south you can see a large, well lit hall.
+You can go south, east and southwest.
 
 Angrist, the white king, comes in. Angrist is carrying a sword.
 
 Teleri comes in.
 
-> take box
-Taken.
-
-Angrist waits.
-
-> ne
-Castle Yard
-You are standing in the yard of the snow white castle. Through an open door to
-the south you can see a large, well lit hall.
-You can go south, east and southwest.
-
-Teleri comes in.
-
 > e
+
+You take your leave of Angrist. He says "Let me give you one piece of advice:
+seek the help of the wizard in the west. Farewell, and good luck".
 Harbour
 You are in a large harbour. It looks abandoned. A clear path leads west.
 You can go north, south, east and west.
+
+Teleri comes in.
 
 > n
 Tall Grass
@@ -117,7 +138,7 @@ You can go north, south, east and west.
 By the Mountain
 A high, steep mountain range rises to the west of you. The mountains run north
 and south. Far beyond the plain you are standing on you see a vast forest
-spreading out. To the south rise the walls of the white castle.
+spreading out. To the south rise the walls of the ivory castle.
 You can go north, east, southeast and southwest.
 
 Teleri comes in.
@@ -129,20 +150,18 @@ north of you) a dense dark forest spreads out. To the south you see a billowing
 sea of grass.
 You can go north, south and east.
 
-You can see a branch and a berry bush here.
+You can see a berry bush and a branch here.
 
 Teleri comes in.
 
 > take branch
 Taken.
 
-Teleri says "Let us hurry".
-
 > s
 By the Mountain
 A high, steep mountain range rises to the west of you. The mountains run north
 and south. Far beyond the plain you are standing on you see a vast forest
-spreading out. To the south rise the walls of the white castle.
+spreading out. To the south rise the walls of the ivory castle.
 You can go north, east, southeast and southwest.
 
 Teleri comes in.
@@ -152,6 +171,8 @@ Pass
 You are in a narrow pass winding between the high mountain sides. Above you a
 crevice opens in the rock face.
 You can go west, northeast and up.
+
+Teleri comes in.
 
 > u
 Darkness
@@ -174,8 +195,6 @@ Teleri comes in.
 > extinguish branch
 You put out the branch.
 
-Here comes a elf. The elf is carrying a sling.
-
 It is now pitch dark in here.
 
 > down
@@ -194,7 +213,7 @@ crowns that glitter like gold, and an almost reverent feeling of age and mystery
 sweeps over you. You turn your gaze west and look out over a barren desert.
 You can go north, east, west and northeast.
 
-Here comes a elf. The elf is carrying a sling.
+Here comes a elf. The elf is carrying a gauntlet.
 
 Teleri comes in.
 
@@ -204,6 +223,8 @@ You are standing in a beautiful, sweet smelling forest. To the west, between
 straight tree trunks, you glimpse a barren sandy desert. A faintly marked path
 leads north east.
 You can go west, northeast and southwest.
+
+Teleri comes in.
 
 > ne
 Glade
@@ -230,7 +251,7 @@ been hewn out of the rock. You see two closed doors. To the north east you see a
 doorway, and through it a ravine.
 You can go west and northeast.
 
-You can see a bottle, a goblet, a jar and a loaf of bread here.
+You can see a loaf of bread, a jar, a bottle and a goblet here.
 
 Teleri comes in.
 
@@ -255,8 +276,6 @@ north east you see an opening leading into the mountain. To the south rises the
 beautiful glittering forest.
 You can go northeast and southwest.
 
-Here comes a elf. The elf is carrying a sling.
-
 Teleri comes in.
 
 > sw
@@ -266,7 +285,7 @@ straight tree trunks, you glimpse a barren sandy desert. A faintly marked path
 leads north east.
 You can go west, northeast and southwest.
 
-Here comes a elf. The elf is carrying a sling.
+Here comes a elf. The elf is carrying a gauntlet.
 
 Teleri comes in.
 
@@ -292,8 +311,10 @@ Teleri comes in.
 By the Mountain
 A high, steep mountain range rises to the west of you. The mountains run north
 and south. Far beyond the plain you are standing on you see a vast forest
-spreading out. To the south rise the walls of the white castle.
+spreading out. To the south rise the walls of the ivory castle.
 You can go north, east, southeast and southwest.
+
+Teleri comes in.
 
 > e
 Tall Grass
@@ -318,13 +339,13 @@ You are in the middle of a dim forest. A path leads west between a couple of
 trunks. In the distance you can hear gulls crying.
 You can go north, south, east and west.
 
-Teleri comes in.
-
 > e
 River
 To the east in front of you a swift river runs northwards. To the south you see
 the sea. Forest surrounds you in every other direction.
 You can go north, west and northwest.
+
+Teleri comes in.
 
 > n
 River Bank
@@ -391,7 +412,7 @@ You can go east and west.
 > burn branch
 You light the branch with a match.
 
-Here comes a dwarf. The dwarf is carrying a machete.
+Here comes a dwarf. The dwarf is carrying a sling.
 
 > e
 Bat Cave
@@ -409,6 +430,8 @@ The frightened bats fly off through a hole in the ceiling.
 > throw rope at hole
 You have thrown the rope up.
 
+Here comes a dwarf. The dwarf is carrying a sling.
+
 [The score has just gone up by 10 points.]
 
 > up
@@ -417,7 +440,7 @@ You are in a dark passage. Beside you is a hole in the floor. The floor is
 covered with old bat droppings.
 You can go east and down.
 
-Here comes a dwarf. The dwarf is carrying a machete.
+Allvis, the dwarf, steps in. Allvis is carrying a mace.
 
 > e
 Mountain Hall
@@ -425,31 +448,31 @@ In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
 
-Here comes a dwarf. The dwarf is carrying a machete.
-
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
+Here comes a dwarf. The dwarf is carrying a sling.
 
 > up
 Stairway
 You are standing on a landing halfway up the stairs.
 You can go up and down.
 
+Here comes a dwarf. The dwarf is carrying a sling.
+
 > up
 Window
 Here a strong sunlight floods in through a small window. When your eyes have
 grown used to the light you look out over a fabulous landscape, with the wild
 peaks of Formenas against the horizon, and below them the resplendent forest
-between the white castle and the black.
+between the ivory castle and the black.
 You can go down.
 
 You can see a parchment here.
 
-Here comes a dwarf. The dwarf is carrying a machete.
+Here comes a dwarf. The dwarf is carrying a sling.
+
+Allvis, the dwarf, steps in. Allvis is carrying a mace.
 
 > take parchment
 Taken.
-
-The dwarf leaves.
 
 [The score has just gone up by 5 points.]
 
@@ -458,24 +481,16 @@ Stairway
 You are standing on a landing halfway up the stairs.
 You can go up and down.
 
-Here comes a dwarf. The dwarf is carrying a machete.
-
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
-
 > down
 Mountain Hall
 In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
 
-Here comes a dwarf. The dwarf is carrying a machete.
-
 > s
 Throne Room
 In the torchlight you see a beautiful throne adorned with precious stones.
 You can go north and east.
-
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
 
 > e
 Treasure Room
@@ -485,10 +500,16 @@ You can go west.
 
 You can see a herb here.
 
+Here comes a dwarf. The dwarf is carrying a sling.
+
+Allvis, the dwarf, steps in. Allvis is carrying a mace.
+
 > take herb
 Taken.
 
-Here comes a dwarf. The dwarf is carrying a machete.
+The dwarf leaves.
+
+Allvis leaves.
 
 [The score has just gone up by 5 points.]
 
@@ -497,17 +518,11 @@ Throne Room
 In the torchlight you see a beautiful throne adorned with precious stones.
 You can go north and east.
 
-Allvis, the dwarf lord, is standing in the room. He grunts something in a
-language you do not understand, but it does not sound especially friendly.
-Allvis is carrying a mace.
-
 > n
 Mountain Hall
 In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
-
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
 
 > n
 Dead End
@@ -515,9 +530,9 @@ You are in a dead end in the mountain. To the south is a way out, and to the
 west the passage ends in a curtain of water.
 You can go south and west.
 
-Here comes a dwarf. The dwarf is carrying a machete.
+Here comes a dwarf. The dwarf is carrying a club.
 
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
+Allvis, the dwarf, steps in.
 
 > w
 You walk through the waterfall and come to...
@@ -551,6 +566,8 @@ Ravine
 You are still in a deep ravine.
 You can go south and northeast.
 
+Teleri comes in.
+
 > s
 End of the Ravine
 You are at the end of the ravine. There is an open gate in the south western
@@ -567,7 +584,9 @@ been hewn out of the rock. You see two closed doors. To the north east you see a
 doorway, and through it a ravine.
 You can go west and northeast.
 
-You can see a bottle, a goblet, a jar and a loaf of bread here.
+You can see a loaf of bread, a jar, a bottle and a goblet here.
+
+Teleri comes in.
 
 A mighty voice says "Thank you, my friend". The herb dissolves into smoke. "If
 you say 'algeothel' anywhere in the ravine a secret way will open. You may pass
@@ -578,10 +597,10 @@ through the eastern gate". The voice echoes away through the hall.
 > eat bread
 You eat some of the loaf of bread.
 
-Teleri comes in.
-
 > eat bread
 You eat some of the loaf of bread.
+
+Teleri says "Let us hurry".
 
 > eat bread
 Now the loaf of bread is all gone.
@@ -609,14 +628,12 @@ Teleri comes in.
 > say algeothel
 A door opens in the rock wall. You can go south.
 
-Teleri says "Let us hurry".
-
 > s
 Passage
 You are in a dark and narrow passage.
 You can go north and south.
 
-Here comes a guard. The guard is carrying a gauntlet.
+Teleri comes in.
 
 > s
 Cellar
@@ -624,7 +641,7 @@ Now you have come to a damp cellar. The great room is quite deserted. You can
 make out a rotten wooden stair leading up.
 You can go north and up.
 
-Here comes a guard. The guard is carrying a gauntlet.
+Teleri comes in.
 
 > up
 Courtyard
@@ -642,13 +659,19 @@ table with thirteen chairs. To the east is a gate, and against the west wall
 stands a great sideboard. Stairs lead up and down.
 You can go east, up and down.
 
+Here comes a guard. The guard is carrying a mace.
+
 Teleri comes in.
 
 > push sideboard
 On the wall where the sideboard stood you see a low hole that you can walk
 through.
 
-Here comes a guard. The guard is carrying a gauntlet.
+The guard attacks!
+
+You wound the guard with the axe.
+
+The guard leaves.
 
 [The score has just gone up by 15 points.]
 
@@ -662,14 +685,12 @@ You can go east.
 
 You can see a broad sword here.
 
+Here comes a guard. The guard is carrying a sling.
+
 Teleri comes in.
 
 > take broadsword
 Taken.
-
-Here comes a guard. The guard is carrying a gauntlet.
-
-Teleri says "Let us hurry".
 
 > e
 Knights' Hall
@@ -714,31 +735,23 @@ Nothing happens.
 Teleri reads "hakuee ptr'uio nasc!". The dragon starts back and its fire goes
 out.
 
+Teleri says "Let us hurry".
+
 > z
 Nothing happens.
 
+Teleri says "Let us hurry".
+
 > teleri, read parchment
 Teleri reads "hakuee ptr'uio nasc!".
-
-> kill dragon
-You wound the dragon with the broad sword.
-360
-
-> kill dragon
-You wound the dragon with the broad sword.
-350
-
-> kill dragon
-You wound the dragon with the broad sword.
-80
-
-The dragon looks very tired.
 
 Teleri says "Let us hurry".
 
 > kill dragon
 You wound the dragon with the broad sword.
--90
+
+> kill dragon
+You wound the dragon with the broad sword.
 
 The dragon dies.
 
@@ -750,20 +763,6 @@ The dragon is dead already.
 > kill dragon
 The dragon is dead already.
 
-> kill dragon
-The dragon is dead already.
-
-> kill dragon
-The dragon is dead already.
-
-> kill dragon
-The dragon is dead already.
-
-> kill dragon
-The dragon is dead already.
-
-Teleri says "Let us hurry".
-
 > e
 Throne Room
 You have now come into the heart of the castle... the throne room. The room is
@@ -772,29 +771,29 @@ the only furniture in the room, an enormous throne set with jewels.
 You can go west.
 
 A tall man rises from the throne as you come in. He snatches up a spear and
-steps out into the middle of the hall. Draupner is carrying a spear and a
-diamond.
+steps out into the middle of the hall. Draupner is carrying a diamond and a
+spear.
 
 Draupner attacks!
 
 You wound Draupner with the broad sword.
-180
+
+Draupner looks very tired.
 
 Teleri comes in.
 
 > kill draupner
 You wound Draupner with the broad sword.
--90
+
+Draupner looks very tired.
+
+Draupner attacks!
+
+You wound Draupner with the broad sword.
 
 Draupner dies.
 
-> kill draupner
-Draupner is dead already.
-
 Teleri says "Let us hurry".
-
-> kill draupner
-Draupner is dead already.
 
 > kill draupner
 Draupner is dead already.
@@ -833,7 +832,7 @@ table with thirteen chairs. To the east is a gate, and against the west wall
 stands a great sideboard. Stairs lead up and down.
 You can go east, west, up and down.
 
-Here comes a guard. The guard is carrying a gauntlet.
+Here comes a guard. The guard is carrying a sling.
 
 Teleri comes in.
 
@@ -844,7 +843,7 @@ up and down. There are gates to the east and west. The castle gate is to the
 south.
 You can go south, east, west, up and down.
 
-Here comes a guard. The guard is carrying a gauntlet.
+Here comes a guard. The guard is carrying a sling.
 
 Teleri comes in.
 
@@ -872,14 +871,14 @@ You are on the edge of the forest. To the north the forest thickens again. Heavy
 undergrowth covers the ground.
 You can go north, south, east and west.
 
-Teleri comes in.
-
 > s
 Grassland
 You are standing in tall dry grass. A dense forest surrounds you to the north
 and east. A dark path loses itself among the dim shadows of the trees. The plain
 continues west. To the south west you can make out tall white towers.
 You can go north, south, east and west.
+
+Teleri comes in.
 
 > s
 Grassland
@@ -906,7 +905,7 @@ Teleri takes his leave and says "I go to the wizard. Take care of yourself".
 
   *** You have won ***
 
-In that game you scored 100 out of a possible 100, in 115 turns, and you have
+In that game you scored 100 out of a possible 100, in 110 turns, and you have
 800 strength points. That makes you a hero.
 
 Would you like to RESTART, RESTORE, UNDO the last move, see some suggestions for

@@ -3,6 +3,9 @@ transcript
 restart
 yes
 random seed 1001
+look
+x boat
+x grey ship
 n
 w
 s
@@ -96,15 +99,7 @@ kill dragon
 kill dragon
 kill dragon
 kill dragon
-kill dragon
-kill dragon
-kill dragon
-kill dragon
-kill dragon
-kill dragon
 e
-kill draupner
-kill draupner
 kill draupner
 kill draupner
 take diamond

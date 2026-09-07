@@ -46,7 +46,7 @@ Constant DEATH_MENTION_UNDO;
 Constant MAX_SCORE = 100;
 Constant AMUSING_PROVIDED;
 
-Constant INITIAL_LOCATION_VALUE = R1;
+Constant INITIAL_LOCATION_VALUE = Ship;
 Constant CUSTOM_PLAYER_OBJECT   = VanyarPlayer;
 
 Include "globals.h";
@@ -516,7 +516,6 @@ Class Person class PersonBase
             if(_ka < _kd) {
                 print "You wound ", (the) self, " with ", (the) p_weapon, ".^";
                 self.strength = self.strength - _x;
-print self.strength, "^";
             }
             if(_ka == _kd) print "A miss...^";
 
@@ -605,7 +604,22 @@ print self.strength, "^";
 !   Rooms and the things that stand in them
 ! ----------------------------------------------------------------------------
 
-Room R1 "Ship"
+[ ParseNameShip _w _n;
+    _w = NextWord();
+    while(_w == 'grey' or 'gray') { _n++; _w = NextWord(); }
+    if(_w == 'boat' or 'ship') return _n + 1;
+    return _n;
+];  
+
+[ ParseNameIvoryCastle _w _n;
+    _w = NextWord();
+    while(_w == 'ivory' or 'snow-white' or 'snow' or 'white') { _n++; _w = NextWord(); }
+    if(_w == 'castle') return _n + 1;
+    return _n;
+];  
+        
+
+Room Ship "Ship"
     with
         picture 1,
         pic_dir PIC_W,
@@ -614,20 +628,58 @@ Room R1 "Ship"
             ivory castle. You can go down onto the quay by the gangway to
             the north.",
         cheap_scenery
-        'grey' 'ship'
-            "A sturdy wooden vessel. She will wait here until your return."
         CS_NO_ADJ 'quay'
             "A quiet stone wharf. Your vessel is the only ship docked here."
         CS_NO_ADJ 'gangway'
             "A narrow wooden ramp leading north down to the quay."
-        'ivory' 'castle'
+        CS_PARSE_NAME ParseNameShip
+            "A sturdy wooden vessel. She will wait here until your return."
+        CS_PARSE_NAME ParseNameIvoryCastle
             "Its snow-white towers gleam under the sun, some distance away.",
-        n_to R2,
+        n_to Harbour,
         cant_go "That way leads down into the water. The only way from here is
             the gangway leading to the harbour, which lies to the north.",
     ;
 
-Room R2 "Harbour"
+Person -> Teleri "Teleri"
+    with
+        name 'teleri',
+        move_probability 90,
+        wait_probability 30,
+        enter_message "Teleri comes in.",
+        wait_message "Teleri says ~Let us hurry~.",
+        live_description "Teleri is a good companion to have with you on a
+            dangerous errand",
+        dead_description
+            "Teleri's open eyes still mirror his surprise at the unexpected
+            attack",
+        introduction "~It will be good to walk on firm ground again~, says Teleri,
+            and walks down the gangway",
+        loc1 Ship Harbour Yard KnightsHall R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19
+            R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R32,
+        loc2 R40 R41 R42 R43 R44 R56 R57 R58 R59 R60 R61 R62 R63 R64 R65 R66,
+        skill 16,
+        strength 350,
+        orders [;
+        Give: return self.order_give();
+        Drop: return self.order_drop();
+        Take: return self.order_take();
+        Go: return self.order_go();
+        Attack: print_ret (The) self, " says ~I do not kill to order~.";
+        Examine:
+            if(noun == Scroll) {
+                print "Teleri reads ~hakuee ptr'uio nasc!~";
+                if(Dragon in location && DragonFlame in Dragon) {
+                    remove DragonFlame;
+                    move DragonTail to Dragon;
+                    print ". The dragon starts back and its fire goes out";
+                }
+                ".";
+            }
+        ],
+    has proper;
+
+Room Harbour "Harbour"
     with
         picture 2,
         pic_dir PIC_N,
@@ -640,12 +692,12 @@ Room R2 "Harbour"
         'clear' 'path'
             "A road worn smooth by years of wagon traffic, winding west.",
         n_to R8,
-        s_to R1,
+        s_to Ship,
         e_to R6,
-        w_to R3,
+        w_to Yard,
     ;
 
-Room R3 "Castle Yard"
+Room Yard "Castle Yard"
     with
         picture 3,
         pic_dir PIC_S,
@@ -660,7 +712,7 @@ Room R3 "Castle Yard"
             "A heavy oak door frame stands wide open to the south, leading into the main hall."
         'large' 'hall'
             "You can see a bright, well-lit hall just through the open doorway to the south.",
-        s_to R4,
+        s_to KnightsHall,
         e_to [;
             if(Angrist in location && Angrist hasnt general) {
                 give Angrist general;
@@ -668,13 +720,51 @@ Room R3 "Castle Yard"
                     one piece of advice: seek the help of the wizard in the west.
                     Farewell, and good luck~.^";
             }
-            return R2;
+            return Harbour;
         ],
         sw_to R5,
         cant_go "A wall bars your way.",
     ;
 
-Room R4 "Knights' Hall"
+Person -> Angrist "Angrist"
+    with
+        name 'angrist',
+        move_probability 80,
+        wait_probability 20,
+        enter_message "Angrist, the white king, comes in.",
+        live_description "Angrist looks old and tired",
+        dead_description "The body of Angrist is covered with blood",
+        introduction
+            "King Angrist has aged before his time and is sunk in dark thoughts,
+            but he checks himself when he catches sight of you and says in
+            surprise ~So my message to king Telnor got through at last~. He tells
+            you of Draupner's revolt and how he kept his dragon secret until he
+            lured the king's troops into an ambush, where most of the men fit to
+            bear arms were burnt to death. It is only a matter of time before
+            Draupner gathers his forces to take the southern part of the country
+            as well. Angrist says that he means to die in his castle, but that
+            most of his people have fled to the mountains",
+        loc1 Yard KnightsHall R5,
+        skill 15,
+        strength 350,
+        orders [;
+        Give: return self.order_give();
+        Go: return self.order_go();
+        Drop: return self.order_drop();
+        Take: return self.order_take();
+        Attack: print_ret (The) self, " says ~I do not kill to order~.";
+        ],
+    has proper transparent;
+
+Object -> -> Sword "sword"
+    with
+        name 'sword',
+        damage 9,
+        description "A fine, well-balanced blade. It belongs to King Angrist.",
+    ;
+
+
+Room KnightsHall "Knights' Hall"
     with
         picture 4,
         pic_dir PIC_S,
@@ -691,9 +781,30 @@ Room R4 "Knights' Hall"
             "Twelve high-backed wooden chairs ring the white table."
         CS_NO_ADJ 'portal'
             "An imposing double archway framed in carved marble, leading west.",
-        n_to R3,
+        n_to Yard,
         w_to R5,
         cant_go "A wall bars your way.",
+    ;
+
+Food -> Ham "ham" 
+    with
+        name 'ham',
+        nutrition 50,
+        portions 3,
+        leftover HamBone,
+        description "The ham smells wonderful.",
+    ;
+
+Food -> Winebottle "wine bottle" 
+    with
+        name 'wine' 'bottle',
+        damage 6,
+        nutrition 50,
+        portions 3,
+        finish_message "The wine is all gone now.",
+        consume_message "You drink a little wine (hic).",
+        leftover EmptyBottle,
+        description "The bottle holds a slightly bitter red wine.",
     ;
 
 Room R5 "Throne Room"
@@ -709,10 +820,61 @@ Room R5 "Throne Room"
             "The ferocious red lion is stitched into the banner."
         'high' 'banner'
             "It's a heavy silk tapestry hanging high on the wall..",
-        e_to R4,
-        ne_to R3,
+        e_to KnightsHall,
+        ne_to Yard,
         cant_go "A wall bars your way.",
     ;
+
+Object -> Dagger "dagger"
+    with
+        name 'dagger',
+        damage 3,
+        description "A short dagger with a plain hilt.",
+    ;
+
+Object -> Throne "throne"
+    with
+        name 'silver' 'throne',
+        description 
+            "The throne is a breathtaking seat of polished silver, studded with glistening sapphires.",
+        before [;
+        Enter: "Only the king is supposed to sit on the throne.";
+        Push, Pull:
+            player.strength = player.strength - 80;
+            "Aargh, that took some doing.";
+        default:
+            "No need to concern yourself with that.";
+        ],
+    has scenery supporter;
+
+Object -> Matchbox "matchbox"
+    with
+        name 'matchbox' 'box',
+        description [;
+            if(Matches in self) "A small box of matches.";
+            "A small matchbox. It is empty.";
+        ],
+    has container open openable;
+
+Object -> -> Matches "matches"
+    with
+        name 'match' 'matches',
+        counter 6,
+        description [;
+            print_ret "There are ", (number) self.counter, " matches left.";
+        ],
+        before [;
+        Burn:
+            if(location hasnt light) {
+                print "In the feeble light of the match you look around you.^";
+                give player light;
+                UseMatch();
+                PlayerTo(real_location);
+                rtrue;
+            }
+            "Say what you want to set fire to instead.";
+        ],
+    has pluralname;
 
 Room R6 "Grassland"
     with
@@ -723,7 +885,7 @@ Room R6 "Grassland"
             sturdy grass. To the south you see the sea of Vanyar. To the east and
             north you see dense forest.",
         n_to R7,
-        w_to R2,
+        w_to Harbour,
         e_to R21,
         s_to "The sea is in the way.",
     ;
@@ -753,7 +915,7 @@ Room R8 "Tall Grass"
         n_to R26,
         w_to R9,
         e_to R7,
-        s_to R2,
+        s_to Harbour,
     ;
 
 Room R9 "By the Mountain"
@@ -767,7 +929,7 @@ Room R9 "By the Mountain"
             castle.",
         n_to R10,
         e_to R8,
-        se_to R2,
+        se_to Harbour,
         sw_to R11,
         w_to "You would have to climb the mountain wall.",
     ;
@@ -784,6 +946,57 @@ Room R10 "At the Foot of Formenas"
         s_to R9,
         e_to R26,
         w_to "You would have to climb the mountain wall.",
+    ;
+
+Food -> Bush "berry bush"
+    with
+        name 'bush' 'berries' 'berry',
+        description "You recognise the berries as ironberries. They are wholesome
+            and very rich in energy.",
+        nutrition 60,
+        portions 999,
+        consume_message "You eat some of the berries.",
+    ;
+
+Object -> Branch "branch"
+    with
+        name 'branch' 'torch',
+        description [;
+            if(self has light) "The branch is burning and makes an excellent
+                torch.";
+            "The branch is full of resin.";
+        ],
+        counter 0,
+        daemon [;
+            if(self has light) {
+                self.counter = self.counter + 1;
+                if(self.counter == 150) {
+                    StopDaemon(self);
+                    if(TestScope(self)) print "^The branch has burnt out.^";
+                    remove self;
+                }
+            }
+        ],
+        before [;
+        Extinguish:
+            if(self hasnt light) "The branch isn't burning.";
+            give self ~light;
+            StopDaemon(self);
+            "You put out the branch.";
+        Burn:
+            if(second == 0) {
+                if(TestScope(Matches) == false) "You have no matches.";
+                second = Matches;
+            }
+            if(second == Matches) {
+                if(self has light) "The branch is already burning.";
+                UseMatch();
+                give self light;
+                StartDaemon(self);
+                "You light the branch with a match.";
+            }
+            "You will have to light it with a match.";
+        ],
     ;
 
 Object Mountain "mountain"
@@ -859,6 +1072,14 @@ Room R14 "Cave"
         cant_go "The only way out is back down to the mountain pass.",
     has ~light;
 
+Object -> Axe "axe"
+    with
+        name 'axe',
+        damage 6,
+        description "It is an ordinary wood axe.",
+    ;
+
+
 Room R15 "Forest"
     with
         picture 15,
@@ -906,6 +1127,23 @@ Room R17 "Desert"
         w_to R18,
         cant_go "The sand is far too loose in that direction.",
     ;
+
+Object -> Cactus "cactus"
+    with
+        name 'cactus',
+        description "Best to watch out for those sharp spines.",
+        before [;
+        Eat:
+            if(self hasnt generic) {
+                give self generic;
+                "The flesh of the cactus smells rather bitter. Are you sure you
+                want to eat it?";
+            }
+            deadflag = 1;
+            "You eat some of the flesh of the cactus. Unhappily you soon get
+            severe stomach cramps, and in great agony you die.";
+        ],
+    has static;
 
 Room R18 "Desert"
     with
@@ -967,6 +1205,54 @@ Room R20 "Laboratory"
         w_to R19,
         ne_to MagicDoor,
         cant_go "There is a great deal of stone in that direction.",
+    ;
+
+Person -> Wizard "wizard"
+    with
+        name 'wizard' 'sirion' 'voice',
+        skill 100,
+        strength 200,
+        live_description
+            "You cannot see anyone here, and there is no telling where the voice
+            comes from, but you feel that someone is watching you closely",
+        orders [;
+            "The wizard does not answer.";
+        ],
+    has concealed;
+
+Food -> Bread "loaf of bread"
+    with
+        name 'bread' 'loaf',
+        nutrition 50,
+        portions 3,
+        description "Mmm, freshly baked.",
+    ;
+
+Object -> Can "jar" 
+    with
+        name 'jar' 'can',
+        description "The jar is covered with dust and cobwebs.",
+        before [;
+        Take: "It is probably best to leave the wizard's things alone.";
+        ],
+    ;
+
+Object -> Bottle "bottle"
+    with
+        name 'bottle',
+        description "The bottle is covered with dust.",
+        before [;
+        Take: "It is probably best to leave the wizard's things alone.";
+        ],
+    ;
+
+Object -> Cup "goblet"
+    with
+        name 'goblet' 'cup',
+        description "The goblet is cracked.",
+        before [;
+        Take: "It is probably best to leave the wizard's things alone.";
+        ],
     ;
 
 Object MagicDoor "magic gate"
@@ -1091,6 +1377,14 @@ Room R27 "Forest Edge"
         w_to R30,
     ;
 
+Food -> Apple "apple"
+    with
+        name 'apple',
+        nutrition 40,
+        portions 1,
+        description "An apple a day keeps the doctor away, they say.",
+    ;
+
 Room R28 "Forest"
     with
         picture 28,
@@ -1145,6 +1439,18 @@ Room R31 "Brushwood Hut"
         cant_go "The only way out leads east.",
     ;
 
+Object -> Soup "soup"
+    with
+        name 'soup' 'cauldron',
+        description "The soup smells of things you would rather not think about.",
+        before [;
+        Drink, Eat:
+            player.strength = player.strength - 50;
+            "You drink some of the soup. It burns like fire and you feel faint
+            and weak.";
+        ],
+    ;
+
 Room R32 "Cliff"
     with
         picture 32,
@@ -1175,6 +1481,28 @@ Room R33 "River Bank"
         e_to "You can't walk on water.",
     ;
 
+Object -> Boat "boat"
+    with
+        name 'boat',
+        description "The boat is small and badly worn.",
+        before [;
+        Row:
+            if(self hasnt generic) {
+                give self generic;
+                "Just as you are about to cast off you see something move in the
+                water.";
+            }
+            deadflag = 1;
+            "You cast off and row out into the river. The water suddenly turns
+            cloudy around you and you hear a dull rumble. You feel a burning pain
+            as an enormous green and slimy sea serpent tears off one of your
+            hands, and then it throws itself upon you...";
+        Push, Pull:
+            player.strength = player.strength - 80;
+            "Aargh, that took some doing.";
+        ],
+    has scenery enterable container open;
+
 Room R34 "River Bank"
     with
         picture 34,
@@ -1189,6 +1517,38 @@ Room R34 "River Bank"
         w_to R24,
         e_to "The river is far too deep to wade across.",
     ;
+
+Object -> Tree "tree"
+    with
+        name 'tree' 'trunk',
+        counter 0,
+        description [;
+            if(self.counter == 2) "The rotten tree lies like a bridge across the
+                river.";
+            "The rotten tree stands by the river bank.";
+        ],
+        before [;
+        Climb:
+            if(self.counter < 2) "The tree is far too rotten.";
+        Cut:
+            "You will need something to cut it with.";
+        Attack:
+            if(second ~= Axe) print_ret (The) second, " makes no impression on
+                the tree.";
+            if(self.counter == 0) {
+                self.counter = 1;
+                "The tree groans at your blow.";
+            }
+            if(self.counter == 1) {
+                self.counter = 2;
+                score = score + 10;
+                R34.e_to = R38;
+                "The rotten tree falls heavily, and lies like a bridge across the
+                river.";
+            }
+            "You have already felled the tree.";
+        ],
+    has scenery;
 
 Room R35 "Before the Castle"
     with
@@ -1220,7 +1580,7 @@ Room R35 "Before the Castle"
         ],
     ;
 
-Object DummyDragon "dragon" R35
+Object -> DummyDragon "dragon"
     with
         name 'dragon',
         before [;
@@ -1302,7 +1662,7 @@ Room R39 "Shore"
         e_to "The mountain is far too steep.",
     ;
 
-Object Rope "rope" R39
+Object -> Rope "rope"
     with
         initial "A rope lies almost hidden in the sand.",
         name 'rope',
@@ -1322,6 +1682,12 @@ Room R40 "Waterfall"
         w_to R41,
         e_to Waterfall,
         cant_go "High mountain sides stop you.",
+    ;
+
+Object -> Jewel "jewel"
+    with
+        name 'jewel',
+        description "It is small, but it has a beautiful green lustre.",
     ;
 
 Object Waterfall "waterfall"
@@ -1422,7 +1788,7 @@ Room R48 "Bat Cave"
         u_to "You can't reach the hole in the ceiling.",
     ;
 
-Object Bats "bats" R48
+Object -> Bats "bats"
     with
         name 'bat' 'bats',
         describe "^Some bats hang from the ceiling.^",
@@ -1514,6 +1880,21 @@ Room R52 "Window"
         cant_go "A solid rock wall stops you.",
     ;
 
+Object -> Scroll "parchment"
+    with
+        name 'parchment' 'scroll',
+        description "The parchment says that this spell frightens dragons. It
+            must, however, be read by someone skilled in magic. At the bottom
+            stands a row of characters you cannot make out.",
+        after [;
+        Take:
+            if(self hasnt general) {
+                give self general;
+                score = score + 5;
+            }
+        ],
+    ;
+
 Room R53 "Throne Room"
     with
         picture 53,
@@ -1526,6 +1907,16 @@ Room R53 "Throne Room"
         u_to "Several tons of stone stop you.",
     has ~light;
 
+Object -> Treasure "treasure"
+    with
+        name 'treasure' 'gold' 'stones' 'grating',
+        description "So much wealth and so near, and yet so far away.",
+        before [;
+        Take: "Give it up. Even if you managed to break the grating open the
+            dwarves would hunt you to the ends of the earth.";
+        ],
+    has scenery;
+
 Room R54 "Treasure Room"
     with
         picture 54,
@@ -1537,6 +1928,20 @@ Room R54 "Treasure Room"
         cant_go "A solid rock wall stops you.",
         u_to "Several tons of stone stop you.",
     has ~light;
+
+Object -> Herb "herb"
+    with
+        name 'herb',
+        description "The herb smells sweet and you feel more alert.",
+        after [;
+        Take:
+            if(self hasnt general) {
+                give MagicDoor open;
+                give self general;
+                score = score + 5;
+            }
+        ],
+    ;
 
 Room R55 "Dead End"
     with
@@ -1613,6 +2018,21 @@ Room R60 "Kitchen"
         cant_go "The only way out is back to the courtyard.",
     ;
 
+Food -> BeerBarrel "beer barrel"
+    with
+        name 'barrel' 'beer' 'ale',
+        nutrition 50,
+        portions 6,
+        finish_message "Now the beer barrel is empty.",
+        consume_message "You drink some of the rich beer.",
+        description "The great barrel holds what is left of last year's brew.",
+        before [;
+        Push, Pull:
+            player.strength = player.strength - 80;
+            "Aargh, that took some doing.";
+        ],
+    has scenery;
+
 Room R61 "Knights' Hall"
     with
         picture 61,
@@ -1627,6 +2047,36 @@ Room R61 "Knights' Hall"
         w_to "A massive wall stops you.",
         cant_go "A massive wall stops you.",
     ;
+
+Object -> Bench "sideboard"
+    with
+        name 'sideboard' 'cupboard' 'cabinet',
+        counter 0,
+        description "The sideboard is a heavy piece of furniture of black oak.",
+        before [;
+        Push, Pull:
+            if(self has general) {
+                give self ~general;
+                R61.w_to = 0;
+                "You push the sideboard back.";
+            }
+            give self general;
+            R61.w_to = R63;
+            if(self.counter == 0) {
+                self.counter = 1;
+                score = score + 15;
+            }
+            "On the wall where the sideboard stood you see a low hole that you
+            can walk through.";
+        ],
+    has scenery supporter;
+
+Object -> Table1 "table"
+    with
+        name 'table' 'top' 'scratches',
+        description "The table top is covered with scratches.",
+    has scenery supporter;
+
 
 Room R62 "Gallery"
     with
@@ -1652,6 +2102,15 @@ Room R63 "Armoury"
             ravages of time.",
         e_to R61,
         cant_go "The only way out is back to the knights' hall.",
+    ;
+
+Object -> Broadsword "broad sword"
+    with
+        name 'broad' 'sword' 'broadsword',
+        damage 11,
+        description "Now this is what you could call a real weapon. There is no
+            weapon and no armour that can stand up to a good hit from so heavy a
+            blade.",
     ;
 
 Room R64 "Stairway"
@@ -1682,6 +2141,45 @@ Room R65 "Balustrade"
         cant_go "A brief glance downwards makes you think better of it.",
     ;
 
+Person -> Dragon "dragon"
+    with
+        name 'dragon',
+        skill 15,
+        strength 380,
+        armour_score 11,
+        kill_score 15,
+        introduction
+            "With a heavy shuffling the dragon turns towards you, regards you
+            closely and then says ~It is long since warriors from the fabled
+            lands beyond the sea dared come here. It is lord Draupner's order
+            that all who dare come here shall be slain, but we are curious to
+            know whether the old hero tales speak true, and will let you strike
+            the first blow~",
+        live_description "The dragon is covered with horny plates",
+        dead_description "The dragon's body is covered with thick blood",
+        react_before [;
+        Go:
+            if(self has animate) {
+                print "The dragon says ~While I guard the gate none shall leave
+                    alive~";
+                if(DragonFlame in Dragon)
+                    print ", and places itself in front of you with fire in its
+                        breath";
+                ".";
+            }
+        ],
+        orders [;
+            "The dragon ignores you.";
+        ],
+    ;
+
+Object -> -> DragonFlame "flame"
+    with
+        name 'flame' 'fire',
+        description "Nothing can stand against a dragon's fire.",
+        damage 30,
+    has concealed;
+
 Room R66 "Throne Room"
     with
         picture 66,
@@ -1695,107 +2193,47 @@ Room R66 "Throne Room"
         cant_go "The only way out is back to the balustrade.",
     ;
 
+Person -> Draupner "Draupner"
+    with
+        name 'draupner',
+        skill 15,
+        strength 400,
+        attack_probability 100,
+        introduction
+            "A tall man rises from the throne as you come in. He snatches up a
+            spear and steps out into the middle of the hall",
+        live_description "Draupner is a tall man with cold eyes",
+        dead_description "Draupner lies on the floor before his throne",
+        orders [;
+            "Draupner does not answer, but looks you straight in the eye.";
+        ],
+    has proper;
+
+Object -> -> Diamond "diamond"
+    with
+        name 'diamond' 'evenstar',
+        description "The Evenstar, the priceless diamond the dwarves found deep
+            under the mountains at the beginning of time.",
+        after [;
+        Take:
+            if(self hasnt general) {
+                give self general;
+                score = score + 10;
+            }
+        ],
+    ;
+
+
+Object -> -> Spear "spear"
+    with
+        name 'spear',
+        damage 7,
+        description "The spear is long, black and sharply honed.",
+    ;
+
 ! ----------------------------------------------------------------------------
 !   Furniture and other fixtures
 ! ----------------------------------------------------------------------------
-
-Object Bench "sideboard" R61
-    with
-        name 'sideboard' 'cupboard' 'cabinet',
-        counter 0,
-        description "The sideboard is a heavy piece of furniture of black oak.",
-        before [;
-        Push, Pull:
-            if(self has general) {
-                give self ~general;
-                R61.w_to = 0;
-                "You push the sideboard back.";
-            }
-            give self general;
-            R61.w_to = R63;
-            if(self.counter == 0) {
-                self.counter = 1;
-                score = score + 15;
-            }
-            "On the wall where the sideboard stood you see a low hole that you
-            can walk through.";
-        ],
-    has scenery supporter;
-
-Object Table1 "table" R61
-    with
-        name 'table' 'top' 'scratches',
-        description "The table top is covered with scratches.",
-    has scenery supporter;
-
-Object Throne "throne" R5
-    with
-        name 'silver' 'throne',
-        description 
-            "The throne is a breathtaking seat of polished silver, studded with glistening sapphires.",
-        before [;
-        Enter: "Only the king is supposed to sit on the throne.";
-        Push, Pull:
-            player.strength = player.strength - 80;
-            "Aargh, that took some doing.";
-        default:
-            "No need to concern yourself with that.";
-        ],
-    has scenery supporter;
-
-Object Boat "boat" R33
-    with
-        name 'boat',
-        description "The boat is small and badly worn.",
-        before [;
-        Row:
-            if(self hasnt generic) {
-                give self generic;
-                "Just as you are about to cast off you see something move in the
-                water.";
-            }
-            deadflag = 1;
-            "You cast off and row out into the river. The water suddenly turns
-            cloudy around you and you hear a dull rumble. You feel a burning pain
-            as an enormous green and slimy sea serpent tears off one of your
-            hands, and then it throws itself upon you...";
-        Push, Pull:
-            player.strength = player.strength - 80;
-            "Aargh, that took some doing.";
-        ],
-    has scenery enterable container open;
-
-Object Tree "tree" R34
-    with
-        name 'tree' 'trunk',
-        counter 0,
-        description [;
-            if(self.counter == 2) "The rotten tree lies like a bridge across the
-                river.";
-            "The rotten tree stands by the river bank.";
-        ],
-        before [;
-        Climb:
-            if(self.counter < 2) "The tree is far too rotten.";
-        Cut:
-            "You will need something to cut it with.";
-        Attack:
-            if(second ~= Axe) print_ret (The) second, " makes no impression on
-                the tree.";
-            if(self.counter == 0) {
-                self.counter = 1;
-                "The tree groans at your blow.";
-            }
-            if(self.counter == 1) {
-                self.counter = 2;
-                score = score + 10;
-                R34.e_to = R38;
-                "The rotten tree falls heavily, and lies like a bridge across the
-                river.";
-            }
-            "You have already felled the tree.";
-        ],
-    has scenery;
 
 Object GenericTree "trees"
     with
@@ -1808,131 +2246,15 @@ Object GenericTree "trees"
         ],
     has scenery pluralname;
 
-Food BeerBarrel "beer barrel" R60
-    with
-        name 'barrel' 'beer' 'ale',
-        nutrition 50,
-        portions 6,
-        finish_message "Now the beer barrel is empty.",
-        consume_message "You drink some of the rich beer.",
-        description "The great barrel holds what is left of last year's brew.",
-        before [;
-        Push, Pull:
-            player.strength = player.strength - 80;
-            "Aargh, that took some doing.";
-        ],
-    has scenery;
-
 Food Water "water"
     with
         name 'water' 'river' 'sea',
-        found_in R40 R29 R33 R34 R23 R2 R6 R21 R36 R37 R38 R39,
+        found_in R40 R29 R33 R34 R23 Harbour R6 R21 R36 R37 R38 R39,
         description "Water, water, just ordinary water.",
         nutrition 10,
         portions 999,
         consume_message "You drink a little of the water.",
     has scenery;
-
-Object Herb "herb" R54
-    with
-        name 'herb',
-        description "The herb smells sweet and you feel more alert.",
-        after [;
-        Take:
-            if(self hasnt general) {
-                give MagicDoor open;
-                give self general;
-                score = score + 5;
-            }
-        ],
-    ;
-
-Object Matchbox "matchbox" R5
-    with
-        name 'matchbox' 'box',
-        description [;
-            if(Matches in self) "A small box of matches.";
-            "A small matchbox. It is empty.";
-        ],
-    has container open openable;
-
-Object Matches "matches" Matchbox
-    with
-        name 'match' 'matches',
-        counter 6,
-        description [;
-            print_ret "There are ", (number) self.counter, " matches left.";
-        ],
-        before [;
-        Burn:
-            if(location hasnt light) {
-                print "In the feeble light of the match you look around you.^";
-                give player light;
-                UseMatch();
-                PlayerTo(real_location);
-                rtrue;
-            }
-            "Say what you want to set fire to instead.";
-        ],
-    has pluralname;
-
-Object Scroll "parchment" R52
-    with
-        name 'parchment' 'scroll',
-        description "The parchment says that this spell frightens dragons. It
-            must, however, be read by someone skilled in magic. At the bottom
-            stands a row of characters you cannot make out.",
-        after [;
-        Take:
-            if(self hasnt general) {
-                give self general;
-                score = score + 5;
-            }
-        ],
-    ;
-
-Object Treasure "treasure" R53
-    with
-        name 'treasure' 'gold' 'stones' 'grating',
-        description "So much wealth and so near, and yet so far away.",
-        before [;
-        Take: "Give it up. Even if you managed to break the grating open the
-            dwarves would hunt you to the ends of the earth.";
-        ],
-    has scenery;
-
-Object Jewel "jewel" R40
-    with
-        name 'jewel',
-        description "It is small, but it has a beautiful green lustre.",
-    ;
-
-Object Bottle "bottle" R20
-    with
-        name 'bottle',
-        description "The bottle is covered with dust.",
-        before [;
-        Take: "It is probably best to leave the wizard's things alone.";
-        ],
-    ;
-
-Object Cup "goblet" R20
-    with
-        name 'goblet' 'cup',
-        description "The goblet is cracked.",
-        before [;
-        Take: "It is probably best to leave the wizard's things alone.";
-        ],
-    ;
-
-Object Can "jar" R20
-    with
-        name 'jar' 'can',
-        description "The jar is covered with dust and cobwebs.",
-        before [;
-        Take: "It is probably best to leave the wizard's things alone.";
-        ],
-    ;
 
 Object HamBone "ham bone"
     with
@@ -1940,128 +2262,11 @@ Object HamBone "ham bone"
         description "A bare ham bone.",
     ;
 
-Food Ham "ham" R4
-    with
-        name 'ham',
-        nutrition 50,
-        portions 3,
-        leftover HamBone,
-        description "The ham smells wonderful.",
-    ;
-
 Object EmptyBottle "empty bottle"
     with
         name 'empty' 'bottle',
         damage 6,
         description "There is not a drop of wine left in the bottle.",
-    ;
-
-Food Winebottle "wine bottle" R4
-    with
-        name 'wine' 'bottle',
-        damage 6,
-        nutrition 50,
-        portions 3,
-        finish_message "The wine is all gone now.",
-        consume_message "You drink a little wine (hic).",
-        leftover EmptyBottle,
-        description "The bottle holds a slightly bitter red wine.",
-    ;
-
-Object Branch "branch" R10
-    with
-        name 'branch' 'torch',
-        description [;
-            if(self has light) "The branch is burning and makes an excellent
-                torch.";
-            "The branch is full of resin.";
-        ],
-        counter 0,
-        daemon [;
-            if(self has light) {
-                self.counter = self.counter + 1;
-                if(self.counter == 150) {
-                    StopDaemon(self);
-                    if(TestScope(self)) print "^The branch has burnt out.^";
-                    remove self;
-                }
-            }
-        ],
-        before [;
-        Extinguish:
-            if(self hasnt light) "The branch isn't burning.";
-            give self ~light;
-            StopDaemon(self);
-            "You put out the branch.";
-        Burn:
-            if(second == 0) {
-                if(TestScope(Matches) == false) "You have no matches.";
-                second = Matches;
-            }
-            if(second == Matches) {
-                if(self has light) "The branch is already burning.";
-                UseMatch();
-                give self light;
-                StartDaemon(self);
-                "You light the branch with a match.";
-            }
-            "You will have to light it with a match.";
-        ],
-    ;
-
-Food Bread "loaf of bread" R20
-    with
-        name 'bread' 'loaf',
-        nutrition 50,
-        portions 3,
-        description "Mmm, freshly baked.",
-    ;
-
-Food Apple "apple" R27
-    with
-        name 'apple',
-        nutrition 40,
-        portions 1,
-        description "An apple a day keeps the doctor away, they say.",
-    ;
-
-Food Bush "berry bush" R10
-    with
-        name 'bush' 'berries' 'berry',
-        description "You recognise the berries as ironberries. They are wholesome
-            and very rich in energy.",
-        nutrition 60,
-        portions 999,
-        consume_message "You eat some of the berries.",
-    ;
-
-Object Cactus "cactus" R17
-    with
-        name 'cactus',
-        description "Best to watch out for those sharp spines.",
-        before [;
-        Eat:
-            if(self hasnt generic) {
-                give self generic;
-                "The flesh of the cactus smells rather bitter. Are you sure you
-                want to eat it?";
-            }
-            deadflag = 1;
-            "You eat some of the flesh of the cactus. Unhappily you soon get
-            severe stomach cramps, and in great agony you die.";
-        ],
-    has static;
-
-Object Soup "soup" R31
-    with
-        name 'soup' 'cauldron',
-        description "The soup smells of things you would rather not think about.",
-        before [;
-        Drink, Eat:
-            player.strength = player.strength - 50;
-            "You drink some of the soup. It burns like fire and you feel faint
-            and weak.";
-        ],
     ;
 
 ! ----------------------------------------------------------------------------
@@ -2096,27 +2301,11 @@ Object Club "club" Weapons
         description "Heavy, and easy to grip.",
     ;
 
-Object Broadsword "broad sword" R63
-    with
-        name 'broad' 'sword' 'broadsword',
-        damage 11,
-        description "Now this is what you could call a real weapon. There is no
-            weapon and no armour that can stand up to a good hit from so heavy a
-            blade.",
-    ;
-
 Object Irongloves "gauntlet" Weapons
     with
         name 'gauntlet' 'glove' 'iron',
         damage 5,
         description "Fists of steel!",
-    ;
-
-Object Axe "axe" R14
-    with
-        name 'axe',
-        damage 6,
-        description "It is an ordinary wood axe.",
     ;
 
 Object Knife "machete" Weapons
@@ -2185,81 +2374,6 @@ Person Guard "guard"
         ],
     has generic;
 
-Person Draupner "Draupner" R66
-    with
-        name 'draupner',
-        skill 15,
-        strength 400,
-        attack_probability 100,
-        introduction
-            "A tall man rises from the throne as you come in. He snatches up a
-            spear and steps out into the middle of the hall",
-        live_description "Draupner is a tall man with cold eyes",
-        dead_description "Draupner lies on the floor before his throne",
-        orders [;
-            "Draupner does not answer, but looks you straight in the eye.";
-        ],
-    has proper;
-
-Object Spear "spear" Draupner
-    with
-        name 'spear',
-        damage 7,
-        description "The spear is long, black and sharply honed.",
-    ;
-
-Person Wizard "wizard" R20
-    with
-        name 'wizard' 'sirion' 'voice',
-        skill 100,
-        strength 200,
-        live_description
-            "You cannot see anyone here, and there is no telling where the voice
-            comes from, but you feel that someone is watching you closely",
-        orders [;
-            "The wizard does not answer.";
-        ],
-    has concealed;
-
-Person Dragon "dragon" R65
-    with
-        name 'dragon',
-        skill 15,
-        strength 380,
-        armour_score 11,
-        kill_score 15,
-        introduction
-            "With a heavy shuffling the dragon turns towards you, regards you
-            closely and then says ~It is long since warriors from the fabled
-            lands beyond the sea dared come here. It is lord Draupner's order
-            that all who dare come here shall be slain, but we are curious to
-            know whether the old hero tales speak true, and will let you strike
-            the first blow~",
-        live_description "The dragon is covered with horny plates",
-        dead_description "The dragon's body is covered with thick blood",
-        react_before [;
-        Go:
-            if(self has animate) {
-                print "The dragon says ~While I guard the gate none shall leave
-                    alive~";
-                if(DragonFlame in Dragon)
-                    print ", and places itself in front of you with fire in its
-                        breath";
-                ".";
-            }
-        ],
-        orders [;
-            "The dragon ignores you.";
-        ],
-    ;
-
-Object DragonFlame "flame" Dragon
-    with
-        name 'flame' 'fire',
-        description "Nothing can stand against a dragon's fire.",
-        damage 30,
-    has concealed;
-
 Object DragonTail "tail"
     with
         name 'tail',
@@ -2288,80 +2402,12 @@ Person Allvis "Allvis"
         ],
     has proper;
 
-Object Mace "mace" Allvis
+Object -> Mace "mace"
     with
         name 'mace' 'spiked',
         damage 10,
         description "A spiked mace, and well used.",
     ;
-
-Person Angrist "Angrist" R3
-    with
-        name 'angrist',
-        move_probability 80,
-        wait_probability 20,
-        enter_message "Angrist, the white king, comes in.",
-        live_description "Angrist looks old and tired",
-        dead_description "The body of Angrist is covered with blood",
-        introduction
-            "King Angrist has aged before his time and is sunk in dark thoughts,
-            but he checks himself when he catches sight of you and says in
-            surprise ~So my message to king Telnor got through at last~. He tells
-            you of Draupner's revolt and how he kept his dragon secret until he
-            lured the king's troops into an ambush, where most of the men fit to
-            bear arms were burnt to death. It is only a matter of time before
-            Draupner gathers his forces to take the southern part of the country
-            as well. Angrist says that he means to die in his castle, but that
-            most of his people have fled to the mountains",
-        loc1 R3 R4 R5,
-        skill 15,
-        strength 350,
-        orders [;
-        Give: return self.order_give();
-        Go: return self.order_go();
-        Drop: return self.order_drop();
-        Take: return self.order_take();
-        Attack: print_ret (The) self, " says ~I do not kill to order~.";
-        ],
-    has proper transparent;
-
-Person Teleri "Teleri" R1
-    with
-        name 'teleri',
-        move_probability 90,
-        wait_probability 30,
-        enter_message "Teleri comes in.",
-        wait_message "Teleri says ~Let us hurry~.",
-        live_description "Teleri is a good companion to have with you on a
-            dangerous errand",
-        dead_description
-            "Teleri's open eyes still mirror his surprise at the unexpected
-            attack",
-        introduction "~It will be good to walk on firm ground again~, says Teleri,
-            and walks down the gangway",
-        loc1 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19
-            R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R32,
-        loc2 R40 R41 R42 R43 R44 R56 R57 R58 R59 R60 R61 R62 R63 R64 R65 R66,
-        skill 16,
-        strength 350,
-        orders [;
-        Give: return self.order_give();
-        Drop: return self.order_drop();
-        Take: return self.order_take();
-        Go: return self.order_go();
-        Attack: print_ret (The) self, " says ~I do not kill to order~.";
-        Examine:
-            if(noun == Scroll) {
-                print "Teleri reads ~hakuee ptr'uio nasc!~";
-                if(Dragon in location && DragonFlame in Dragon) {
-                    remove DragonFlame;
-                    move DragonTail to Dragon;
-                    print ". The dragon starts back and its fire goes out";
-                }
-                ".";
-            }
-        ],
-    has proper;
 
 PersonBase VanyarPlayer "yourself"
     with
@@ -2375,34 +2421,6 @@ PersonBase VanyarPlayer "yourself"
         Attack: deadflag = 1; "You commit suicide.";
         ],
     has concealed animate proper transparent;
-
-Object Dagger "dagger" R5
-    with
-        name 'dagger',
-        damage 3,
-        description "A short dagger with a plain hilt.",
-    ;
-
-Object Sword "sword" Angrist
-    with
-        name 'sword',
-        damage 9,
-        description "A fine, well-balanced blade. It belongs to King Angrist.",
-    ;
-
-Object Diamond "diamond" Draupner
-    with
-        name 'diamond' 'evenstar',
-        description "The Evenstar, the priceless diamond the dwarves found deep
-            under the mountains at the beginning of time.",
-        after [;
-        Take:
-            if(self hasnt general) {
-                give self general;
-                score = score + 10;
-            }
-        ],
-    ;
 
 ! ----------------------------------------------------------------------------
 !   Things that happen every turn
@@ -2424,7 +2442,7 @@ Object Diamond "diamond" Draupner
             enormous green and slimy sea serpent tears off one of your hands, and
             then it throws itself upon you...";
         }
-        if(location == R2 or R6 or R21 or R23)
+        if(location == Harbour or R6 or R21 or R23)
             "You swim out into the water, but soon return to land.";
     ##Wait:
         if(player.strength < 1000) player.strength = player.strength + 50;
@@ -2438,7 +2456,7 @@ Object Diamond "diamond" Draupner
         print "^The match goes out.^";
     }
 
-    if(location == R2 && Diamond in player) {
+    if(location == Harbour && Diamond in player) {
         score = score + 5;
         deadflag = 2;
         print "^When you come back, your errand done, you are hailed and feasted
