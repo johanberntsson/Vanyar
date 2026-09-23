@@ -242,6 +242,11 @@ Include "ext_z6graphics.h";
 [ Amusing; HelpSub(); ];
 
 Include "ext_cheap_scenery.h";
+
+! DoMenu clears the screen and splits it again, which in v6 wrecks the picture
+! window layout. M_NO_LOOK stops it from looking around afterwards, so that
+! HelpSub can put the windows back first and then look itself.
+Constant M_NO_LOOK;
 Include "ext_menu.h";
 
 Include "puny.h";
@@ -2929,6 +2934,11 @@ PersonBase VanyarPlayer "yourself"
 [ HelpSub;
     if(deadflag == 2) DoMenu(HelpItemsAmusing, HelpMenu, HelpInfo);
     else              DoMenu(HelpItems, HelpMenu, HelpInfo);
+    SetUpWindows();
+    if(deadflag == 0) <<Look>>;
+#Iftrue (#version_number == 6);
+    LookRoutine(); ! the game is over, so there is no look to redraw the picture
+#Endif;
 ];
 
 [ HelpMenu;
