@@ -4,13 +4,37 @@ restart
 yes
 random seed 1001
 look
-x boat
 x grey ship
+x castle
+x quay
+x gangway
+enter gangway
 n
+x harbour
+x path
 w
+x yard
+x door
+x hall
+x angrist
+x sword
+take sword
+angrist, give me sword
 s
+x ham
+x bottle
+x table
+x suits
+x portal
+x chair
+sit on chair
 take ham
 w
+x throne
+x silver
+x sapphires
+x high banner
+x lion
 take box
 ne
 e

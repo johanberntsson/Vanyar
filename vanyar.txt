@@ -40,13 +40,26 @@ You can go north.
 
 Teleri is here.
 
-> x boat
+> x grey ship
 A sturdy wooden vessel. She will wait here until your return.
 
 Teleri says "Let us hurry".
 
-> x grey ship
-A sturdy wooden vessel. She will wait here until your return.
+> x castle
+Its snow-white towers gleam under the sun, some distance away.
+
+Teleri says "Let us hurry".
+
+> x quay
+A quiet stone wharf. Your vessel is the only ship docked here.
+
+> x gangway
+A narrow wooden ramp leading north down to the quay.
+
+Teleri says "Let us hurry".
+
+> enter gangway
+No need to concern yourself with that.
 
 Teleri says "Let us hurry".
 
@@ -54,6 +67,15 @@ Teleri says "Let us hurry".
 Harbour
 You are in a large harbour. It looks abandoned. A clear path leads west.
 You can go north, south, east and west.
+
+Teleri comes in.
+
+> x harbour
+Rows of empty stone berths stretch out along the quiet bay. The only ship here
+is yours.
+
+> x path
+A road worn smooth by years of wagon traffic, winding west.
 
 > w
 Castle Yard
@@ -70,11 +92,40 @@ time before Draupner gathers his forces to take the southern part of the country
 as well. Angrist says that he means to die in his castle, but that most of his
 people have fled to the mountains. Angrist is carrying a sword.
 
-Angrist waits.
-
 Teleri comes in.
 
 [The score has just gone up by 5 points.]
+
+> x yard
+The ground is silent and deserted.
+
+Teleri says "Let us hurry".
+
+> x door
+A heavy oak door frame stands wide open to the south, leading into the main
+hall.
+
+Teleri says "Let us hurry".
+
+> x hall
+You can see a bright, well-lit hall just through the open doorway to the south.
+
+Teleri says "Let us hurry".
+
+> x angrist
+Angrist looks old and tired. Angrist is carrying a sword.
+
+> x sword
+A fine, well-balanced blade. It belongs to King Angrist.
+
+> take sword
+The sword seems to belong to Angrist.
+
+> angrist, give me sword
+King Angrist barely seems to hear you. His mind is heavy with the ruin of his
+kingdom.
+
+Teleri says "Let us hurry".
 
 > s
 Knights' Hall
@@ -85,9 +136,35 @@ You can go north and west.
 
 You can see a ham and a wine bottle here.
 
+Teleri comes in.
+
+> x ham
+The ham smells wonderful.
+
 Angrist, the white king, comes in. Angrist is carrying a sword.
 
-Teleri comes in.
+Teleri says "Let us hurry".
+
+> x bottle
+The bottle holds a slightly bitter red wine.
+
+> x table
+Thirty people could easily feast together at this large table.
+
+> x suits
+Polished steel full-plate armour stand empty and motionless along the cold stone
+walls.
+
+> x portal
+An imposing double archway framed in carved marble, leading west.
+
+Teleri says "Let us hurry".
+
+> x chair
+Twelve high-backed wooden chairs ring the white table.
+
+> sit on chair
+No need to concern yourself with that.
 
 > take ham
 Taken.
@@ -103,10 +180,32 @@ You can see a dagger and a matchbox (which contains some matches) here.
 
 Angrist, the white king, comes in. Angrist is carrying a sword.
 
+Teleri comes in.
+
+> x throne
+The throne is a breathtaking seat of polished silver, studded with glistening
+sapphires.
+
+Angrist waits.
+
+> x silver
+The throne is a breathtaking seat of polished silver, studded with glistening
+sapphires.
+
+> x sapphires
+The throne is a breathtaking seat of polished silver, studded with glistening
+sapphires.
+
+> x high banner
+It's a heavy silk tapestry hanging high on the wall..
+
+> x lion
+The ferocious red lion is stitched into the banner.
+
 > take box
 Taken.
 
-Teleri comes in.
+Teleri says "Let us hurry".
 
 > ne
 Castle Yard

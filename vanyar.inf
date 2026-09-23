@@ -617,7 +617,6 @@ Class Person class PersonBase
     if(_w == 'castle') return _n + 1;
     return _n;
 ];  
-        
 
 Room Ship "Ship"
     with
@@ -718,7 +717,7 @@ Room Yard "Castle Yard"
                 give Angrist general;
                 print "^You take your leave of Angrist. He says ~Let me give you
                     one piece of advice: seek the help of the wizard in the west.
-                    Farewell, and good luck~.^";
+                    Farewell, and good luck~.^^";
             }
             return Harbour;
         ],
@@ -748,11 +747,13 @@ Person -> Angrist "Angrist"
         skill 15,
         strength 350,
         orders [;
-        Give: return self.order_give();
-        Go: return self.order_go();
-        Drop: return self.order_drop();
-        Take: return self.order_take();
+        !Give: return self.order_give();
+        !Go: return self.order_go();
+        !Drop: return self.order_drop();
+        !Take: return self.order_take();
         Attack: print_ret (The) self, " says ~I do not kill to order~.";
+        default: 
+            "King Angrist barely seems to hear you. His mind is heavy with the ruin of his kingdom.";
         ],
     has proper transparent;
 
@@ -763,6 +764,12 @@ Object -> -> Sword "sword"
         description "A fine, well-balanced blade. It belongs to King Angrist.",
     ;
 
+[ ParseNameChairs _w _n;
+    _w = NextWord();
+    while(_w == 'twelve') { _n++; _w = NextWord(); }
+    if(_w == 'chair' or 'chairs') return _n + 1;
+    return _n;
+];  
 
 Room KnightsHall "Knights' Hall"
     with
@@ -777,7 +784,7 @@ Room KnightsHall "Knights' Hall"
             "Polished steel full-plate armour stand empty and motionless along the cold stone walls."
         'round' 'table'
             "Thirty people could easily feast together at this large table."
-        'twelve' 'chairs'
+        CS_PARSE_NAME ParseNameChairs
             "Twelve high-backed wooden chairs ring the white table."
         CS_NO_ADJ 'portal'
             "An imposing double archway framed in carved marble, leading west.",
@@ -834,10 +841,11 @@ Object -> Dagger "dagger"
 
 Object -> Throne "throne"
     with
-        name 'silver' 'throne',
+        name 'silver' 'throne' 'sapphires' 'sapphire',
         description 
             "The throne is a breathtaking seat of polished silver, studded with glistening sapphires.",
         before [;
+        Examine: rfalse;
         Enter: "Only the king is supposed to sit on the throne.";
         Push, Pull:
             player.strength = player.strength - 80;
