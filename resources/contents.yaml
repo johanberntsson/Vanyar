@@ -219,5 +219,25 @@ pictures:
     location: Throne Room
   - id: 67
     file: backdrop.png
-    location: picture backdrop
-
+    location: picture and map backdrop
+  - id: 68
+    file: map_current_room.png
+    location: map representation the current location
+  - id: 69
+    file: map_door.png
+    location: map representation of blocked exit (door)
+  - id: 70
+    file: map_empty_room.png
+    location: map representation of a room/location (not the one we're currently in)
+  - id: 71
+    file: map_e_w.png
+    location: map representation of a horizontal room connection
+  - id: 72
+    file: map_n_s.png
+    location: map representation of a vertical room connection
+  - id: 73
+    file: map_nw.png
+    location: map representation of a nw/se room connection
+  - id: 74
+    file: map_sw.png
+    location: map representation of a sw/ne room connection
