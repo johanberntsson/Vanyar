@@ -238,6 +238,19 @@ Include "ext_z6graphics.h";
     Z6MapUpdate();
 ];
 
+! The intro picture fills the picture window while the banner and the
+! introduction are shown. The first room's LookRoutine replaces it.
+Constant PIC_INTRO = 75;
+
+[ ShowIntroPicture _one;
+    _one = 1;
+    shown_picture = PIC_INTRO;
+    Z6SetWindow(PICWIN);
+    Z6EraseWindow(PICWIN);
+    if(Z6PictureExists(PIC_INTRO)) Z6DrawPicture_Units(PIC_INTRO, _one, _one);
+    Z6SetWindow(0);
+];
+
 ! The map view (F2), drawn on the same scroll as the pictures. The tiles are
 ! pictures 68-74 in resources/contents.yaml; see ext_z6map.h for how the map
 ! is laid out.
@@ -2916,6 +2929,9 @@ PersonBase VanyarPlayer "yourself"
 
 [ Initialise;
     SetUpWindows();
+#Iftrue (#version_number == 6);
+    ShowIntroPicture();
+#Endif;
     lookmode = 2; ! always show long descriptions (verbose)
     thedark.description = "It is pitch black, and you can't see a thing.";
 
