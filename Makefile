@@ -25,7 +25,7 @@ SFROTZ = sfrotz --xscale 2 --yscale 2
 OZMOOBUILD = ruby $(OZMOO)/make.rb
 
 PICSRC   = resources/contents.yaml $(wildcard resources/*.png)
-STORYSRC = vanyar.inf ../lib/ext_z6graphics.h $(wildcard $(PUNY)/lib/*.h)
+STORYSRC = vanyar.inf ext_z6map.h ../lib/ext_z6graphics.h $(wildcard $(PUNY)/lib/*.h)
 
 all: test
 

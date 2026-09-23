@@ -32,8 +32,7 @@
 !         expanding on it.
 
 Constant Story    "Vanyar";
-Constant Headline "^(c) 2026 Johan Berntsson.
-    Type ~help~ for instructions.^";
+Constant Headline "^(c) 2026 Johan Berntsson.^";
 
 Constant STATUSLINE_SCORE; Statusline score;
 
@@ -130,7 +129,7 @@ Constant PIC_W = 4;
 #Iftrue (#version_number == 6);
 
 Constant PICWIN            = 2;  ! the z6 window number of the picture window
-Constant PICWIN_ROWS_GUESS = 10; ! height to use if we can't measure a picture
+Constant PICWIN_ROWS_GUESS = 12; ! height to use if we can't measure the backdrop
 Constant MIN_TEXT_ROWS     = 6;  ! never leave the game less than this
 
 Global picwin_top;               ! first screen row of the picture window
@@ -146,10 +145,12 @@ Include "ext_z6graphics.h";
     picwin_cols = HDR_SCREENWCHARS->0;
     if(picwin_cols < 10) picwin_cols = 40;
 
-    ! Every one of the 66 pictures is a 224x72 PETSCII screen, so measuring one
-    ! of them fixes the layout for the whole game and the text window never
-    ! moves. Add one row for the caption under the picture.
-    if(Z6PictureExists(1)) picwin_rows = Z6PictureRows_Chars(1) + 1;
+    ! The window is as tall as the backdrop (picture 67, the scroll that both
+    ! the pictures and the map are drawn on), so the whole scroll shows and
+    ! the text window never moves. Some interpreters, Ozmoo among them, do not
+    ! clip a picture to its window, so a shorter window would let the bottom
+    ! of the scroll spill over the first rows of the text.
+    if(Z6PictureExists(67)) picwin_rows = Z6PictureRows_Chars(67);
     if(picwin_rows < 2) picwin_rows = PICWIN_ROWS_GUESS;
     if(_rows - 1 - picwin_rows < MIN_TEXT_ROWS)
         picwin_rows = _rows - 1 - MIN_TEXT_ROWS;
@@ -198,35 +199,58 @@ Include "ext_z6graphics.h";
         Z6DrawPictureHere(67);
         !Z6MoveCursor_Chars(_x, _y);
         _xu = Z6ColToX(_x);
-        _yu = Z6RowToY(_y);
-        Z6MoveCursor_Units(_xu, 11);
-        Z6DrawPictureHere(p_picture);
+        _yu = Z6RowToY(picwin_rows - 2) + 1 - Z6PictureHeight_Units(p_picture)
+            - Z6FontHeight() / 4;
+        if(_yu < 1) _yu = 1;
+        Z6DrawPicture_Units(p_picture, _xu, _yu);
 
-!       if(p_dir) {
+       if(p_dir) {
             ! "This is what you see looking " is 29 characters, and the full
             ! stop makes 30; north and south are five letters, east and west
             ! four. Work the width out rather than measuring, so that the
             ! caption can be centred before it is printed.
-!           _len = 30;
-!           if(p_dir == PIC_N or PIC_S) _len = _len + 5; else _len = _len + 4;
-!           _x = 1 + (picwin_cols - _len) / 2;
-!           if(_x < 1) _x = 1;
-!           Z6MoveCursor_Chars(_x, picwin_rows);
-!           print "This is what you see looking ",
-!               (string) direction_name_array-->p_dir, ".";
-!       }
+           _len = 30;
+           if(p_dir == PIC_N or PIC_S) _len = _len + 5; else _len = _len + 4;
+           _x = 1 + (picwin_cols - _len) / 2;
+           if(_x < 1) _x = 1;
+           Z6MoveCursor_Chars(_x, picwin_rows - 1);
+           Z6SetColour(CLR_BLACK, -1, PICWIN); ! -1 is transparent, so background will show
+           print "This is what you see looking ",
+               (string) direction_name_array-->p_dir, ".";
+           Z6SetColour(CLR_DEFAULT, CLR_DEFAULT, PICWIN);
+       }
     }
     ! Back to the game window. This also flushes anything still buffered.
     Z6SetWindow(0);
 ];
 
-! Called at the end of every room description, darkness included, so this is
-! the one place that has to keep the picture window in step with the game.
-[ LookRoutine;
+! The picture view of the picture window. ext_z6map.h calls this when the
+! player is not looking at the map.
+[ Z6MapDrawPicture;
     if(location == thedark) { ShowPicture(0, 0); rtrue; }
     if(location provides picture) ShowPicture(location.picture, location.pic_dir);
     else ShowPicture(0, 0);
 ];
+
+! Called at the end of every room description, darkness included.
+! Here we show the picture or the map.
+[ LookRoutine;
+    Z6MapUpdate();
+];
+
+! The map view (F2), drawn on the same scroll as the pictures. The tiles are
+! pictures 68-74 in resources/contents.yaml; see ext_z6map.h for how the map
+! is laid out.
+Constant Z6MAP_WINDOW       = PICWIN;
+Constant Z6MAP_PIC_BACKDROP = 67;
+Constant Z6MAP_PIC_CURRENT  = 68;
+Constant Z6MAP_PIC_DOOR     = 69;
+Constant Z6MAP_PIC_ROOM     = 70;
+Constant Z6MAP_PIC_EW       = 71;
+Constant Z6MAP_PIC_NS       = 72;
+Constant Z6MAP_PIC_NW       = 73;
+Constant Z6MAP_PIC_SW       = 74;
+Include ">ext_z6map.h"; ! beside this file, not in the library
 
 #Ifnot; ! not z6 - the text-only build has nothing to set up and nothing to draw
 
@@ -267,6 +291,14 @@ Verb 'extinguish' 'douse' 'quench'
 
 Verb meta 'exits' 'directions'
     *                                           -> Exits;
+
+#Iftrue (#version_number == 6);
+Verb meta 'map'
+    *                                           -> MapView;
+
+Verb meta 'picture' 'pictures'
+    *                                           -> PictureView;
+#Endif;
 
 Extend 'eat' first
     * noun                                      -> Eat;
@@ -726,6 +758,7 @@ Room Yard "Castle Yard"
             }
             return Harbour;
         ],
+        map_links e_to Harbour, ! e_to is a routine, which the map never calls
         sw_to R5,
         cant_go "A wall bars your way.",
     ;
@@ -1799,6 +1832,7 @@ Room R35 "Before the Castle"
             if(Dragon has animate) "The dragon would kill you at once.";
             return R58;
         ],
+        map_links n_to R58,     ! n_to is a routine, which the map never calls
         s_to R27,
         cant_go "From here you can only go into the castle, or back to the
             forest.",
@@ -2886,6 +2920,10 @@ PersonBase VanyarPlayer "yourself"
     thedark.description = "It is pitch black, and you can't see a thing.";
 
     Banner();
+#Iftrue (#version_number == 6);
+    print "F1 = picture, F2 = map. ";
+#Endif;
+    print "Type ~help~ for instructions.^";
     new_line;
 
     print "^It was in the year 2642 that King Telnor had word from his kinsman
@@ -2992,9 +3030,12 @@ PersonBase VanyarPlayer "yourself"
 
         The possible directions are all the compass directions plus up and down.
         These can be abbreviated too: ~n~ means north, ~u~ means up, ~sw~ means
-        south west and so on. ~exits~ lists the ways out of the room you are in.^^\
-
-        A game can be saved with ~save~ and a saved game can later be fetched
+        south west and so on. ~exits~ lists the ways out of the room you are in.^^";
+#Iftrue (#version_number == 6);
+       print "F2 (or ~map~) replaces the picture with a map of the places you
+        have been to near you, and F1 (or ~picture~) brings the picture back.^^";
+#Endif;
+       print "A game can be saved with ~save~ and a saved game can later be fetched
         with ~restore~. You can start the game over with ~restart~ and end it
         with ~quit~. ~score~ shows how many points you have. When you score
         points the game says so, but that can be turned off with ~notify off~.^^\

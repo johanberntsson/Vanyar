@@ -241,3 +241,6 @@ pictures:
   - id: 74
     file: map_sw.png
     location: map representation of a sw/ne room connection
+  - id: 75
+    file: vanyar-intro.png
+    location: intro screen
