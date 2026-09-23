@@ -319,6 +319,10 @@ w
 x hut
 x fire
 x remains
+x soup
+drink soup
+take soup
+teleri, drink soup
 e
 e
 s

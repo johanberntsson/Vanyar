@@ -1,14 +1,15 @@
 Start of a transcript of
 
 Vanyar
-(c) 2026 Johan Berntsson. Type "help" for instructions.
+(c) 2026 Johan Berntsson.
 
 > restart
 Are you sure you want to restart? yes
 
 
 Vanyar
-(c) 2026 Johan Berntsson. Type "help" for instructions.
+(c) 2026 Johan Berntsson.
+Type "help" for instructions.
 
 
 It was in the year 2642 that King Telnor had word from his kinsman Angrist in
@@ -1847,6 +1848,20 @@ You would rather not look too closely.
 
 Teleri says, "Let us hurry."
 
+> x soup
+The soup smells of things you would rather not think about.
+
+The branch has burnt out.
+
+> drink soup
+You drink some of the soup. It burns like fire and you feel faint and weak.
+
+> take soup
+You drink some of the soup. It burns like fire and you feel faint and weak.
+
+> teleri, drink soup
+Teleri has better things to do.
+
 > e
 Glade
 You are in a glade in the forest. To the west lies a small hut of brushwood.
@@ -1855,8 +1870,6 @@ forest.
 You can go east and west.
 
 Teleri comes in.
-
-The branch has burnt out.
 
 > e
 Forest Edge
@@ -1889,10 +1902,10 @@ You are on the edge of a dim forest. You can glimpse the yellow grass of the
 plain to the west. The forest thickens to the north.
 You can go south, east and west.
 
-Teleri comes in.
-
 > x forest
 The forest thickens to the north.
+
+Teleri comes in.
 
 > x plain
 The yellow grass of the plain lies to the west.
@@ -1951,8 +1964,8 @@ care of yourself."
 
   *** You have won ***
 
-In that game you scored 100 out of a possible 100, in 332 turns, and you have
-700 strength points. That makes you a hero.
+In that game you scored 100 out of a possible 100, in 336 turns, and you have
+600 strength points. That makes you a hero.
 
 Would you like to RESTART, RESTORE, UNDO the last move, see some suggestions for
 AMUSING things to do or QUIT? quit
