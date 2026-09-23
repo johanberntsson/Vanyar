@@ -2944,22 +2944,21 @@ PersonBase VanyarPlayer "yourself"
 
 [ HelpInfo;
     switch(menu_item) {
-    1: print "Vanyar is the first large adventure game I wrote. It was designed
-        by me and Mattias Geisler, and I did the programming. In 1986 the marvel
-        was finished, in 800 lines of compact BASIC for the C64. The pictures
-        were added at the beginning of 1987. In 2003 I played the game in an
-        emulator, and suddenly felt the urge to convert it to a modern platform.
-        In 2026 I decided to port this game once again to PunyInform and
-        Ozmoo, using version 6 support for graphics. I, together with my good
-        friend Fredrik Ramsberg, have written both software packages, and now
-        this game will demonstrate how to add graphics to z6 games.^^\
+    1: print "Vanyar was the first large adventure game I wrote. Mattias
+        Geisler and I designed it, and I did the programming. This marvel was
+        finished in 1986, in 800 lines of compact BASIC for the C64, and the
+        pictures were added early in 1987. In 2003 I played the game again in
+        an emulator and suddenly felt the urge to convert it to a modern
+        platform. In 2026 I ported it once more, this time to PunyInform and
+        Ozmoo, using their support for graphics in version 6 games. My good
+        friend Fredrik Ramsberg and I wrote both of these packages, and this
+        game shows how to add graphics to a z6 game.^^\
 
-        In this improved version I have tried to make small changes that remove
-        the worst shortcomings of the original. There are no longer any mazes,
-        and the map is laid out more logically. More things have descriptions,
-        and a number of bugs have been fixed. There are still a few actions that
-        kill you on the spot, but you get a warning first and you can always
-        type ~undo~.^";
+        This version makes small changes that remove the worst shortcomings of
+        the original. There are no mazes any more, and the map is laid out more
+        logically. More things have descriptions, and a number of bugs have
+        been fixed. A few actions still kill you on the spot, but you
+        get a warning first, and you can always type ~undo~.^";
 
     2: print "In this game you control the main character by typing in commands
         that say what he is to do. Examples of such commands are:^^\
