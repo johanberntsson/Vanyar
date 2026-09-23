@@ -158,7 +158,8 @@ s
 x forest
 e
 chop tree with axe
-chop tree with axe
+cut tree with axe
+l
 e
 x tree
 x bank
@@ -266,7 +267,7 @@ kill dragon
 kill dragon
 kill dragon
 kill dragon
-x balustrade
+x battlements
 x soot
 x forest
 x stairway

@@ -213,7 +213,7 @@ pictures:
     location: Stairway
   - id: 65
     file: pic65.png
-    location: Balustrade
+    location: Battlements
   - id: 66
     file: pic66.png
     location: Throne Room
