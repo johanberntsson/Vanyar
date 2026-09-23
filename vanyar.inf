@@ -892,6 +892,15 @@ Room R6 "Grassland"
             "You are on a grassy plain. A fresh sea breeze bends the green and
             sturdy grass. To the south you see the sea of Vanyar. To the east and
             north you see dense forest.",
+        cheap_scenery
+        'grassy' 'plain'
+            "A wide, open plain."
+        21 'green' 'sturdy' 'grass'
+            "The grass bends in the breeze."
+        CS_NO_ADJ 'breeze'
+            "A fresh breeze blows in from the sea."
+        12 'dense' 'forest' 'trees'
+            "Dense forest lies to the east and north.",
         n_to R7,
         w_to Harbour,
         e_to R21,
@@ -907,6 +916,19 @@ Room R7 "Grassland"
             the north and east. A dark path loses itself among the dim shadows of
             the trees. The plain continues west. To the south west you can make
             out tall white towers.",
+        cheap_scenery
+        21 'tall' 'dry' 'grass'
+            "The grass is tall and dry."
+        12 'dense' 'forest' 'trees'
+            "A dense forest surrounds you to the north and east."
+        'dark' 'path'
+            "The path loses itself among the trees."
+        'dim' 'shadows'
+            "It is hard to see far under the trees."
+        CS_NO_ADJ 'plain'
+            "The plain continues west."
+        22 'white' 'ivory' 'towers' 'castle'
+            "Far to the south west stand the towers of the ivory castle.",
         n_to R25,
         s_to R6,
         e_to R22,
@@ -920,6 +942,11 @@ Room R8 "Tall Grass"
         desc
             "You are standing in the middle of a sea of tall grass. To the north
             great dark trunks rise up.",
+        cheap_scenery
+        'tall' 'grass'
+            "Tall grass surrounds you on every side."
+        23 'great' 'dark' 'trunks' 'trees' 'forest'
+            "The trunks of a dark forest rise to the north.",
         n_to R26,
         w_to R9,
         e_to R7,
@@ -935,6 +962,15 @@ Room R9 "By the Mountain"
             run north and south. Far beyond the plain you are standing on you see
             a vast forest spreading out. To the south rise the walls of the ivory
             castle.",
+        cheap_scenery
+        23 'high' 'steep' 'mountain' 'mountains' 'range'
+            "The mountains rise high and steep to the west."
+        CS_NO_ADJ 'plain'
+            "A wide plain of grass."
+        'vast' 'forest'
+            "The forest is far away, beyond the plain."
+        12 'ivory' 'castle' 'walls'
+            "The walls of the ivory castle rise to the south.",
         n_to R10,
         e_to R8,
         se_to Harbour,
@@ -950,6 +986,11 @@ Room R10 "At the Foot of Formenas"
             "To the west of you rises the wild mountain range of Formenas. Below
             it (and north of you) a dense dark forest spreads out. To the south
             you see a billowing sea of grass.",
+        cheap_scenery
+        22 'dense' 'dark' 'forest' 'trees'
+            "A dense, dark forest spreads out to the north."
+        'billowing' 'grass'
+            "The grass billows like a sea to the south.",
         n_to R31,
         s_to R9,
         e_to R26,
@@ -1034,6 +1075,15 @@ Room R11 "Pass"
         desc
             "You are in a narrow pass winding between the high mountain sides.
             Above you a crevice opens in the rock face.",
+        cheap_scenery
+        'narrow' 'pass'
+            "The pass winds between the mountain sides."
+        13 'high' 'mountain' 'mountains' 'sides'
+            "The mountain sides rise high above you."
+        CS_NO_ADJ 'crevice'
+            "A dark crevice in the rock face above you."
+        'rock' 'face'
+            "The rock face is steep and bare.",
         w_to R12,
         ne_to R9,
         u_to R14,
@@ -1050,6 +1100,17 @@ Room R12 "Hill"
             remarkable sight, with crowns that glitter like gold, and an almost
             reverent feeling of age and mystery sweeps over you. You turn your
             gaze west and look out over a barren desert.",
+        cheap_scenery
+        'low' 'hill'
+            "A low hill below the pass."
+        CS_NO_ADJ 'pass'
+            "The pass lies to the east."
+        'great' 'forest'
+            "The forest spreads out to the north east."
+        CS_NO_ADJ 'crowns'
+            "The crowns of the trees glitter like gold."
+        'barren' 'desert'
+            "A barren desert stretches out to the west.",
         n_to R13,
         e_to R11,
         w_to R17,
@@ -1065,6 +1126,9 @@ Room R13 "Forest"
             "The forest is dense and ancient here. You almost get the feeling that
             the forest has a soul of its own, and watches every visitor with
             suspicion.",
+        cheap_scenery
+        21 'dense' 'ancient' 'forest'
+            "The forest is old and dense. You feel watched.",
         s_to R12,
         e_to R15,
         cant_go "The forest is far too dense in that direction.",
@@ -1075,6 +1139,9 @@ Room R14 "Cave"
         picture 14,
         pic_dir PIC_N,
         desc "In the light of your torch you see a small cave chamber.",
+        cheap_scenery
+        12 'small' 'cave' 'chamber'
+            "A small chamber in the rock.",
         d_to R11,
         u_to "You bang your head on the roof of the cave.",
         cant_go "The only way out is back down to the mountain pass.",
@@ -1096,6 +1163,13 @@ Room R15 "Forest"
             "You are standing in a beautiful, sweet smelling forest. To the west,
             between straight tree trunks, you glimpse a barren sandy desert. A
             faintly marked path leads north east.",
+        cheap_scenery
+        'beautiful' 'forest'
+            "The forest smells sweet."
+        21 'barren' 'sandy' 'desert'
+            "You glimpse the desert between the trunks to the west."
+        'marked' 'path'
+            "The path is faint, but you can follow it north east.",
         w_to R13,
         sw_to R12,
         ne_to R16,
@@ -1110,6 +1184,13 @@ Room R16 "Glade"
             "You are standing in a glade on the border between mountain and
             forest. To the north east you see an opening leading into the
             mountain. To the south rises the beautiful glittering forest.",
+        cheap_scenery
+        CS_NO_ADJ 'glade'
+            "An open glade between mountain and forest."
+        CS_NO_ADJ 'opening'
+            "The opening leads north east into the mountain."
+        21 'beautiful' 'glittering' 'forest'
+            "The glittering forest rises to the south.",
         ne_to R19,
         sw_to R15,
         n_to "The mountain is far too steep.",
@@ -1125,6 +1206,11 @@ Room R17 "Desert"
             sun burn mercilessly on everything and everyone. Where forest and
             shade ought to have been you see nothing at all! Only the desert
             surrounds you.",
+        cheap_scenery
+        12 'enormous' 'desert' 'sand'
+            "Sand, as far as the eye can see."
+        'sun' 'rays'
+            "The sun burns down on you without mercy.",
         each_turn [;
             player.strength = player.strength - 100;
             print "^The heat is unbearable.^";
@@ -1160,6 +1246,11 @@ Room R18 "Desert"
         desc
             "A hot desert wind sweeps past you. All you can see is sand... hot
             white sand.",
+        cheap_scenery
+        22 'hot' 'white' 'sand' 'desert'
+            "Hot white sand, as far as the eye can see."
+        CS_NO_ADJ 'wind'
+            "The wind is hot and dry.",
         each_turn [;
             player.strength = player.strength - 100;
             print "^The heat is unbearable.^";
@@ -1178,6 +1269,12 @@ Room R19 "Mountain Hall"
         desc
             "An enormous hall has been hewn out of the mountain. There are two
             ways out, the gate you came by and an enormous gate to the east.",
+        cheap_scenery
+        21 'enormous' 'mountain' 'hall'
+            "The hall is hewn out of the solid rock."
+        12 'enormous' 'gate' 'gates'
+            "One gate leads back south west, the way you came. An enormous gate
+            leads east.",
         e_to R20,
         sw_to R16,
         u_to "There is a great deal of stone in that direction.",
@@ -1194,6 +1291,13 @@ Room R20 "Laboratory"
             along the walls you see quantities of bottles. In the middle of the
             room a stone table has been hewn out of the rock. You see two closed
             doors. To the north east you see a doorway, and through it a ravine.",
+        cheap_scenery
+        13 'locked' 'cabinets' 'cabinet' 'bottles'
+            "The cabinets are locked, and full of bottles."
+        'stone' 'table'
+            "The table has been hewn out of the rock."
+        CS_NO_ADJ 'ravine'
+            "You can see the ravine through the doorway to the north east.",
         each_turn [;
             if(Wizard hasnt animate) rfalse;
             if(Wizard hasnt general) {
@@ -1293,11 +1397,19 @@ Room R21 "Rocky Shore"
     with
         picture 21,
         pic_dir PIC_E,
-        name 'pine' 'pines' 'trees',
         desc
             "You are standing on a rocky shore. Around you grow low windswept
             pines. A dark dense forest lies to the north. To the west a plain
             spreads out.",
+        cheap_scenery
+        'rocky' 'shore'
+            "The shore is rocky and bare."
+        22 'low' 'windswept' 'pines' 'pine'
+            "The pines are low and bent by the wind."
+        21 'dark' 'dense' 'forest'
+            "A dark forest lies to the north."
+        CS_NO_ADJ 'plain'
+            "A plain spreads out to the west.",
         n_to R22,
         w_to R6,
         ne_to R23,
@@ -1312,6 +1424,13 @@ Room R22 "Forest"
         desc
             "You are in the middle of a dim forest. A path leads west between a
             couple of trunks. In the distance you can hear gulls crying.",
+        cheap_scenery
+        'dim' 'forest'
+            "It is dim under the trees."
+        CS_NO_ADJ 'path'
+            "The path leads west."
+        'gull' 'gulls'
+            "You can hear the gulls, but you cannot see them.",
         n_to R24,
         s_to R21,
         e_to R23,
@@ -1326,6 +1445,9 @@ Room R23 "River"
             "To the east in front of you a swift river runs northwards. To the
             south you see the sea. Forest surrounds you in every other
             direction.",
+        cheap_scenery
+        CS_NO_ADJ 'forest'
+            "Forest surrounds you to the north and west.",
         n_to R34,
         w_to R22,
         nw_to R24,
@@ -1339,6 +1461,9 @@ Room R24 "Forest"
         picture 24,
         pic_dir PIC_W,
         desc "You are standing in the middle of the darkest forest.",
+        cheap_scenery
+        'darkest' 'forest'
+            "It is very dark here among the trees.",
         n_to R28,
         e_to R34,
         w_to R25,
@@ -1352,6 +1477,11 @@ Room R25 "Forest"
         desc
             "You are on the edge of the forest. To the north the forest thickens
             again. Heavy undergrowth covers the ground.",
+        cheap_scenery
+        CS_NO_ADJ 'forest'
+            "The forest thickens to the north."
+        'heavy' 'undergrowth'
+            "The undergrowth covers the ground between the trees.",
         n_to R27,
         s_to R7,
         w_to R26,
@@ -1365,6 +1495,11 @@ Room R26 "Forest"
         desc
             "You are on the edge of a dim forest. You can glimpse the yellow grass
             of the plain to the west. The forest thickens to the north.",
+        cheap_scenery
+        'dim' 'forest'
+            "The forest thickens to the north."
+        12 'yellow' 'grass' 'plain'
+            "The yellow grass of the plain lies to the west.",
         n_to "The forest is far too dense in that direction.",
         w_to R10,
         e_to R25,
@@ -1379,6 +1514,15 @@ Room R27 "Forest Edge"
             "You are at the edge of the forest. Far beyond a plain to the north
             rises an ominous dark castle. East of it you see a high cliff. Dense
             forest surrounds you on every other side.",
+        cheap_scenery
+        CS_NO_ADJ 'plain'
+            "The plain stretches north towards the castle."
+        21 'ominous' 'dark' 'castle'
+            "The castle looks dark and ominous, even from here."
+        'high' 'cliff'
+            "A high cliff rises to the east of the castle."
+        'dense' 'forest'
+            "Dense forest surrounds you on every other side.",
         n_to R35,
         e_to R28,
         s_to R25,
@@ -1398,6 +1542,9 @@ Room R28 "Forest"
         picture 28,
         pic_dir PIC_N,
         desc "You have come into a very dense part of the forest.",
+        cheap_scenery
+        'dense' 'forest'
+            "The forest is very dense here.",
         e_to R33,
         w_to R27,
         s_to R24,
@@ -1414,6 +1561,13 @@ Room R29 "Sparse Forest"
             runs, and to the south the forest continues. To the north high
             mountains rise. To the west stands a tall cliff which does not look
             too steep.",
+        cheap_scenery
+        'sparse' 'forest'
+            "The trees grow sparse here."
+        12 'high' 'mountains' 'mountain'
+            "High mountains rise to the north."
+        'tall' 'cliff'
+            "The cliff to the west does not look too steep.",
         e_to "The river is too deep and too swift.",
         s_to R33,
         w_to R32,
@@ -1429,6 +1583,17 @@ Room R30 "Glade"
             "You come out into a glade in the forest. To the west lies a small hut
             of brushwood. Human bones lie scattered outside it. To the east a path
             leads on into the forest.",
+        cheap_scenery
+        CS_NO_ADJ 'glade'
+            "A small glade in the forest."
+        21 'small' 'brushwood' 'hut'
+            "A small, shabby hut made of brushwood."
+        'human' 'bones'
+            "The bones lie scattered outside the hut."
+        CS_NO_ADJ 'path'
+            "The path leads east into the forest."
+        'forest' 'trees'
+            "The forest is dark and dense around the glade.",
         e_to R27,
         w_to R31,
         cant_go "The forest is dark and dense in that direction.",
@@ -1443,6 +1608,13 @@ Room R31 "Brushwood Hut"
             holding some kind of soup. On the floor lie what are plainly the
             remains of the ingredients (assorted torn up dwarf, human and elf
             bodies).",
+        cheap_scenery
+        12 'shabby' 'hut' 'brushwood'
+            "The hut is made of brushwood."
+        CS_NO_ADJ 'fire'
+            "A small fire burns under the cauldron."
+        3 'remains' 'ingredients' 'bodies'
+            "You would rather not look too closely.",
         e_to R30,
         cant_go "The only way out leads east.",
     ;
@@ -1470,6 +1642,22 @@ Room R32 "Cliff"
             massif. You can see snow covered peaks sticking up here and there. With
             a roar the river throws itself down into a deep ravine to the north. To
             the west below you, you see a black castle.",
+        cheap_scenery
+        22 'black' 'ivory' 'castle' 'castles'
+            "The black castle lies below you to the west. Far to the south the
+            ivory castle stands against the sea."
+        'azure' 'sea'
+            "The sea lies far to the south."
+        24 'snow' 'covered' 'mountain' 'mountains' 'massif' 'peaks'
+            "Beyond the river lies a great mountain massif with snow covered
+            peaks."
+        'forest' 'plain'
+            "Forest and plain lie spread out to the south."
+        CS_NO_ADJ 'river'
+            "With a roar the river throws itself down into the ravine to the
+            north."
+        'deep' 'ravine'
+            "The river plunges down into the deep ravine.",
         e_to R29,
         d_to "Nobody could survive such a fall.",
         cant_go "The only way from here is east.",
@@ -1483,6 +1671,13 @@ Room R33 "River Bank"
             "You are standing on the bank of the river. A small boat lies moored
             among the reeds. Straight across the river, to the north east, you see
             a way into a great black mountain.",
+        cheap_scenery
+        'reed' 'reeds'
+            "Tall reeds grow along the bank."
+        CS_NO_ADJ 'bank'
+            "The bank runs north and south along the river."
+        21 'great' 'black' 'mountain'
+            "Across the river you can see a way into the mountain.",
         n_to R29,
         w_to R28,
         s_to R34,
@@ -1520,6 +1715,15 @@ Room R34 "River Bank"
             reeds here are as tall as a man, and on a small point of land stands an
             old tree. Across the shimmering green water you see a similar bank and
             high black jagged mountains.",
+        cheap_scenery
+        'reed' 'reeds'
+            "The reeds are as tall as a man."
+        'point' 'land'
+            "The old tree stands on a small point of land."
+        CS_NO_ADJ 'bank'
+            "Across the water you see a bank much like this one."
+        32 'high' 'black' 'jagged' 'mountains' 'mountain'
+            "High, black and jagged mountains rise beyond the river.",
         n_to R33,
         s_to R23,
         w_to R24,
@@ -1567,6 +1771,19 @@ Room R35 "Before the Castle"
             black device on the banner shows a stylised black dragon. The gate in
             the wall stands open. Through it you can see a large abandoned
             courtyard.",
+        cheap_scenery
+        'black' 'castle'
+            "The castle is built of black stone."
+        CS_NO_ADJ 'tower'
+            "A banner flies from the tower."
+        12 'black' 'banner' 'device'
+            "The banner shows a stylised black dragon."
+        'open' 'gate'
+            "The gate stands open. Through it you can see a courtyard."
+        'wall' 'walls'
+            "The wall runs around the castle."
+        21 'large' 'abandoned' 'courtyard'
+            "The courtyard looks abandoned.",
         n_to [;
             if(Dragon has animate) "The dragon would kill you at once.";
             return R58;
@@ -1606,6 +1823,9 @@ Room R36 "Shore"
             to the west and a rock wall to the east. In the rock wall you see an
             artfully hewn gate leading into the darkness of the mountain. The shore
             continues south.",
+        cheap_scenery
+        12 'narrow' 'shore' 'strip'
+            "The shore continues south between the river and the rock wall.",
         s_to R37,
         e_to MountainDoor,
         w_to "There is a river in the way.",
@@ -1637,6 +1857,9 @@ Room R37 "Sandy Beach"
         desc
             "You are standing on a sandy beach running north and south. The beach
             is bounded to the east by mountains and to the west by the river.",
+        cheap_scenery
+        12 'sandy' 'beach' 'sand'
+            "The beach runs north and south.",
         n_to R36,
         s_to R38,
         w_to "There is a river in the way.",
@@ -1651,6 +1874,11 @@ Room R38 "Shore"
             "Vast cliffs rise to impressive heights east of you. You are standing
             on the eastern bank of the river and can follow it north and south. A
             rotten tree lies across the river.",
+        cheap_scenery
+        12 'rotten' 'tree' 'trunk'
+            "The rotten tree lies like a bridge across the river."
+        'shore' 'bank'
+            "You are on the eastern bank of the river.",
         n_to R37,
         s_to R39,
         w_to R34,
@@ -1665,6 +1893,9 @@ Room R39 "Shore"
             "You look out over the sea from the shore you are standing on. To the
             east the view is hidden by gigantic cliffs. Here the river seems to run
             down into the sea.",
+        cheap_scenery
+        CS_NO_ADJ 'shore'
+            "The shore looks out over the sea.",
         n_to R38,
         w_to "There is a river in the way.",
         e_to "The mountain is far too steep.",
@@ -1687,6 +1918,11 @@ Room R40 "Waterfall"
         desc
             "You are standing before an enormous waterfall. In the damp ground you
             see the footprints of dwarves. They are fairly fresh.",
+        cheap_scenery
+        12 'fresh' 'footprints' 'prints'
+            "The footprints were made by dwarves, not long ago."
+        'damp' 'ground'
+            "The ground is damp from the spray.",
         w_to R41,
         e_to Waterfall,
         cant_go "High mountain sides stop you.",
@@ -1722,6 +1958,13 @@ Room R41 "Ravine"
             "You are at the bottom of a deep ravine. Smooth rock walls that look
             unclimbable surround you. From the east comes a roaring sound. The
             ravine continues to the north west.",
+        cheap_scenery
+        'deep' 'ravine'
+            "The ravine is deep, with smooth rock walls."
+        22 'smooth' 'rock' 'walls' 'wall'
+            "The walls are smooth and look impossible to climb."
+        12 'roaring' 'sound' 'roar'
+            "The roaring comes from the east.",
         e_to R40,
         nw_to R42,
         cant_go "High mountain sides stop you.",
@@ -1732,6 +1975,11 @@ Room R42 "Ravine"
         picture 42,
         pic_dir PIC_S,
         desc "You are in the deep ravine.",
+        cheap_scenery
+        'deep' 'ravine'
+            "The ravine is deep, with smooth rock walls."
+        12 'rock' 'walls' 'wall'
+            "The rock walls are smooth and steep.",
         s_to 0,
         se_to R41,
         sw_to R43,
@@ -1751,6 +1999,11 @@ Room R43 "Ravine"
         picture 43,
         pic_dir PIC_S,
         desc "You are still in a deep ravine.",
+        cheap_scenery
+        'deep' 'ravine'
+            "The ravine is deep, with smooth rock walls."
+        12 'rock' 'walls' 'wall'
+            "The rock walls are smooth and steep.",
         s_to R44,
         ne_to R42,
         cant_go "High mountain sides stop you.",
@@ -1763,6 +2016,11 @@ Room R44 "End of the Ravine"
         desc
             "You are at the end of the ravine. There is an open gate in the south
             western rock face.",
+        cheap_scenery
+        CS_NO_ADJ 'ravine'
+            "The ravine ends here."
+        'rock' 'face'
+            "The gate is set into the rock face.",
         n_to R43,
         sw_to MagicDoor,
         cant_go "High mountain sides stop you.",
@@ -1776,6 +2034,9 @@ Room R45 "Cave Mouth"
             "A great cave opens in the mountain, faintly lit by the light
             streaming in through the open gate. It continues eastwards, but it is
             too dark to see how large it is.",
+        cheap_scenery
+        'great' 'cave'
+            "The cave continues east into the darkness.",
         e_to R48,
         w_to MountainDoor,
         cant_go "A solid rock wall stops you.",
@@ -1786,11 +2047,15 @@ Room R48 "Bat Cave"
     with
         picture 48,
         pic_dir PIC_E,
-        name 'droppings' 'dung',
         desc
             "Thousands of bats must have lived here over the years, and the ground
             is covered with whitened and evil smelling droppings. Far away to the
             west you see a faint light filtering in.",
+        cheap_scenery
+        12 'whitened' 'droppings' 'dung'
+            "The droppings are old and smell terrible."
+        'faint' 'light'
+            "Far away to the west, a faint light filters in.",
         w_to R45,
         cant_go "A solid rock wall stops you.",
         u_to "You can't reach the hole in the ceiling.",
@@ -1843,6 +2108,13 @@ Room R49 "Passage"
         desc
             "You are in a dark passage. Beside you is a hole in the floor. The
             floor is covered with old bat droppings.",
+        cheap_scenery
+        'dark' 'passage'
+            "The passage leads east."
+        CS_NO_ADJ 'hole'
+            "The hole leads down to the cave below."
+        22 'old' 'bat' 'droppings' 'dung'
+            "Old bat droppings cover the floor.",
         e_to R50,
         d_to R48,
         cant_go "A solid rock wall stops you.",
@@ -1857,6 +2129,13 @@ Room R50 "Mountain Hall"
             "In the light of your torch you see that you have come into a great
             mountain hall. A stairway leads up, and two passages lead south and
             north.",
+        cheap_scenery
+        21 'great' 'mountain' 'hall'
+            "A great hall hewn out of the rock."
+        'stairway' 'stairs'
+            "The stairway leads up."
+        'passage' 'passages'
+            "Two passages lead off, one north and one south.",
         n_to R55,
         s_to R53,
         w_to R49,
@@ -1869,6 +2148,11 @@ Room R51 "Stairway"
         picture 51,
         pic_dir PIC_E,
         desc "You are standing on a landing halfway up the stairs.",
+        cheap_scenery
+        'stairs' 'stairway'
+            "The stairs lead up and down."
+        CS_NO_ADJ 'landing'
+            "A landing halfway up the stairs.",
         u_to R52,
         d_to R50,
         cant_go "A solid rock wall stops you.",
@@ -1884,6 +2168,20 @@ Room R52 "Window"
             landscape, with the wild peaks of Formenas against the horizon, and
             below them the resplendent forest between the ivory castle and the
             black.",
+        cheap_scenery
+        'small' 'window'
+            "Sunlight floods in through the small window."
+        'strong' 'sunlight'
+            "The sunlight is dazzling after the dark."
+        12 'fabulous' 'landscape' 'view'
+            "A fabulous landscape spreads out below you."
+        13 'wild' 'peaks' 'formenas' 'mountains'
+            "The wild peaks of Formenas stand against the horizon."
+        'resplendent' 'forest'
+            "The forest lies between the two castles."
+        22 'ivory' 'black' 'castle' 'castles'
+            "The ivory castle and the black castle stand on either side of the
+            forest.",
         d_to R51,
         cant_go "A solid rock wall stops you.",
     ;
@@ -1909,6 +2207,9 @@ Room R53 "Throne Room"
         pic_dir PIC_S,
         desc "In the torchlight you see a beautiful throne adorned with precious
             stones.",
+        cheap_scenery
+        'beautiful' 'throne'
+            "The throne is adorned with precious stones.",
         n_to R50,
         e_to R54,
         cant_go "A solid rock wall stops you.",
@@ -1958,6 +2259,9 @@ Room R55 "Dead End"
         desc
             "You are in a dead end in the mountain. To the south is a way out, and
             to the west the passage ends in a curtain of water.",
+        cheap_scenery
+        CS_NO_ADJ 'passage'
+            "The passage ends in a curtain of water to the west.",
         s_to R50,
         w_to Waterfall,
         cant_go "A solid rock wall stops you.",
@@ -1969,6 +2273,9 @@ Room R56 "Passage"
         picture 56,
         pic_dir PIC_S,
         desc "You are in a dark and narrow passage.",
+        cheap_scenery
+        21 'dark' 'narrow' 'passage'
+            "The passage runs north and south.",
         n_to R42,
         s_to R57,
         cant_go "The passage runs north and south.",
@@ -1981,6 +2288,11 @@ Room R57 "Cellar"
         desc
             "Now you have come to a damp cellar. The great room is quite deserted.
             You can make out a rotten wooden stair leading up.",
+        cheap_scenery
+        'damp' 'cellar'
+            "The cellar is damp and deserted."
+        22 'rotten' 'wooden' 'stair' 'stairs'
+            "The wooden stair looks rotten, but it leads up.",
         n_to R56,
         u_to R58,
         cant_go "It is up or north from here.",
@@ -1994,6 +2306,16 @@ Room R58 "Courtyard"
             "You are standing in a courtyard surrounded by black buildings. Stairs
             lead both up and down. There are gates to the east and west. The castle
             gate is to the south.",
+        cheap_scenery
+        CS_NO_ADJ 'courtyard'
+            "The courtyard is surrounded by black buildings."
+        12 'black' 'buildings' 'building'
+            "Black buildings surround the courtyard."
+        'stairs' 'stair'
+            "Stairs lead up and down."
+        12 'castle' 'gate' 'gates'
+            "There are gates to the east and west, and the castle gate to the
+            south.",
         s_to R35,
         e_to R60,
         w_to R59,
@@ -2010,6 +2332,15 @@ Room R59 "Dungeon"
             Behind the barred gates of the cells you see skeletons chained to the
             walls. You can also hear rats squeaking. The only way out of here is
             through the gate to the east.",
+        cheap_scenery
+        13 'barred' 'gates' 'cells' 'cell'
+            "The cells are locked behind barred gates."
+        CS_NO_ADJ 'gate'
+            "The gate leads east, back to the courtyard."
+        12 'chained' 'skeletons' 'skeleton'
+            "The skeletons hang in chains from the walls."
+        'rat' 'rats'
+            "You can hear the rats, but you cannot see them.",
         e_to R58,
         cant_go "The only way out is back to the courtyard.",
     ;
@@ -2022,6 +2353,11 @@ Room R60 "Kitchen"
             "Smoke from the great open hearth hits you as you walk into the
             kitchen. A beer barrel dominates the little room, which is deserted and
             slightly decayed.",
+        cheap_scenery
+        21 'great' 'open' 'hearth'
+            "Smoke rises from the great open hearth."
+        CS_NO_ADJ 'smoke'
+            "The smoke stings your eyes.",
         w_to R58,
         cant_go "The only way out is back to the courtyard.",
     ;
@@ -2049,6 +2385,13 @@ Room R61 "Knights' Hall"
             "You are in Draupner's knights' hall. In the middle of the room stands
             an oval table with thirteen chairs. To the east is a gate, and against
             the west wall stands a great sideboard. Stairs lead up and down.",
+        cheap_scenery
+        12 'thirteen' 'chairs' 'chair'
+            "Thirteen chairs stand around the oval table."
+        CS_NO_ADJ 'gate'
+            "The gate leads east."
+        'stairs' 'stair'
+            "Stairs lead up and down.",
         e_to R62,
         u_to R64,
         d_to R58,
@@ -2094,6 +2437,10 @@ Room R62 "Gallery"
             "You pace up and down in a gallery. The only thing worth noting here is
             the beautiful ceiling paintings, which portray a knight's battle with a
             dragon.",
+        cheap_scenery
+        16 'beautiful' 'ceiling' 'paintings' 'painting' 'battle' 'knight'
+            'dragon'
+            "The paintings show a knight fighting a dragon.",
         w_to R61,
         cant_go "The only way out is back to the knights' hall.",
     ;
@@ -2108,6 +2455,9 @@ Room R63 "Armoury"
             but there are a few shining exceptions. Among other things your eye is
             caught by some broad swords of good quality which seem untouched by the
             ravages of time.",
+        cheap_scenery
+        'armour' 'weapons'
+            "Most of the armour and weapons are broken or rusted through.",
         e_to R61,
         cant_go "The only way out is back to the knights' hall.",
     ;
@@ -2129,6 +2479,13 @@ Room R64 "Stairway"
             "You are at the very top of the stairs. There is a gate to the south
             west, and through it you see a black tail of enormous size sticking
             out.",
+        cheap_scenery
+        CS_NO_ADJ 'gate'
+            "The gate leads out to the south west."
+        21 'enormous' 'black' 'tail'
+            "An enormous black tail sticks out through the gate."
+        'stairs' 'stair'
+            "The stairs lead down.",
         sw_to R65,
         d_to R61,
         cant_go "Your choice is to retreat down the stairs, or bravely step out
@@ -2144,6 +2501,17 @@ Room R65 "Balustrade"
             balustrade of the castle. Deposits of soot cover the walls and the
             floor. From up here you can see out over a dense forest. You see a
             stairway down to the north east and a great gate to the east.",
+        cheap_scenery
+        CS_NO_ADJ 'balustrade'
+            "The balustrade runs along the top of the castle."
+        'soot' 'deposits'
+            "Soot covers the walls and the floor."
+        'dense' 'forest'
+            "The forest spreads out below the castle."
+        'stairway' 'stairs'
+            "The stairway leads down to the north east."
+        'great' 'gate'
+            "A great gate leads east.",
         e_to R66,
         ne_to R64,
         cant_go "A brief glance downwards makes you think better of it.",
@@ -2197,6 +2565,11 @@ Room R66 "Throne Room"
             room is lit by sunbeams streaming through the tall windows. The light is
             reflected from the only furniture in the room, an enormous throne set
             with jewels.",
+        cheap_scenery
+        12 'enormous' 'throne' 'jewels'
+            "The throne is set with jewels that sparkle in the sunlight."
+        13 'tall' 'windows' 'window' 'sunbeams'
+            "Sunbeams stream in through the tall windows.",
         w_to R65,
         cant_go "The only way out is back to the balustrade.",
     ;

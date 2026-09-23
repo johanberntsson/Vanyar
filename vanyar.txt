@@ -221,6 +221,7 @@ Teleri comes in.
 
 You take your leave of Angrist. He says "Let me give you one piece of advice:
 seek the help of the wizard in the west. Farewell, and good luck".
+
 Harbour
 You are in a large harbour. It looks abandoned. A clear path leads west.
 You can go north, south, east and west.
@@ -233,6 +234,14 @@ You are standing in the middle of a sea of tall grass. To the north great dark
 trunks rise up.
 You can go north, south, east and west.
 
+Teleri comes in.
+
+> x grass
+Tall grass surrounds you on every side.
+
+> x trunks
+The trunks of a dark forest rise to the north.
+
 > w
 By the Mountain
 A high, steep mountain range rises to the west of you. The mountains run north
@@ -241,6 +250,20 @@ spreading out. To the south rise the walls of the ivory castle.
 You can go north, east, southeast and southwest.
 
 Teleri comes in.
+
+> x mountains
+The mountains rise high and steep to the west.
+
+Teleri says "Let us hurry".
+
+> x plain
+A wide plain of grass.
+
+> x forest
+The forest is far away, beyond the plain.
+
+> x castle
+The walls of the ivory castle rise to the south.
 
 > n
 At the Foot of Formenas
@@ -253,8 +276,40 @@ You can see a berry bush and a branch here.
 
 Teleri comes in.
 
+> x forest
+A dense, dark forest spreads out to the north.
+
+> x grass
+The grass billows like a sea to the south.
+
 > take branch
 Taken.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+> eat berries
+You eat some of the berries.
+
+Teleri says "Let us hurry".
 
 > s
 By the Mountain
@@ -271,7 +326,19 @@ You are in a narrow pass winding between the high mountain sides. Above you a
 crevice opens in the rock face.
 You can go west, northeast and up.
 
+> x pass
+The pass winds between the mountain sides.
+
 Teleri comes in.
+
+> x mountain sides
+The mountain sides rise high above you.
+
+> x crevice
+A dark crevice in the rock face above you.
+
+> x rock face
+The rock face is steep and bare.
 
 > u
 Darkness
@@ -286,13 +353,22 @@ You can go down.
 
 You can see a axe here.
 
-> take axe
-Taken.
+> x cave
+A small chamber in the rock.
 
 Teleri comes in.
 
+> take axe
+Taken.
+
+Here comes a elf. The elf is carrying a machete.
+
 > extinguish branch
 You put out the branch.
+
+The elf leaves.
+
+Teleri says "Let us hurry".
 
 It is now pitch dark in here.
 
@@ -312,9 +388,141 @@ crowns that glitter like gold, and an almost reverent feeling of age and mystery
 sweeps over you. You turn your gaze west and look out over a barren desert.
 You can go north, east, west and northeast.
 
-Here comes a elf. The elf is carrying a gauntlet.
+> x hill
+A low hill below the pass.
+
+Here comes a elf. The elf is carrying a sling.
 
 Teleri comes in.
+
+> x pass
+The pass lies to the east.
+
+The elf leaves.
+
+> x forest
+The forest spreads out to the north east.
+
+> x crowns
+The crowns of the trees glitter like gold.
+
+Here comes a elf. The elf is carrying a gauntlet.
+
+> x desert
+A barren desert stretches out to the west.
+
+Teleri says "Let us hurry".
+
+> n
+Forest
+The forest is dense and ancient here. You almost get the feeling that the forest
+has a soul of its own, and watches every visitor with suspicion.
+You can go south and east.
+
+Teleri comes in.
+
+> x forest
+The forest is old and dense. You feel watched.
+
+Here comes a elf. The elf is carrying a gauntlet.
+
+> s
+Hill
+You are standing on a low hill below the pass, looking out over a great forest
+that spreads out to the north east. The forest offers a remarkable sight, with
+crowns that glitter like gold, and an almost reverent feeling of age and mystery
+sweeps over you. You turn your gaze west and look out over a barren desert.
+You can go north, east, west and northeast.
+
+> w
+Desert
+You are on the eastern edge of an enormous desert. The rays of the sun burn
+mercilessly on everything and everyone. Where forest and shade ought to have
+been you see nothing at all! Only the desert surrounds you.
+You can go north, south, east and west.
+
+You can see a cactus here.
+
+Teleri comes in.
+
+The heat is unbearable.
+
+> x desert
+Sand, as far as the eye can see.
+
+Teleri says "Let us hurry".
+
+The heat is unbearable.
+
+> x sun
+The sun burns down on you without mercy.
+
+The heat is unbearable.
+
+> w
+Desert
+A hot desert wind sweeps past you. All you can see is sand... hot white sand.
+You can go north, south, east and west.
+
+Teleri comes in.
+
+The heat is unbearable.
+
+> x sand
+Hot white sand, as far as the eye can see.
+
+Teleri says "Let us hurry".
+
+The heat is unbearable.
+
+> x wind
+The wind is hot and dry.
+
+The heat is unbearable.
+
+> e
+Desert
+You are on the eastern edge of an enormous desert. The rays of the sun burn
+mercilessly on everything and everyone. Where forest and shade ought to have
+been you see nothing at all! Only the desert surrounds you.
+You can go north, south, east and west.
+
+You can see a cactus here.
+
+Teleri comes in.
+
+The heat is unbearable.
+
+> e
+Hill
+You are standing on a low hill below the pass, looking out over a great forest
+that spreads out to the north east. The forest offers a remarkable sight, with
+crowns that glitter like gold, and an almost reverent feeling of age and mystery
+sweeps over you. You turn your gaze west and look out over a barren desert.
+You can go north, east, west and northeast.
+
+Teleri comes in.
+
+> eat ham
+You eat some of the ham.
+
+Here comes a elf. The elf is carrying a gauntlet.
+
+Teleri says "Let us hurry".
+
+> eat ham
+You eat some of the ham.
+
+The elf leaves.
+
+Teleri says "Let us hurry".
+
+> eat ham
+Now the ham is all gone.
+
+Here comes a elf. The elf is carrying a club.
+
+Teleri says "Let us hurry".
 
 > ne
 Forest
@@ -325,6 +533,21 @@ You can go west, northeast and southwest.
 
 Teleri comes in.
 
+> x forest
+The forest smells sweet.
+
+Here comes a elf. The elf is carrying a club.
+
+Teleri says "Let us hurry".
+
+> x desert
+You glimpse the desert between the trunks to the west.
+
+> x path
+The path is faint, but you can follow it north east.
+
+The elf leaves.
+
 > ne
 Glade
 You are standing in a glade on the border between mountain and forest. To the
@@ -332,7 +555,24 @@ north east you see an opening leading into the mountain. To the south rises the
 beautiful glittering forest.
 You can go northeast and southwest.
 
+Here comes a elf. The elf is carrying a club.
+
 Teleri comes in.
+
+> x glade
+An open glade between mountain and forest.
+
+The elf leaves.
+
+> x opening
+The opening leads north east into the mountain.
+
+Here comes a elf. The elf is carrying a sling.
+
+> x forest
+The glittering forest rises to the south.
+
+The elf leaves.
 
 > ne
 Mountain Hall
@@ -341,6 +581,16 @@ gate you came by and an enormous gate to the east.
 You can go east and southwest.
 
 Teleri comes in.
+
+> x hall
+The hall is hewn out of the solid rock.
+
+Teleri says "Let us hurry".
+
+> x gate
+One gate leads back south west, the way you came. An enormous gate leads east.
+
+Teleri says "Let us hurry".
 
 > e
 Laboratory
@@ -359,6 +609,17 @@ Allvis the dwarf and I shall help you. Teleri, one of my pupils, will lend you
 his aid."
 
 [The score has just gone up by 10 points.]
+
+> x cabinets
+The cabinets are locked, and full of bottles.
+
+> x stone table
+The table has been hewn out of the rock.
+
+Teleri says "Let us hurry".
+
+> x ravine
+You can see the ravine through the doorway to the north east.
 
 > w
 Mountain Hall
@@ -383,10 +644,6 @@ You are standing in a beautiful, sweet smelling forest. To the west, between
 straight tree trunks, you glimpse a barren sandy desert. A faintly marked path
 leads north east.
 You can go west, northeast and southwest.
-
-Here comes a elf. The elf is carrying a gauntlet.
-
-Teleri comes in.
 
 > sw
 Hill
@@ -421,8 +678,6 @@ You are standing in the middle of a sea of tall grass. To the north great dark
 trunks rise up.
 You can go north, south, east and west.
 
-Teleri comes in.
-
 > e
 Grassland
 You are standing in tall dry grass. A dense forest surrounds you to the north
@@ -432,7 +687,72 @@ You can go north, south, east and west.
 
 Teleri comes in.
 
+> x grass
+The grass is tall and dry.
+
+Teleri says "Let us hurry".
+
+> x forest
+A dense forest surrounds you to the north and east.
+
+> x path
+The path loses itself among the trees.
+
+> x shadows
+It is hard to see far under the trees.
+
+> x plain
+The plain continues west.
+
+> x towers
+Far to the south west stand the towers of the ivory castle.
+
 > e
+Forest
+You are in the middle of a dim forest. A path leads west between a couple of
+trunks. In the distance you can hear gulls crying.
+You can go north, south, east and west.
+
+Teleri comes in.
+
+> x forest
+It is dim under the trees.
+
+Teleri says "Let us hurry".
+
+> x path
+The path leads west.
+
+Teleri says "Let us hurry".
+
+> x gulls
+You can hear the gulls, but you cannot see them.
+
+> s
+Rocky Shore
+You are standing on a rocky shore. Around you grow low windswept pines. A dark
+dense forest lies to the north. To the west a plain spreads out.
+You can go north, west and northeast.
+
+Teleri comes in.
+
+> x shore
+The shore is rocky and bare.
+
+Teleri says "Let us hurry".
+
+> x pines
+The pines are low and bent by the wind.
+
+Teleri says "Let us hurry".
+
+> x forest
+A dark forest lies to the north.
+
+> x plain
+A plain spreads out to the west.
+
+> n
 Forest
 You are in the middle of a dim forest. A path leads west between a couple of
 trunks. In the distance you can hear gulls crying.
@@ -446,7 +766,134 @@ You can go north, west and northwest.
 
 Teleri comes in.
 
+> x forest
+Forest surrounds you to the north and west.
+
+Teleri says "Let us hurry".
+
 > n
+River Bank
+You are standing on the bank where the river is at its narrowest. The reeds here
+are as tall as a man, and on a small point of land stands an old tree. Across
+the shimmering green water you see a similar bank and high black jagged
+mountains.
+You can go north, south and west.
+
+> x reeds
+The reeds are as tall as a man.
+
+> x point
+The old tree stands on a small point of land.
+
+> x bank
+Across the water you see a bank much like this one.
+
+> x mountains
+High, black and jagged mountains rise beyond the river.
+
+> n
+River Bank
+You are standing on the bank of the river. A small boat lies moored among the
+reeds. Straight across the river, to the north east, you see a way into a great
+black mountain.
+You can go north, south and west.
+
+> x reeds
+Tall reeds grow along the bank.
+
+> x bank
+The bank runs north and south along the river.
+
+> x mountain
+Across the river you can see a way into the mountain.
+
+> n
+Sparse Forest
+You are standing in sparse forest now. To the east of you a river runs, and to
+the south the forest continues. To the north high mountains rise. To the west
+stands a tall cliff which does not look too steep.
+You can go south, west and southwest.
+
+Teleri comes in.
+
+> x forest
+The trees grow sparse here.
+
+Teleri says "Let us hurry".
+
+> x mountains
+High mountains rise to the north.
+
+> x cliff
+The cliff to the west does not look too steep.
+
+Teleri says "Let us hurry".
+
+> w
+Cliff
+From up here on the cliff top you have a wonderful view. To the south, far
+beyond forest and plain, you can make out an ivory castle against the azure sea.
+To the east beyond the river lies a great mountain massif. You can see snow
+covered peaks sticking up here and there. With a roar the river throws itself
+down into a deep ravine to the north. To the west below you, you see a black
+castle.
+You can go east.
+
+Teleri comes in.
+
+> x castle
+The black castle lies below you to the west. Far to the south the ivory castle
+stands against the sea.
+
+Teleri says "Let us hurry".
+
+> x sea
+The sea lies far to the south.
+
+> x peaks
+Beyond the river lies a great mountain massif with snow covered peaks.
+
+> x plain
+Forest and plain lie spread out to the south.
+
+> x river
+With a roar the river throws itself down into the ravine to the north.
+
+> x ravine
+The river plunges down into the deep ravine.
+
+> e
+Sparse Forest
+You are standing in sparse forest now. To the east of you a river runs, and to
+the south the forest continues. To the north high mountains rise. To the west
+stands a tall cliff which does not look too steep.
+You can go south, west and southwest.
+
+Teleri comes in.
+
+> sw
+Forest
+You have come into a very dense part of the forest.
+You can go south, east, west and northeast.
+
+Teleri comes in.
+
+> x forest
+The forest is very dense here.
+
+Teleri says "Let us hurry".
+
+> s
+Forest
+You are standing in the middle of the darkest forest.
+You can go north, east and west.
+
+Teleri comes in.
+
+> x forest
+It is very dark here among the trees.
+
+> e
 River Bank
 You are standing on the bank where the river is at its narrowest. The reeds here
 are as tall as a man, and on a small point of land stands an old tree. Across
@@ -469,6 +916,12 @@ eastern bank of the river and can follow it north and south. A rotten tree lies
 across the river.
 You can go north, south and west.
 
+> x tree
+The rotten tree lies like a bridge across the river.
+
+> x bank
+You are on the eastern bank of the river.
+
 > s
 Shore
 You look out over the sea from the shore you are standing on. To the east the
@@ -477,6 +930,9 @@ sea.
 You can go north.
 
 A rope lies almost hidden in the sand.
+
+> x shore
+The shore looks out over the sea.
 
 > take rope
 Taken.
@@ -494,12 +950,18 @@ You are standing on a sandy beach running north and south. The beach is bounded
 to the east by mountains and to the west by the river.
 You can go north and south.
 
+> x beach
+The beach runs north and south.
+
 > n
 Shore
 You are standing on a narrow strip of shore wedged between the river to the west
 and a rock wall to the east. In the rock wall you see an artfully hewn gate
 leading into the darkness of the mountain. The shore continues south.
 You can go south and east.
+
+> x shore
+The shore continues south between the river and the rock wall.
 
 > e
 Cave Mouth
@@ -508,10 +970,19 @@ through the open gate. It continues eastwards, but it is too dark to see how
 large it is.
 You can go east and west.
 
+Here comes a dwarf. The dwarf is carrying a sling.
+
+> x cave
+The cave continues east into the darkness.
+
+The dwarf attacks!
+
+The dwarf wounds you with the sling.
+
+The dwarf leaves.
+
 > burn branch
 You light the branch with a match.
-
-Here comes a dwarf. The dwarf is carrying a sling.
 
 > e
 Bat Cave
@@ -523,13 +994,25 @@ You can go west.
 Some bats hang from the ceiling.
 
 
+> x droppings
+The droppings are old and smell terrible.
+
+Here comes a dwarf. The dwarf is carrying a club.
+
+> x light
+Far away to the west, a faint light filters in.
+
+The dwarf leaves.
+
 > kill bats
 The frightened bats fly off through a hole in the ceiling.
+
+Here comes a dwarf. The dwarf is carrying a gauntlet.
 
 > throw rope at hole
 You have thrown the rope up.
 
-Here comes a dwarf. The dwarf is carrying a sling.
+The dwarf leaves.
 
 [The score has just gone up by 10 points.]
 
@@ -541,20 +1024,62 @@ You can go east and down.
 
 Allvis, the dwarf, steps in. Allvis is carrying a mace.
 
+> x passage
+The passage leads east.
+
+Here comes a dwarf. The dwarf is carrying a sling.
+
+> x hole
+The hole leads down to the cave below.
+
+The dwarf leaves.
+
+> x droppings
+Old bat droppings cover the floor.
+
+Here comes a dwarf. The dwarf is carrying a gauntlet.
+
+Allvis leaves.
+
 > e
 Mountain Hall
 In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
 
-Here comes a dwarf. The dwarf is carrying a sling.
+Here comes a dwarf. The dwarf is carrying a gauntlet.
+
+Allvis, the dwarf, steps in.
+
+> x hall
+A great hall hewn out of the rock.
+
+The dwarf leaves.
+
+> x stairway
+The stairway leads up.
+
+> x passages
+Two passages lead off, one north and one south.
 
 > up
 Stairway
 You are standing on a landing halfway up the stairs.
 You can go up and down.
 
-Here comes a dwarf. The dwarf is carrying a sling.
+Here comes a dwarf. The dwarf is carrying a machete.
+
+Allvis, the dwarf, steps in.
+
+> x stairs
+The stairs lead up and down.
+
+The dwarf leaves.
+
+Allvis leaves.
+
+> x landing
+A landing halfway up the stairs.
 
 > up
 Window
@@ -566,12 +1091,44 @@ You can go down.
 
 You can see a parchment here.
 
+Here comes a dwarf. The dwarf is carrying a club.
+
+> x window
+Sunlight floods in through the small window.
+
+> x sunlight
+The sunlight is dazzling after the dark.
+
+The dwarf leaves.
+
+Allvis, the dwarf, steps in.
+
+> x landscape
+A fabulous landscape spreads out below you.
+
+> x peaks
+The wild peaks of Formenas stand against the horizon.
+
 Here comes a dwarf. The dwarf is carrying a sling.
 
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
+Allvis leaves.
+
+> x forest
+The forest lies between the two castles.
+
+The dwarf leaves.
+
+> x castles
+The ivory castle and the black castle stand on either side of the forest.
+
+Here comes a dwarf. The dwarf is carrying a gauntlet.
 
 > take parchment
 Taken.
+
+The dwarf leaves.
+
+Allvis, the dwarf, steps in.
 
 [The score has just gone up by 5 points.]
 
@@ -580,16 +1137,29 @@ Stairway
 You are standing on a landing halfway up the stairs.
 You can go up and down.
 
+Here comes a dwarf. The dwarf is carrying a gauntlet.
+
+Allvis, the dwarf, steps in.
+
 > down
 Mountain Hall
 In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
 
+Here comes a dwarf. The dwarf is carrying a gauntlet.
+
 > s
 Throne Room
 In the torchlight you see a beautiful throne adorned with precious stones.
 You can go north and east.
+
+Here comes a dwarf. The dwarf is carrying a gauntlet.
+
+> x throne
+The throne is adorned with precious stones.
+
+Allvis, the dwarf, steps in.
 
 > e
 Treasure Room
@@ -599,16 +1169,10 @@ You can go west.
 
 You can see a herb here.
 
-Here comes a dwarf. The dwarf is carrying a sling.
-
-Allvis, the dwarf, steps in. Allvis is carrying a mace.
+Allvis, the dwarf, steps in.
 
 > take herb
 Taken.
-
-The dwarf leaves.
-
-Allvis leaves.
 
 [The score has just gone up by 5 points.]
 
@@ -617,11 +1181,19 @@ Throne Room
 In the torchlight you see a beautiful throne adorned with precious stones.
 You can go north and east.
 
+The dwarf is here. The dwarf is carrying a gauntlet.
+
+The dwarf leaves.
+
+Allvis, the dwarf, steps in.
+
 > n
 Mountain Hall
 In the light of your torch you see that you have come into a great mountain
 hall. A stairway leads up, and two passages lead south and north.
 You can go north, south, west and up.
+
+Here comes a dwarf. The dwarf is carrying a mace.
 
 > n
 Dead End
@@ -629,9 +1201,12 @@ You are in a dead end in the mountain. To the south is a way out, and to the
 west the passage ends in a curtain of water.
 You can go south and west.
 
-Here comes a dwarf. The dwarf is carrying a club.
-
 Allvis, the dwarf, steps in.
+
+> x passage
+The passage ends in a curtain of water to the west.
+
+Here comes a dwarf. The dwarf is carrying a mace.
 
 > w
 You walk through the waterfall and come to...
@@ -644,6 +1219,14 @@ You can see a jewel here.
 
 Teleri comes in.
 
+> x footprints
+The footprints were made by dwarves, not long ago.
+
+> x damp ground
+The ground is damp from the spray.
+
+Teleri says "Let us hurry".
+
 > w
 Ravine
 You are at the bottom of a deep ravine. Smooth rock walls that look unclimbable
@@ -653,12 +1236,33 @@ You can go east and northwest.
 
 Teleri comes in.
 
+> x ravine
+The ravine is deep, with smooth rock walls.
+
+> x walls
+The walls are smooth and look impossible to climb.
+
+> x sound
+The roaring comes from the east.
+
+Teleri says "Let us hurry".
+
 > nw
 Ravine
 You are in the deep ravine.
 You can go southeast and southwest.
 
 Teleri comes in.
+
+> x ravine
+The ravine is deep, with smooth rock walls.
+
+Teleri says "Let us hurry".
+
+> x walls
+The rock walls are smooth and steep.
+
+Teleri says "Let us hurry".
 
 > sw
 Ravine
@@ -667,6 +1271,12 @@ You can go south and northeast.
 
 Teleri comes in.
 
+> x ravine
+The ravine is deep, with smooth rock walls.
+
+> x walls
+The rock walls are smooth and steep.
+
 > s
 End of the Ravine
 You are at the end of the ravine. There is an open gate in the south western
@@ -674,6 +1284,12 @@ rock face.
 You can go north and southwest.
 
 Teleri comes in.
+
+> x ravine
+The ravine ends here.
+
+> x rock face
+The gate is set into the rock face.
 
 > sw
 Laboratory
@@ -717,6 +1333,8 @@ Ravine
 You are still in a deep ravine.
 You can go south and northeast.
 
+Teleri comes in.
+
 > ne
 Ravine
 You are in the deep ravine.
@@ -732,7 +1350,16 @@ Passage
 You are in a dark and narrow passage.
 You can go north and south.
 
+Here comes a guard. The guard is carrying a machete.
+
 Teleri comes in.
+
+> x passage
+The passage runs north and south.
+
+The guard leaves.
+
+Teleri says "Let us hurry".
 
 > s
 Cellar
@@ -740,7 +1367,17 @@ Now you have come to a damp cellar. The great room is quite deserted. You can
 make out a rotten wooden stair leading up.
 You can go north and up.
 
+> x cellar
+The cellar is damp and deserted.
+
+Here comes a guard. The guard is carrying a machete.
+
 Teleri comes in.
+
+> x stair
+The wooden stair looks rotten, but it leads up.
+
+The guard leaves.
 
 > up
 Courtyard
@@ -749,7 +1386,21 @@ up and down. There are gates to the east and west. The castle gate is to the
 south.
 You can go south, east, west, up and down.
 
+> x courtyard
+The courtyard is surrounded by black buildings.
+
 Teleri comes in.
+
+> x buildings
+Black buildings surround the courtyard.
+
+> x stairs
+Stairs lead up and down.
+
+> x gates
+There are gates to the east and west, and the castle gate to the south.
+
+Here comes a guard. The guard is carrying a gauntlet.
 
 > up
 Knights' Hall
@@ -758,17 +1409,32 @@ table with thirteen chairs. To the east is a gate, and against the west wall
 stands a great sideboard. Stairs lead up and down.
 You can go east, up and down.
 
-Here comes a guard. The guard is carrying a mace.
+Here comes a guard. The guard is carrying a gauntlet.
 
 Teleri comes in.
 
-> push sideboard
-On the wall where the sideboard stood you see a low hole that you can walk
-through.
+> x chairs
+Thirteen chairs stand around the oval table.
 
 The guard attacks!
 
 You wound the guard with the axe.
+
+The guard looks very tired.
+
+The guard leaves.
+
+> x gate
+The gate leads east.
+
+> x stairs
+Stairs lead up and down.
+
+Here comes a guard. The guard is carrying a gauntlet.
+
+> push sideboard
+On the wall where the sideboard stood you see a low hole that you can walk
+through.
 
 The guard leaves.
 
@@ -784,9 +1450,10 @@ You can go east.
 
 You can see a broad sword here.
 
-Here comes a guard. The guard is carrying a sling.
-
 Teleri comes in.
+
+> x armour
+Most of the armour and weapons are broken or rusted through.
 
 > take broadsword
 Taken.
@@ -798,6 +1465,8 @@ table with thirteen chairs. To the east is a gate, and against the west wall
 stands a great sideboard. Stairs lead up and down.
 You can go east, west, up and down.
 
+Here comes a guard. The guard is carrying a sling.
+
 Teleri comes in.
 
 > up
@@ -807,6 +1476,15 @@ through it you see a black tail of enormous size sticking out.
 You can go southwest and down.
 
 Teleri comes in.
+
+> x gate
+The gate leads out to the south west.
+
+> x tail
+An enormous black tail sticks out through the gate.
+
+> x stairs
+The stairs lead down.
 
 > sw
 Balustrade
@@ -834,8 +1512,6 @@ Nothing happens.
 Teleri reads "hakuee ptr'uio nasc!". The dragon starts back and its fire goes
 out.
 
-Teleri says "Let us hurry".
-
 > z
 Nothing happens.
 
@@ -844,10 +1520,18 @@ Teleri says "Let us hurry".
 > teleri, read parchment
 Teleri reads "hakuee ptr'uio nasc!".
 
+> kill dragon
+You wound the dragon with the broad sword.
+
+> kill dragon
+You wound the dragon with the broad sword.
+
 Teleri says "Let us hurry".
 
 > kill dragon
 You wound the dragon with the broad sword.
+
+The dragon looks very tired.
 
 > kill dragon
 You wound the dragon with the broad sword.
@@ -861,6 +1545,23 @@ The dragon is dead already.
 
 > kill dragon
 The dragon is dead already.
+
+Teleri says "Let us hurry".
+
+> x balustrade
+The balustrade runs along the top of the castle.
+
+> x soot
+Soot covers the walls and the floor.
+
+> x forest
+The forest spreads out below the castle.
+
+> x stairway
+The stairway leads down to the north east.
+
+> x gate
+A great gate leads east.
 
 > e
 Throne Room
@@ -877,17 +1578,9 @@ Draupner attacks!
 
 You wound Draupner with the broad sword.
 
-Draupner looks very tired.
-
 Teleri comes in.
 
 > kill draupner
-You wound Draupner with the broad sword.
-
-Draupner looks very tired.
-
-Draupner attacks!
-
 You wound Draupner with the broad sword.
 
 Draupner dies.
@@ -897,12 +1590,26 @@ Teleri says "Let us hurry".
 > kill draupner
 Draupner is dead already.
 
+Teleri says "Let us hurry".
+
+> kill draupner
+Draupner is dead already.
+
+> kill draupner
+Draupner is dead already.
+
 > take diamond
 Taken.
 
-Teleri says "Let us hurry".
-
 [The score has just gone up by 10 points.]
+
+> x throne
+The throne is set with jewels that sparkle in the sunlight.
+
+> x windows
+Sunbeams stream in through the tall windows.
+
+Teleri says "Let us hurry".
 
 > w
 Balustrade
@@ -931,6 +1638,30 @@ table with thirteen chairs. To the east is a gate, and against the west wall
 stands a great sideboard. Stairs lead up and down.
 You can go east, west, up and down.
 
+The guard is here. The guard is carrying a sling.
+
+Teleri comes in.
+
+> e
+Gallery
+You pace up and down in a gallery. The only thing worth noting here is the
+beautiful ceiling paintings, which portray a knight's battle with a dragon.
+You can go west.
+
+Teleri comes in.
+
+> x paintings
+The paintings show a knight fighting a dragon.
+
+Here comes a guard. The guard is carrying a sling.
+
+> w
+Knights' Hall
+You are in Draupner's knights' hall. In the middle of the room stands an oval
+table with thirteen chairs. To the east is a gate, and against the west wall
+stands a great sideboard. Stairs lead up and down.
+You can go east, west, up and down.
+
 Here comes a guard. The guard is carrying a sling.
 
 Teleri comes in.
@@ -946,6 +1677,76 @@ Here comes a guard. The guard is carrying a sling.
 
 Teleri comes in.
 
+> w
+Dungeon
+You have come into a dark dungeon. The smell of rotting meat hits you. Behind
+the barred gates of the cells you see skeletons chained to the walls. You can
+also hear rats squeaking. The only way out of here is through the gate to the
+east.
+You can go east.
+
+Here comes a guard. The guard is carrying a sling.
+
+Teleri comes in.
+
+> x cells
+The cells are locked behind barred gates.
+
+The guard leaves.
+
+> x gate
+The gate leads east, back to the courtyard.
+
+Teleri says "Let us hurry".
+
+> x skeletons
+The skeletons hang in chains from the walls.
+
+Here comes a guard. The guard is carrying a sling.
+
+> x rats
+You can hear the rats, but you cannot see them.
+
+The guard leaves.
+
+> e
+Courtyard
+You are standing in a courtyard surrounded by black buildings. Stairs lead both
+up and down. There are gates to the east and west. The castle gate is to the
+south.
+You can go south, east, west, up and down.
+
+Here comes a guard. The guard is carrying a sling.
+
+Teleri comes in.
+
+> e
+Kitchen
+Smoke from the great open hearth hits you as you walk into the kitchen. A beer
+barrel dominates the little room, which is deserted and slightly decayed.
+You can go west.
+
+Teleri comes in.
+
+> x hearth
+Smoke rises from the great open hearth.
+
+Here comes a guard. The guard is carrying a sling.
+
+> x smoke
+The smoke stings your eyes.
+
+The guard leaves.
+
+> w
+Courtyard
+You are standing in a courtyard surrounded by black buildings. Stairs lead both
+up and down. There are gates to the east and west. The castle gate is to the
+south.
+You can go south, east, west, up and down.
+
+Teleri comes in.
+
 > s
 Before the Castle
 You are standing before a castle from whose tower a banner flies. A black device
@@ -953,7 +1754,109 @@ on the banner shows a stylised black dragon. The gate in the wall stands open.
 Through it you can see a large abandoned courtyard.
 You can go north and south.
 
+> x castle
+The castle is built of black stone.
+
+> x tower
+A banner flies from the tower.
+
+> x banner
+The banner shows a stylised black dragon.
+
+> x gate
+The gate stands open. Through it you can see a courtyard.
+
+> x wall
+The wall runs around the castle.
+
+> x courtyard
+The courtyard looks abandoned.
+
 > s
+Forest Edge
+You are at the edge of the forest. Far beyond a plain to the north rises an
+ominous dark castle. East of it you see a high cliff. Dense forest surrounds you
+on every other side.
+You can go north, south, east and west.
+
+You can see a apple here.
+
+Teleri comes in.
+
+> x plain
+The plain stretches north towards the castle.
+
+> x castle
+The castle looks dark and ominous, even from here.
+
+> x cliff
+A high cliff rises to the east of the castle.
+
+> x forest
+Dense forest surrounds you on every other side.
+
+Teleri says "Let us hurry".
+
+> w
+Glade
+You come out into a glade in the forest. To the west lies a small hut of
+brushwood. Human bones lie scattered outside it. To the east a path leads on
+into the forest.
+You can go east and west.
+
+Teleri comes in.
+
+> x glade
+A small glade in the forest.
+
+Teleri says "Let us hurry".
+
+> x hut
+A small, shabby hut made of brushwood.
+
+> x bones
+The bones lie scattered outside the hut.
+
+> x path
+The path leads east into the forest.
+
+> x forest
+The forest is dark and dense around the glade.
+
+> w
+Brushwood Hut
+You are in a shabby hut of brushwood. On a fire stands a cauldron holding some
+kind of soup. On the floor lie what are plainly the remains of the ingredients
+(assorted torn up dwarf, human and elf bodies).
+You can go east.
+
+You can see a soup here.
+
+Teleri comes in.
+
+> x hut
+The hut is made of brushwood.
+
+> x fire
+A small fire burns under the cauldron.
+
+> x remains
+You would rather not look too closely.
+
+Teleri says "Let us hurry".
+
+> e
+Glade
+You come out into a glade in the forest. To the west lies a small hut of
+brushwood. Human bones lie scattered outside it. To the east a path leads on
+into the forest.
+You can go east and west.
+
+Teleri comes in.
+
+The branch has burnt out.
+
+> e
 Forest Edge
 You are at the edge of the forest. Far beyond a plain to the north rises an
 ominous dark castle. East of it you see a high cliff. Dense forest surrounds you
@@ -969,6 +1872,36 @@ Forest
 You are on the edge of the forest. To the north the forest thickens again. Heavy
 undergrowth covers the ground.
 You can go north, south, east and west.
+
+Teleri comes in.
+
+> x forest
+The forest thickens to the north.
+
+> x undergrowth
+The undergrowth covers the ground between the trees.
+
+> w
+Forest
+You are on the edge of a dim forest. You can glimpse the yellow grass of the
+plain to the west. The forest thickens to the north.
+You can go south, east and west.
+
+Teleri comes in.
+
+> x forest
+The forest thickens to the north.
+
+> x plain
+The yellow grass of the plain lies to the west.
+
+> e
+Forest
+You are on the edge of the forest. To the north the forest thickens again. Heavy
+undergrowth covers the ground.
+You can go north, south, east and west.
+
+Teleri comes in.
 
 > s
 Grassland
@@ -988,6 +1921,18 @@ You can go north, east and west.
 
 Teleri comes in.
 
+> x plain
+A wide, open plain.
+
+> x grass
+The grass bends in the breeze.
+
+> x breeze
+A fresh breeze blows in from the sea.
+
+> x forest
+Dense forest lies to the east and north.
+
 > w
 Harbour
 You are in a large harbour. It looks abandoned. A clear path leads west.
@@ -1004,8 +1949,8 @@ Teleri takes his leave and says "I go to the wizard. Take care of yourself".
 
   *** You have won ***
 
-In that game you scored 100 out of a possible 100, in 110 turns, and you have
-800 strength points. That makes you a hero.
+In that game you scored 100 out of a possible 100, in 331 turns, and you have
+700 strength points. That makes you a hero.
 
 Would you like to RESTART, RESTORE, UNDO the last move, see some suggestions for
 AMUSING things to do or QUIT? quit
