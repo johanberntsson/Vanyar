@@ -5,6 +5,10 @@ When an ancient diamond falls into the hands of a rebellious lord and his dragon
 ![Vanyar picture mode](https://github.com/johanberntsson/Vanyar/blob/main/screenshots/vanyar-firstroom.png?raw=true) 
 ![Vanyar map mode](https://github.com/johanberntsson/Vanyar/blob/main/screenshots/vanyar-map.png?raw=true) 
 
+## I just want to play the game!
+
+Download precompiled binaries on my itch page: [https://johanberntsson.itch.io/vanyar](https://johanberntsson.itch.io/vanyar)
+
 ## Building the text only version (z5)
 
 Wyrmwatd is a PunyInform game and requires the PunyInform library, and the Inform 6 compiler.
