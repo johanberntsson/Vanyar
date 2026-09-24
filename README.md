@@ -29,7 +29,7 @@ To test the new file you can use frotz with "frotz vanyar.z5" or use Windows Fro
 
 ## Building the graphical version (z6)
 
-You will need Ozmoo to create the asset file for graphics and sound, in addition to the Inform compiler and PunyInform library that we installed for the z5 version. To get Ozmoo, either clone its github archive on [https://github.com/johanberntsson/ozmoo](https://github.com/johanberntsson/ozmoo), or download the assets from latest release.
+You will need Ozmoo to create the asset file for graphics, in addition to the Inform compiler and PunyInform library that we installed for the z5 version. To get Ozmoo, either clone its github archive on [https://github.com/johanberntsson/ozmoo](https://github.com/johanberntsson/ozmoo), or download the assets from latest release.
 
 To use Ozmoo some additional software is needed; the ACME cross assembler, the Exomizer file compression program, Ruby and Python. For more instructions, refer to Ozmoo's README and manual.
 
@@ -44,9 +44,9 @@ It's also possible to create these files manually
 
 Since we already have Ozmoo installed we can create graphical versions for MEGA65 and X16. There are already targets for this: "make mega65" and "make x16". If the MEGA65 and X16 emulators are installed, then the game will be launched automatically.
 
-## How to change or add resources (graphics and sound)
+## How to change or add resources (graphics)
 
-The resources folder contains graphics (png files), sounds (wav files) and a index file called contents.yaml. The make_blorb.py script will read the configuration file and create a blorb file as defined by the contents. The png files are just normal png files, but make_blorb.py will convert these to indexed png files with a 16 colour palette, adjusting colours if needed. Because of this, the resulting picture may look slightly different from the original files. In addition, they will be scaled to fit the 320x200 standard size of the Ozmoo z6 screen model, and may be cropped further by adding optional max height and width parameters.
+The resources folder contains graphics (png files) and a index file called contents.yaml. The make_blorb.py script will read the configuration file and create a blorb file as defined by the contents. The png files are just normal png files, but make_blorb.py will convert these to indexed png files with a 16 colour palette, adjusting colours if needed. Because of this, the resulting picture may look slightly different from the original files. In addition, they will be scaled to fit the 320x200 standard size of the Ozmoo z6 screen model, and may be cropped further by adding optional max height and width parameters.
 
 The config file consists of these fields: blorb, outdir, pictures[]. Each picture needs two fields; id, file (filename), and can also have these optional fields; name, height, width, location.
 
