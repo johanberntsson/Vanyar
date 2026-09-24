@@ -33,6 +33,11 @@
 
 Constant Story    "Vanyar";
 Constant Headline "^(c) 2026 Johan Berntsson.^";
+Release 1;      
+Serial "260924";
+
+Array UUID_ARRAY string "UUID://234287B8-6308-4727-AC8F-E7C54406F0B7//";
+#Ifdef UUID_ARRAY;#Endif;
 
 Constant STATUSLINE_SCORE; Statusline score;
 
