@@ -3,6 +3,8 @@
 !% $ZCODE_LESS_DICT_DATA=1
 !% $LONG_DICT_FLAG_BUG=0
 !% $ZCODE_COMPACT_GLOBALS=1
+!% $MAX_ABBREVS=96
+!% $TRANSCRIPT_FORMAT=1
 !
 ! Vanyar
 !
@@ -30,6 +32,103 @@
 !         library (with the Swedish language pack) to PunyInform. The
 !         text follows the 2003 Swedish version closely rather than
 !         expanding on it.
+
+Constant CUSTOM_ABBREVIATIONS;
+
+Abbreviate "t is probably best to leave the wizard's things alone";
+Abbreviate "says, ~I do not kill to order.~";
+Abbreviate "veral tons of stone stop you.";
+Abbreviate "igh mountain sides stop you";
+Abbreviate "solid rock wall stops you.";
+Abbreviate "e in that direction.";
+Abbreviate "ike a bridge acros";
+Abbreviate "You are standing ";
+Abbreviate " is covered with ";
+Abbreviate " spreads out";
+Abbreviate " is far too ";
+Abbreviate "The only way";
+Abbreviate "n enormous ";
+Abbreviate "You can't ";
+Abbreviate " into the ";
+Abbreviate "attlements";
+Abbreviate " the river";
+Abbreviate " you can ";
+Abbreviate ". To the ";
+Abbreviate "There is ";
+Abbreviate "rock wall";
+Abbreviate "courtyard";
+Abbreviate " of the ";
+Abbreviate " to the ";
+Abbreviate "mountain";
+Abbreviate " in the ";
+Abbreviate " through";
+Abbreviate "Draupner";
+Abbreviate "You are ";
+Abbreviate "Angrist";
+Abbreviate "great ";
+Abbreviate "dragon";
+Abbreviate " again";
+Abbreviate "forest";
+Abbreviate " with ";
+Abbreviate " that ";
+Abbreviate "would ";
+Abbreviate "black ";
+Abbreviate "castle";
+Abbreviate "lready";
+Abbreviate "south";
+Abbreviate " lead";
+Abbreviate " the ";
+Abbreviate " you ";
+Abbreviate "water";
+Abbreviate " are ";
+Abbreviate " look";
+Abbreviate "north";
+Abbreviate "plain";
+Abbreviate " and ";
+Abbreviate "thing";
+Abbreviate ", but";
+Abbreviate ", and";
+Abbreviate " from";
+Abbreviate " some";
+Abbreviate "have ";
+Abbreviate " down";
+Abbreviate "round";
+Abbreviate " lies";
+Abbreviate "west";
+Abbreviate " to ";
+Abbreviate " of ";
+Abbreviate "open";
+Abbreviate "way.";
+Abbreviate "n't ";
+Abbreviate "ing ";
+Abbreviate " is ";
+Abbreviate " you";
+Abbreviate "You ";
+Abbreviate "The ";
+Abbreviate "his ";
+Abbreviate "here";
+Abbreviate "gate";
+Abbreviate "east";
+Abbreviate "see ";
+Abbreviate " out";
+Abbreviate "tion";
+Abbreviate "ight";
+Abbreviate " a ";
+Abbreviate "ed ";
+Abbreviate "ore";
+Abbreviate "all";
+Abbreviate "es ";
+Abbreviate "and";
+Abbreviate "avi";
+Abbreviate " be";
+Abbreviate "ed.";
+Abbreviate "ing";
+Abbreviate "s.";
+Abbreviate ", ";
+Abbreviate "e.";
+Abbreviate ".^";
+Abbreviate ". ";
+Abbreviate "A ";
 
 Constant Story    "Vanyar";
 Constant Headline "^(c) 2026 Johan Berntsson.^";

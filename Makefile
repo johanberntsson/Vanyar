@@ -33,10 +33,10 @@ z5-debug:
 	$(INFORM) +$(PUNY)/lib -v5 -es -D vanyar.inf
 
 z5-release:
-	$(INFORM) +$(PUNY)/lib -v5 -es vanyar.inf
+	$(INFORM)  --opt OMIT_SYMBOL_TABLE=1 --define RUNTIME_ERRORS=0 +$(PUNY)/lib -v5 -es vanyar.inf
 
 vanyar.z6: $(STORYSRC) vanyar.blb
-	$(INFORM) +$(PUNY)/lib -v6 -es vanyar.inf
+	$(INFORM) --opt OMIT_SYMBOL_TABLE=1 --define RUNTIME_ERRORS=0  +$(PUNY)/lib -v6 -es vanyar.inf
 
 z6: vanyar.z6
 
