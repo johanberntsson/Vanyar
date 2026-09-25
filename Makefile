@@ -1,21 +1,10 @@
 INFORM = inform
-OZMOO = /home/johan/commodore/ozmoo-z6
+OZMOO = /home/johan/commodore/ozmoo
 PUNY = /home/johan/commodore/punyinform
 
+SFROTZ = sfrotz
 XMEGA65 = xemu-xmega65 -besure
 X16 = /home/johan/commodore/ozmoo/x16-emulator46/x16emu
-# The lines above are the ones in use. SDL_AUDIODRIVER=pulseaudio used to be
-# mandatory -- SDL did not get on with pipewire on Fedora 44/KDE and both
-# emulators came up silent with no error at all -- and a Fedora update fixed it
-# in August 2026. Swap in the lines below if an emulator is ever silent again:
-# that is still the first thing to try, since the failure has no diagnostic.
-#XMEGA65 = SDL_AUDIODRIVER=pulseaudio xemu-xmega65
-#X16 = SDL_AUDIODRIVER=pulseaudio /home/johan/commodore/ozmoo/x16-emulator46/x16emu
-
-# --xscale 2 --yscale 2 is not optional here: sfrotz's screen is
-# always 640x400 and it draws pictures at 1:1 unless it detects
-# that the game is one of ARTHUR/JOURNEY/SHOGUN/ZORK_ZERO
-SFROTZ = sfrotz --xscale 2 --yscale 2 
 
 # make.rb anchors everything it reads to its own directory (asm/, tools/, temp/,
 # exomizer) and writes the finished disk image into the CURRENT directory, so it
@@ -83,8 +72,11 @@ sfrotz: vanyar.z6 vanyar.blb
 	# the blorb has to be named: sfrotz does not pick it up from the story name
 	$(SFROTZ) vanyar.z6 vanyar.blb
 
-release: z5-release
-	frotz -d vanyar.z5
+release: z5-release z6 mega65_vanyar.d81 x16_vanyar.zip
+	$(OZMOOBUILD) -ch vanyar.z6
+	$(OZMOOBUILD) -ch -t:c128 vanyar.z6
+	$(OZMOOBUILD) -ch -t:plus4 vanyar.z6
+	zip release1.zip vanyar.z5 vanyar.z6 vanyar.blb mega65_vanyar.d81 x16_vanyar.zip c64_vanyar.d64 c128_vanyar.d71 plus4_vanyar.d64
 
 clean:
-	rm -rf vanyar.z5 vanyar.z6 vanyar.blb vanyar.scr vanyar.cur pics *.d64 *.d81 x16_vanyar* *qzl
+	rm -rf vanyar.z5 vanyar.z6 vanyar.blb vanyar.scr vanyar.cur pics *.d64 *.d71 *.d81 x16_vanyar* *qzl
